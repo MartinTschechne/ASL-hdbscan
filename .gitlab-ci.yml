@@ -1,0 +1,31 @@
+# use the official gcc image, based on debian
+# can use verions as well, like gcc:5.2
+# see https://hub.docker.com/_/gcc/
+image: gcc
+
+stages:
+   - build
+   - test
+
+build:
+  stage: build
+  script:
+    - apt-get update -y
+    - apt-get install -y git cmake g++ gcovr
+    - git submodule update --init --recursive
+    - mkdir build && cd build
+    - cmake ..
+    - make -j
+    # - cd ..
+  artifacts:
+    paths:
+      - build/
+
+# run tests using the binary built before
+test:
+  stage: test
+  script:
+    - cd build
+    - ./unit_tests
+  dependencies:
+    - build
