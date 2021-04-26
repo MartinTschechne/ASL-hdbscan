@@ -6,3 +6,7 @@ Project work for the course [Advanced Systems Lab](http://www.vvz.ethz.ch/Vorles
 * Beat Hubmann
 * Martin Tschechne
 * Robin Worreby
+
+## Literature
+[Hierarchical Density Estimates for Data Clustering, Visualization, and Outlier Detection](https://dl.acm.org/doi/10.1145/2733381)
+[Accelerated Hierarchical Density Clustering](https://arxiv.org/abs/1705.07321)
