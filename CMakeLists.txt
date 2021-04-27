@@ -7,6 +7,7 @@ include(cmake/GetGTest.cmake)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/src/include
     )
 
 add_library(
@@ -18,6 +19,7 @@ add_executable(
     unit_tests # executable
     tests/main.cpp # dependency
     tests/example_add.cpp # dependency
+    tests/distances/cosine_similarity.cpp 
 )
 
 add_dependencies(unit_tests GTest)
