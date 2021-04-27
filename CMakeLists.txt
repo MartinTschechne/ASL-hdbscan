@@ -7,11 +7,13 @@ include(cmake/GetGTest.cmake)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
-    )
+    ${PROJECT_SOURCE_DIR}/src/include
+)
 
 add_library(
     example
     src/example.cpp
+    src/hdbscan/outlier_score.cpp
     )
 
 add_executable(
