@@ -21,6 +21,11 @@ add_executable(
     tests/main.cpp # dependency
     tests/example_add.cpp # dependency
     tests/hdbscan/constraint.cpp
+    tests/distances/cosine_similarity.cpp 
+    tests/distances/euclidian_distance.cpp 
+    tests/distances/manhattan_distance.cpp 
+    tests/distances/pearson_correlation.cpp 
+    tests/distances/supremum_distance.cpp 
 )
 
 add_dependencies(unit_tests GTest)
