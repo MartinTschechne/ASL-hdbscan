@@ -15,6 +15,7 @@ add_library(
     src/example.cpp
     src/hdbscan/constraint.cpp
     src/hdbscan/outlier_score.cpp
+    src/hdbscan/cluster.cpp
     )
 
 add_executable(
