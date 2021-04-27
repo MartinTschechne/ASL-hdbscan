@@ -20,6 +20,7 @@ add_executable(
     tests/main.cpp # dependency
     tests/example_add.cpp # dependency
     tests/distances/cosine_similarity.cpp 
+    tests/distances/euclidian_distance.cpp 
 )
 
 add_dependencies(unit_tests GTest)

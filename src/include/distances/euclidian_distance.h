@@ -3,10 +3,12 @@
 
 #include <cmath>
 
-inline double CosineSimilarity(double* a, double* b, size_t n) {
+inline double EuclidianDistance(double* a, double* b, size_t n) {
     double distance = 0.0;
+    double diff = 0.0;
     for(size_t i = 0; i < n; ++i) {
-        distance += a[i] * b[i];
+        diff = a[i]-b[i];
+        distance += diff * diff;
     }
 
     return std::sqrt(distance);
