@@ -64,13 +64,13 @@ public:
 
     void AddVirtualChildConstraintsSatisfied(size_t num_constraints);
 
-    void addConstraintsSatisfied(size_t num_constraints);
+    void AddConstraintsSatisfied(size_t num_constraints);
 
     /**
      * @brief Removes all elements from the virtual child cluster, thereby saving memory.  Only call this method after computing the
 	 * number of constraints satisfied by the virtual child cluster.
      */
-    void releaseVirtualChildCluster();
+    void ReleaseVirtualChildCluster();
 
     size_t GetLabel() const;
 

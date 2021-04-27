@@ -97,11 +97,11 @@ void Cluster::AddVirtualChildConstraintsSatisfied(size_t num_constraints) {
     propagated_num_constraints_satisfied_ += num_constraints;
 }
 
-void Cluster::addConstraintsSatisfied(size_t num_constraints) {
+void Cluster::AddConstraintsSatisfied(size_t num_constraints) {
     num_constraints_satisfied_ += num_constraints;
 }
 
-void Cluster::releaseVirtualChildCluster() {
+void Cluster::ReleaseVirtualChildCluster() {
     virtual_child_cluster_.clear();
 }
 
