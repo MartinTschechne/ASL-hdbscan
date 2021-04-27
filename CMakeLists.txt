@@ -7,17 +7,20 @@ include(cmake/GetGTest.cmake)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
-    )
+    ${PROJECT_SOURCE_DIR}/src/include
+)
 
 add_library(
     example
     src/example.cpp
+    src/hdbscan/constraint.cpp
     )
 
 add_executable(
     unit_tests # executable
     tests/main.cpp # dependency
     tests/example_add.cpp # dependency
+    tests/hdbscan/constraint.cpp
 )
 
 add_dependencies(unit_tests GTest)
