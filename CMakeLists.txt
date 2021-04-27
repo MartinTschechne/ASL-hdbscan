@@ -29,6 +29,7 @@ add_executable(
     tests/distances/pearson_correlation.cpp 
     tests/distances/supremum_distance.cpp 
     tests/hdbscan/outlier_score.cpp
+    tests/hdbscan/cluster.cpp
 )
 
 add_dependencies(unit_tests GTest)
