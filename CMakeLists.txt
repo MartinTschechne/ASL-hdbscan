@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(Zombiedice)
+project(TEAM33_HDBSCAN)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -15,6 +15,7 @@ add_library(
     src/example.cpp
     src/hdbscan/constraint.cpp
     src/hdbscan/outlier_score.cpp
+    src/hdbscan/undirected_graph.cpp
     )
 
 add_executable(
@@ -28,6 +29,7 @@ add_executable(
     tests/distances/pearson_correlation.cpp 
     tests/distances/supremum_distance.cpp 
     tests/hdbscan/outlier_score.cpp
+    tests/hdbscan/undirected_graph.cpp
 )
 
 add_dependencies(unit_tests GTest)
