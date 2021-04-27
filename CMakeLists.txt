@@ -14,6 +14,7 @@ add_library(
     example
     src/example.cpp
     src/hdbscan/constraint.cpp
+    src/hdbscan/outlier_score.cpp
     )
 
 add_executable(
@@ -26,6 +27,7 @@ add_executable(
     tests/distances/manhattan_distance.cpp 
     tests/distances/pearson_correlation.cpp 
     tests/distances/supremum_distance.cpp 
+    tests/hdbscan/outlier_score.cpp
 )
 
 add_dependencies(unit_tests GTest)
