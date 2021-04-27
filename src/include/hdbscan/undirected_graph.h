@@ -2,7 +2,6 @@
 #define TEAM33_HDBSCAN_UNDIRECTED_GRAPH_H
 
 #include <cstddef>
-#include <memory>
 
 /**
  * @brief An undirected graph, with weights assigned to each edge. Vertices in
@@ -14,12 +13,8 @@ private:
     size_t* vertices_A_;
     size_t* vertices_B_;
     double* edge_weights_;
-    size_t** edges_;
-    // std::unique_ptr<size_t[]> vertices_A_;
-    // std::unique_ptr<size_t[]> vertices_B_;
-    // std::unique_ptr<double[]> edge_weights_;
-    // std::unique_ptr<std::unique_ptr<size_t[]>[]> edges_;
     size_t edge_weights_length_;
+    size_t** edges_;
     
 public:
     /**
