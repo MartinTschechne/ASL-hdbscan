@@ -20,6 +20,7 @@ add_executable(
     unit_tests # executable
     tests/main.cpp # dependency
     tests/example_add.cpp # dependency
+    tests/hdbscan/outlier_score.cpp
 )
 
 add_dependencies(unit_tests GTest)

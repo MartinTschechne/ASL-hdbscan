@@ -2,7 +2,7 @@
 
 OutlierScore::OutlierScore(double score, double core_distance, size_t id) : 
     score_(score), 
-    core_distance_(core_distance_), 
+    core_distance_(core_distance), 
     id_(id) {}
 
 size_t OutlierScore::GetId() const {
@@ -24,7 +24,6 @@ int OutlierScore::CompareTo(const OutlierScore* const other) const {
     if(this->core_distance_ > other->core_distance_) {
         return 1;
     }
-
     if(this->core_distance_ < other->core_distance_) {
         return -1;
     }
