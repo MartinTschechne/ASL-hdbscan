@@ -32,7 +32,6 @@ add_executable(
     tests/hdbscan/outlier_score.cpp
     tests/hdbscan/undirected_graph.cpp
     tests/hdbscan/cluster.cpp
->>>>>>> CMakeLists.txt
 )
 
 add_dependencies(unit_tests GTest)
