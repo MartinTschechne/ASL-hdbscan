@@ -16,6 +16,7 @@ add_library(
     src/hdbscan/constraint.cpp
     src/hdbscan/outlier_score.cpp
     src/hdbscan/undirected_graph.cpp
+    src/hdbscan/cluster.cpp
     )
 
 add_executable(
@@ -30,6 +31,8 @@ add_executable(
     tests/distances/supremum_distance.cpp 
     tests/hdbscan/outlier_score.cpp
     tests/hdbscan/undirected_graph.cpp
+    tests/hdbscan/cluster.cpp
+>>>>>>> CMakeLists.txt
 )
 
 add_dependencies(unit_tests GTest)
