@@ -148,3 +148,7 @@ size_t Cluster::GetPropagatedNumConstraintsSatisfied() const {
 bool Cluster::HasChildren() const {
     return has_children_;
 }
+
+const std::vector<Cluster*>& Cluster::GetPropagatedDescendants() const {
+    return propagated_descendants_;
+}

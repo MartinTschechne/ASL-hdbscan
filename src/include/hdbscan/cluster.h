@@ -94,8 +94,7 @@ public:
 
     bool HasChildren() const;
 
-    //TODO getPropagatedDescendants
-
-}
+    const std::vector<Cluster*>& GetPropagatedDescendants() const;
+};
 
 #endif
