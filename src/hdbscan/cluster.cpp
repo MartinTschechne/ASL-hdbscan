@@ -24,7 +24,7 @@ Cluster::Cluster(size_t label, Cluster* parent, double birth_level, size_t num_p
 
 
 void Cluster::DetachPoints(size_t num_points, double level) {
-    if(num_points <= this->num_points_) { // I think assert is hidden by some gtest module
+    if(num_points > this->num_points_) { // I think assert is hidden by some gtest module
         throw std::invalid_argument("Number of points to detach cannot be greater than the number of points in the cluster");
     }
     this->num_points_ -= num_points;
