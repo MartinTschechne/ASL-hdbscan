@@ -23,6 +23,7 @@ add_executable(
     tests/distances/euclidian_distance.cpp 
     tests/distances/manhattan_distance.cpp 
     tests/distances/pearson_correlation.cpp 
+    tests/distances/supremum_distance.cpp 
 )
 
 add_dependencies(unit_tests GTest)
