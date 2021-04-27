@@ -1,5 +1,4 @@
 #include <hdbscan/undirected_graph.h>
-#include <cstdio>
 
 UndirectedGraph::UndirectedGraph(size_t num_vertices, 
     size_t* vertices_A, size_t* vertices_B, double* edge_weights,
