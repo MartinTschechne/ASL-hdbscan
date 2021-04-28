@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <distances/distance_calculator.h>
+
 /**
  * @brief Entry point for the HDBSCAN* algorithm.
  */
@@ -66,7 +68,7 @@ class HDBSCANStarParameters {
         size_t min_points;
         size_t min_cluster_size;
         bool compact_hierarchy;
-        double (*distance_function)(double* a, double* b, size_t n);
+        DistanceCalculator distance_function;
 
         std::string hierarchy_file;
         std::string cluster_tree_file;
