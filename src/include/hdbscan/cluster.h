@@ -16,7 +16,7 @@ private:
     double birth_level_;
     double death_level_;
     size_t num_points_;
-    long file_offset_;
+    size_t file_offset_;
 
     double stability_;
     double propagated_stability_;
@@ -80,9 +80,9 @@ public:
 
     double GetDeathLevel() const;
 
-    double GetFileOffset() const;
+    size_t GetFileOffset() const;
 
-    void SetFileOffset(long offset);
+    void SetFileOffset(size_t offset);
 
     double GetStability();
 

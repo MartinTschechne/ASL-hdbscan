@@ -1,4 +1,5 @@
 #include <hdbscan/undirected_graph.h>
+#include <algorithm>
 
 UndirectedGraph::UndirectedGraph(size_t num_vertices, 
     size_t* vertices_A, size_t* vertices_B, double* edge_weights,
@@ -8,10 +9,10 @@ UndirectedGraph::UndirectedGraph(size_t num_vertices,
         vertices_A_ = new size_t[edge_weights_length_];
         vertices_B_ = new size_t[edge_weights_length_];
         edge_weights_ = new double[edge_weights_length_];
-        edges_ = new size_t*[num_vertices_];
+        edges_.resize(num_vertices);
 
         for (int i = 0; i < num_vertices_; i++) {
-            edges_[i] = new size_t[edge_weights_length_ - 1];
+            edges_[i].resize(edge_weights_length_ - 1);
         }
 
         size_t* edges_index = new size_t[num_vertices_]{0};
@@ -35,9 +36,6 @@ UndirectedGraph::~UndirectedGraph() {
     delete[] vertices_A_;
     delete[] vertices_B_;
     delete[] edge_weights_;
-    for (int i = 0; i < num_vertices_; i++)
-        delete[] edges_[i];
-    delete[] edges_;
 }
 
 void UndirectedGraph::QuicksortByEdgeWeight() {
@@ -163,4 +161,16 @@ size_t UndirectedGraph::GetSecondVertexAtIndex(size_t index) const {
 
 double UndirectedGraph::GetEdgeWeightAtIndex(size_t index) const {
     return edge_weights_[index];
+}
+
+const std::vector<size_t>& UndirectedGraph::GetEdgeListForVertex(size_t vertex) const {
+    return edges_[vertex];
+}
+
+void UndirectedGraph::RemoveVertexFromEdgeList(size_t vertex_row, size_t vertex_to_erase) {
+    auto it = std::find(edges_[vertex_row].begin(), edges_[vertex_row].end(), vertex_to_erase);
+    if(it == edges_[vertex_row].end()) {
+        return;
+    }
+    edges_[vertex_row].erase(it);
 }

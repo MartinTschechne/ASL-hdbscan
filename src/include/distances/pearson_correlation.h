@@ -11,7 +11,7 @@
  * @param n Size of the vectors
  * @return Person correlation 
  */
-inline double PearsonCorrelation(double* a, double* b, size_t n) {
+inline double PearsonCorrelation(const double* a, const double* b, size_t n) {
     double mean_a = 0.0;
     double mean_b = 0.0;
 

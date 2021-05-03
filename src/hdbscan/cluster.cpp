@@ -121,11 +121,11 @@ double Cluster::GetDeathLevel() const {
     return death_level_;
 }
 
-double Cluster::GetFileOffset() const {
+size_t Cluster::GetFileOffset() const {
     return file_offset_;
 }
 
-void Cluster::SetFileOffset(long offset) {
+void Cluster::SetFileOffset(size_t offset) {
     file_offset_ = offset;
 }
 

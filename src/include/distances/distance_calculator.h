@@ -3,6 +3,6 @@
 
 #include <cstddef>
 
-typedef double(*DistanceCalculator)(double*, double*, size_t);
+typedef double(*DistanceCalculator)(const double*, const double*, size_t);
 
 #endif
