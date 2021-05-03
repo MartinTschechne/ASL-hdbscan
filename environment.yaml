@@ -1,0 +1,9 @@
+name: hdbscan_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - hdbscan
+  - matplotlib
+prefix: /home/martin/miniconda3/envs/hdbscan_env
