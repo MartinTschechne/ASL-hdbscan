@@ -36,11 +36,9 @@ add_executable(
     tests/hdbscan/HDBSCAN_star.cpp
 )
 
-add_dependencies(unit_tests GTest)
-
 target_link_libraries(
     unit_tests
-    GTest
+    gtest_main
     example
     pthread
     )
