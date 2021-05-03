@@ -11,7 +11,7 @@
  * @param n Size of the vectors
  * @return max(|a-b|) 
  */
-inline double SupremumDistance(double* a, double* b, size_t n) {
+inline double SupremumDistance(const double* a, const double* b, size_t n) {
     double distance = 0.0;
     for(size_t i = 0; i < n; ++i) {
         double diff = std::abs(a[i] - b[i]);

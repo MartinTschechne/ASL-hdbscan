@@ -17,6 +17,7 @@ add_library(
     src/hdbscan/outlier_score.cpp
     src/hdbscan/undirected_graph.cpp
     src/hdbscan/cluster.cpp
+    src/hdbscan/HDBSCAN_star.cpp
     )
 
 add_executable(
@@ -32,6 +33,7 @@ add_executable(
     tests/hdbscan/outlier_score.cpp
     tests/hdbscan/undirected_graph.cpp
     tests/hdbscan/cluster.cpp
+    tests/hdbscan/HDBSCAN_star.cpp
 )
 
 add_dependencies(unit_tests GTest)

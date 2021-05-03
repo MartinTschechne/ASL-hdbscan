@@ -50,8 +50,8 @@ public:
 	 * @return A double[][] where index [i][j] indicates the jth attribute of 
      * data point i
 	 */
-    static double** ReadInDataSet(std::string const& file_name,
-        std::string const& delimiter);
+    static std::vector<std::vector<double>> ReadInDataSet(std::string const& file_name,
+        const char delimiter);
 
     /**
      * @brief Reads in constraints from the file given, assuming the delimiter 
@@ -65,8 +65,7 @@ public:
 	 * @return A vector of Constraints
      */
     static std::vector<Constraint> ReadInConstraints(
-        std::string const& file_name,
-        std::string const& delimiter);
+        std::string const& file_name);
 
     /**
      * @brief  Calculates the core distances for each point in the data set, 
@@ -80,8 +79,8 @@ public:
      * between points
 	 * @return A vector of core distances
      */
-    static double* CalculateCoreDistances(double** data_set, size_t k,
-        DistanceCalculator distance_function);
+    static void CalculateCoreDistances(const std::vector<std::vector<double>>& data_set, size_t k,
+        DistanceCalculator distance_function, std::vector<double>& result);
 
     /**
 	 * @brief Constructs the minimum spanning tree of mutual reachability 
@@ -96,8 +95,8 @@ public:
 	 * @return An UndirectedGraph containing the MST for the data set using the 
      * mutual reachability distances
 	 */
-	static UndirectedGraph ConstructMST(double** data_set,
-        double* coreDistances, bool self_edges,
+	static UndirectedGraph ConstructMST(const std::vector<std::vector<double>>& data_set,
+        const std::vector<double>& core_distances, bool self_edges,
         DistanceCalculator distance_function);
         
     /**
@@ -124,12 +123,12 @@ public:
      * each point had before becoming noise
 	 * @return The cluster tree
 	 */
-	static std::vector<Cluster> ComputeHierarchyAndClusterTree(
-        UndirectedGraph mst, size_t min_cluster_size, bool compact_hierarchy,
+	static void ComputeHierarchyAndClusterTree(
+        UndirectedGraph& mst, size_t min_cluster_size, bool compact_hierarchy,
         std::vector<Constraint> constraints, std::string hierarchy_output_file,
-        std::string tree_output_file, std::string delimiter,
+        std::string tree_output_file, const char delimiter,
         double* point_noise_levels, size_t* point_last_clusters,
-        std::string visualization_output_file);
+        std::string visualization_output_file, std::vector<Cluster*>& result);
 
     /**
 	 * @brief Propagates constraint satisfaction, stability, and lowest child 
@@ -141,7 +140,7 @@ public:
 	 * @return true if there are any clusters with infinite stability, false 
      * otherwise
 	 */
-	static bool PropagateTree(std::vector<Cluster> clusters);
+	static bool PropagateTree(const std::vector<Cluster*>& clusters);
 
     /**
 	 * @brief Produces a flat clustering result using constraint satisfaction 
@@ -158,9 +157,10 @@ public:
      * stability, false otherwise
 	 * @return An array of labels for the flat clustering result
 	 */
-	static size_t* FindProminentClusters(std::vector<Cluster> clusters,
-        std::string hierarchy_file, std::string flat_output_file,
-        std::string delimiter, size_t num_points, bool infinite_stability);
+	static void FindProminentClusters(const std::vector<Cluster*>& clusters,
+        const std::string& hierarchy_file, const std::string& flat_output_file,
+        const char delimiter, size_t num_points, bool infinite_stability,
+        std::vector<size_t>& result);
 
     /**
 	 * @brief Produces the outlier score for each point in the data set, and 
@@ -181,11 +181,11 @@ public:
      * stability, false otherwise
 	 * @return An vector of OutlierScores, sorted in descending order
 	 */
-	static std::vector<OutlierScore> CalculateOutlierScores(
-        std::vector<Cluster> clusters, double* point_noise_levels,
+	static void CalculateOutlierScores(
+        const std::vector<Cluster*>& clusters, double* point_noise_levels, size_t point_noise_levels_length,
         size_t* point_last_clusters, double* core_distances,
-        std::string outlier_scores_outputFile, std::string delimiter,
-        bool infinite_stability);
+        const std::string& outlier_scores_outputFile, const char delimiter,
+        bool infinite_stability, std::vector<OutlierScore>& result);
     
 private:
     /**
@@ -200,8 +200,8 @@ private:
      * their previous Cluster
 	 * @return The new Cluster, or null if the clusterId was 0
 	 */
-	static Cluster CreateNewCluster(std::set<size_t> points,
-        size_t* cluster_labels, Cluster parent_cluster, size_t cluster_label,
+	static Cluster* CreateNewCluster(const std::set<size_t>& points,
+        size_t* cluster_labels, Cluster* parent_cluster, size_t cluster_label,
         double edge_weight);
 
 	/**
@@ -214,7 +214,7 @@ private:
 	 * @param cluster_labels An array of current cluster labels for points
 	 */
 	static void CalculateNumConstraintsSatisfied(
-        std::set<size_t> new_cluster_labels, std::vector<Cluster> clusters, std::vector<Constraint> constraints, size_t* cluster_labels);
+        const std::set<size_t>& new_cluster_labels, const std::vector<Cluster*>& clusters, const std::vector<Constraint>& constraints, size_t* cluster_labels);
 
 };
 

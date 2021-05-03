@@ -11,7 +11,7 @@
  * @param n Size of the vectors
  * @return Manhattan distance 
  */
-inline double ManhattanDistance(double* a, double* b, size_t n) {
+inline double ManhattanDistance(const double* a, const double* b, size_t n) {
     double distance = 0.0;
     for(size_t i = 0; i < n; ++i) {
         distance += std::abs(a[i] - b[i]);

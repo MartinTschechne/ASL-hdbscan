@@ -11,7 +11,7 @@
  * @param n Size of the vectors
  * @return Euclidian distance
  */
-inline double EuclidianDistance(double* a, double* b, size_t n) {
+inline double EuclidianDistance(const double* a, const double* b, size_t n) {
     double distance = 0.0;
     double diff = 0.0;
     for(size_t i = 0; i < n; ++i) {

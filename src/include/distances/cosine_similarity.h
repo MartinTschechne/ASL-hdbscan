@@ -11,7 +11,7 @@
  * @param n Size of the vectors
  * @return double 
  */
-inline double CosineSimilarity(double* a, double* b, size_t n) {
+inline double CosineSimilarity(const double* a, const double* b, size_t n) {
     double dot_product = 0.0;
     double mag_a = 0.0;
     double mag_b = 0.0;
