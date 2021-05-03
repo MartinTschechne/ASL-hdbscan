@@ -1,5 +1,6 @@
 #include <hdbscan/undirected_graph.h>
 #include <algorithm>
+#include <iostream>
 
 UndirectedGraph::UndirectedGraph(size_t num_vertices, 
     size_t* vertices_A, size_t* vertices_B, double* edge_weights,
@@ -12,10 +13,9 @@ UndirectedGraph::UndirectedGraph(size_t num_vertices,
         edges_.resize(num_vertices);
 
         for (int i = 0; i < num_vertices_; i++) {
-            edges_[i].resize(edge_weights_length_ - 1);
+            edges_[i].reserve(1 + edge_weights_length_/num_vertices);
         }
 
-        size_t* edges_index = new size_t[num_vertices_]{0};
 
         for (int i = 0; i < edge_weights_length_; i++) {
             edge_weights_[i] = edge_weights[i];
@@ -23,13 +23,11 @@ UndirectedGraph::UndirectedGraph(size_t num_vertices,
             vertices_B_[i] = vertices_B[i];
             size_t vertex_one = vertices_A_[i];
             size_t vertex_two = vertices_B_[i];
-            edges_[vertex_one][edges_index[vertex_one]++] = vertex_two;
+            edges_[vertex_one].push_back(vertex_two);
             if (vertex_one != vertex_two) {
-                edges_[vertex_two][edges_index[vertex_two]++] = vertex_one;
+                edges_[vertex_two].push_back(vertex_one);
             }     
         }
-        
-        delete[] edges_index;
     }
 
 UndirectedGraph::~UndirectedGraph() {
