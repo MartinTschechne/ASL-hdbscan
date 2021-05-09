@@ -4,26 +4,27 @@ project(TEAM33_HDBSCAN)
 set(CMAKE_CXX_STANDARD 20)
 
 include(cmake/GetGTest.cmake)
+include(cmake/GetGFlags.cmake)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/src/include
+    ${gflags_BINARY_DIR}/include
 )
 
 add_library(
-    example
-    src/example.cpp
+    hdb_lib
     src/hdbscan/constraint.cpp
     src/hdbscan/outlier_score.cpp
     src/hdbscan/undirected_graph.cpp
     src/hdbscan/cluster.cpp
     src/hdbscan/HDBSCAN_star.cpp
-    )
+    src/hdbscan/runner.cpp
+)
 
 add_executable(
     unit_tests # executable
     tests/main.cpp # dependency
-    tests/example_add.cpp # dependency
     tests/hdbscan/constraint.cpp
     tests/distances/cosine_similarity.cpp 
     tests/distances/euclidian_distance.cpp 
@@ -34,14 +35,30 @@ add_executable(
     tests/hdbscan/undirected_graph.cpp
     tests/hdbscan/cluster.cpp
     tests/hdbscan/HDBSCAN_star.cpp
+    tests/hdbscan/runner.cpp
 )
+
+add_executable(
+    hdbscan 
+    src/main.cpp
+)
+
 
 target_link_libraries(
     unit_tests
     gtest_main
-    example
+    hdb_lib
     pthread
-    )
+    gflags_nothreads_static
+    stdc++fs
+)
+
+target_link_libraries(
+    hdbscan
+    gflags_nothreads_static
+    hdb_lib
+    pthread
+)
 
 enable_testing()
 

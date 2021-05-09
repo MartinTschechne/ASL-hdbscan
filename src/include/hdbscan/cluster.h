@@ -58,12 +58,34 @@ public:
 	 */
     void Propagate();
 
+    /**
+     * @brief Adds points to the virtual child cluster
+     * 
+     * @param points 
+     */
     void AddPointsToVirtualChildCluster(const std::set<size_t>& points);
 
+    /**
+     * @brief Check if the child cluster contains a given point
+     * 
+     * @param point 
+     * @return true 
+     * @return false 
+     */
     bool VirtualChildClusterContaintsPoint(size_t point) const; 
 
+    /**
+     * @brief Adds satisfied constraints to the child cluster
+     * 
+     * @param num_constraints 
+     */
     void AddVirtualChildConstraintsSatisfied(size_t num_constraints);
 
+    /**
+     * @brief Add satisfied constraints to the cluster
+     * 
+     * @param num_constraints 
+     */
     void AddConstraintsSatisfied(size_t num_constraints);
 
     /**
@@ -72,28 +94,89 @@ public:
      */
     void ReleaseVirtualChildCluster();
 
+    /**
+     * @brief Get the cluster label
+     * 
+     * @return size_t 
+     */
     size_t GetLabel() const;
 
+    /**
+     * @brief Get the Parent cluster
+     * 
+     * @return Cluster* 
+     */
     Cluster* GetParent() const;
 
+    /**
+     * @brief Get the Birth Level
+     * 
+     * @return double 
+     */
     double GetBirthLevel() const;
 
+    /**
+     * @brief Get the Death Level
+     * 
+     * @return double 
+     */
     double GetDeathLevel() const;
 
+    /**
+     * @brief Get the File Offset
+     * 
+     * @return size_t 
+     */
     size_t GetFileOffset() const;
 
+    /**
+     * @brief Set the File Offset
+     * 
+     * @param offset 
+     */
     void SetFileOffset(size_t offset);
 
+    /**
+     * @brief Get the Stability
+     * 
+     * @return double 
+     */
     double GetStability();
 
+    /**
+     * @brief Get the Propagated Lowest Child Death Level
+     * 
+     * @return double 
+     */
     double GetPropagatedLowestChildDeathLevel() const;
 
+    /**
+     * @brief Get the Num Constraints Satisfied
+     * 
+     * @return size_t 
+     */
     size_t GetNumConstraintsSatisfied() const;
     
+    /**
+     * @brief Get the Propagated Num Constraints Satisfied
+     * 
+     * @return size_t 
+     */
     size_t GetPropagatedNumConstraintsSatisfied() const;
 
+    /**
+     * @brief Returns true if the cluster has children
+     * 
+     * @return true 
+     * @return false 
+     */
     bool HasChildren() const;
-
+    
+    /**
+     * @brief Get the Propagated Descendants
+     * 
+     * @return const std::vector<Cluster*>& 
+     */
     const std::vector<Cluster*>& GetPropagatedDescendants() const;
 };
 
