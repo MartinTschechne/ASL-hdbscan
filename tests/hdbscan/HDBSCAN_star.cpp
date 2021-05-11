@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <hdbscan/HDBSCAN_star.h>
 #include <distances/euclidian_distance.h>
+#include <distances/supremum_distance.h>
 #include <fstream>
 #include <filesystem>
 
@@ -29,6 +30,21 @@ TEST(HDBSCAN_Star, core_distances) {
     HDBSCANStar::CalculateCoreDistances(data_set, 3, EuclidianDistance, core_distances);
     ASSERT_EQ(core_distances.size(), data_set.size());
     ASSERT_DOUBLE_EQ(core_distances[0], 0.2049413436136352);
+}
+
+TEST(HDBSCAN_Star, core_distances_symmetry) {
+    std::string file_name = "../tests/data/example_data_set.csv";
+    auto data_set = HDBSCANStar::ReadInDataSet(file_name, ',');
+    std::vector<double> core_distances_symmetry;
+    std::vector<double> core_distances;
+
+    HDBSCANStar::CalculateCoreDistancesSymmetry(data_set, 3, EuclidianDistance, core_distances_symmetry);
+    HDBSCANStar::CalculateCoreDistances(data_set, 3, EuclidianDistance, core_distances);
+    ASSERT_EQ(core_distances_symmetry.size(), data_set.size());
+    ASSERT_DOUBLE_EQ(core_distances_symmetry[0], 0.2049413436136352);
+
+    double sim = SupremumDistance(core_distances.data(), core_distances_symmetry.data(), core_distances.size());
+    ASSERT_NEAR(sim, 0.0, 0.0001);
 }
 
 TEST(HDBSCAN_Star, create_tree) {
@@ -60,8 +76,8 @@ TEST(HDBSCAN_Star, create_tree) {
 
     std::vector<Cluster*> clusters;
     ASSERT_NO_THROW(
-        HDBSCANStar::ComputeHierarchyAndClusterTree(mst, min_cluster_size, compact, constraints, 
-            "test_output/hierarchy.csv", "test_output/tree.csv", ',', point_noise_levels, point_last_clusters, 
+        HDBSCANStar::ComputeHierarchyAndClusterTree(mst, min_cluster_size, compact, constraints,
+            "test_output/hierarchy.csv", "test_output/tree.csv", ',', point_noise_levels, point_last_clusters,
             "test_output/visualization.vis", clusters)
     );
 
@@ -72,7 +88,7 @@ TEST(HDBSCAN_Star, create_tree) {
     ASSERT_NO_THROW(HDBSCANStar::FindProminentClusters(clusters, "test_output/hierarchy.csv", "test_output/flat.csv", ',', num_points, inf_stability, res));
     ASSERT_NO_THROW(HDBSCANStar::CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters, core_distances.data(), "test_output/outlier_score.csv", ',', inf_stability, outlier_scores));
 
-    // check hierarchy 
+    // check hierarchy
     std::fstream hierarchy_ours("test_output/hierarchy.csv");
     std::fstream hierarchy_ref(hierarchy_ref_file);
 
@@ -87,7 +103,7 @@ TEST(HDBSCAN_Star, create_tree) {
         ref.push_back(line);
     }
     for(size_t i = 0; i < ref.size(); ++i) {
-        std::stringstream stream_ours(ours[i]); 
+        std::stringstream stream_ours(ours[i]);
         std::stringstream stream_ref(ref[i]);
 
         size_t count = 0;
@@ -117,7 +133,7 @@ TEST(HDBSCAN_Star, create_tree) {
         ref.push_back(line);
     }
     for(size_t i = 0; i < ref.size(); ++i) {
-        std::stringstream stream_ours(ours[i]); 
+        std::stringstream stream_ours(ours[i]);
         std::stringstream stream_ref(ref[i]);
 
         size_t count = 0;
@@ -137,7 +153,7 @@ TEST(HDBSCAN_Star, create_tree) {
         }
     }
 
-    //Check flat 
+    //Check flat
     std::fstream flat_ours("test_output/flat.csv");
     std::fstream flat_ref(flat_ref_file);
     while(std::getline(flat_ref, line)) {
@@ -145,27 +161,27 @@ TEST(HDBSCAN_Star, create_tree) {
         ASSERT_EQ(line, other);
     }
 
-    //Check outlier 
+    //Check outlier
     std::fstream outlier_ours("test_output/outlier_score.csv");
     std::fstream outlier_ref(outlier_ref_file);
 
     std::map<size_t, double> scores_ref;
     std::map<size_t, double> scores_ours;
     while(std::getline(outlier_ref, line)) {
-        std::stringstream stream(line);    
+        std::stringstream stream(line);
         double value;
         size_t label;
         char delim;
         stream >> value >> delim >> label;
-        scores_ref.insert({label, value});    
+        scores_ref.insert({label, value});
     }
     while(std::getline(outlier_ours, line)) {
-        std::stringstream stream(line);    
+        std::stringstream stream(line);
         double value;
         size_t label;
         char delim;
         stream >> value >> delim >> label;
-        scores_ours.insert({label, value});    
+        scores_ours.insert({label, value});
     }
     for(auto& elem : scores_ref) {
         ASSERT_NEAR(elem.second, scores_ours.at(elem.first), 0.0001);

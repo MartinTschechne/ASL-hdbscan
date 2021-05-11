@@ -25,7 +25,7 @@ std::vector<std::vector<double>> HDBSCANStar::ReadInDataSet(std::string const& f
             while(std::getline(stream, value, delimiter)) {
                 row.push_back(std::stod(value));
             }
-            
+
             if(num_attributes == -1) {
                 num_attributes = row.size();
             }
@@ -53,7 +53,7 @@ std::vector<Constraint> HDBSCANStar::ReadInConstraints(std::string const& file_n
 
     while(std::getline(file, line)) {
         std::stringstream stream(line);
-        
+
         size_t point_a;
         size_t point_b;
         std::string link_type;
@@ -64,9 +64,9 @@ std::vector<Constraint> HDBSCANStar::ReadInConstraints(std::string const& file_n
         stream.ignore();
         stream >> link_type;
 
-        Constraint::CONSTRAINT_TYPE contraint_type = 
-            link_type == Constraint::MUST_LINK_TAG 
-            ? Constraint::CONSTRAINT_TYPE::MUST_LINK 
+        Constraint::CONSTRAINT_TYPE contraint_type =
+            link_type == Constraint::MUST_LINK_TAG
+            ? Constraint::CONSTRAINT_TYPE::MUST_LINK
             : Constraint::CONSTRAINT_TYPE::CANNOT_LINK;
 
         result.push_back(Constraint(point_a, point_b, contraint_type));
@@ -79,7 +79,7 @@ std::vector<Constraint> HDBSCANStar::ReadInConstraints(std::string const& file_n
 
 void HDBSCANStar::CalculateCoreDistances(const std::vector<std::vector<double>>& data_set, size_t k,
     DistanceCalculator distance_function, std::vector<double>& result) {
-    
+
     size_t num_neighbors = k - 1;
     const double DOUBLE_MAX = std::numeric_limits<double>::max();
     result.clear();
@@ -105,7 +105,7 @@ void HDBSCANStar::CalculateCoreDistances(const std::vector<std::vector<double>>&
             }
 
             double distance = distance_function(data_set[point].data(), data_set[neighbor].data(), data_set[0].size());
-            
+
             //Check at which position in the nearest distances the current distance would fit:
             size_t neighbor_index = num_neighbors;
             while(neighbor_index >= 1 && distance < knn_distances[neighbor_index-1]) {
@@ -125,16 +125,71 @@ void HDBSCANStar::CalculateCoreDistances(const std::vector<std::vector<double>>&
     delete[] knn_distances;
 }
 
+void HDBSCANStar::CalculateCoreDistancesSymmetry(const std::vector<std::vector<double>>& data_set, size_t k,
+    DistanceCalculator distance_function, std::vector<double>& result) {
+
+    size_t num_neighbors = k - 1;
+    const double DOUBLE_MAX = std::numeric_limits<double>::max();
+    result.clear();
+    result.resize(data_set.size());
+
+    if(k == 1) {
+        for(size_t point = 0; point < data_set.size(); ++point) {
+            result[point] = 0;
+        }
+        return;
+    }
+
+    // initialize distance matrix with DOUBLE_MAX
+    std::vector<std::vector<double>> distance_matrix(data_set.size(),std::vector<double>(data_set.size(), DOUBLE_MAX));
+    double d;
+    // populate distance matrix
+    for (size_t point = 0; point < data_set.size(); point++) {
+        for (size_t neighbor = point + 1; neighbor < data_set.size(); neighbor++) {
+            d = distance_function(data_set[point].data(), data_set[neighbor].data(), data_set[0].size());
+            distance_matrix[point][neighbor] = d;
+            distance_matrix[neighbor][point] = d;
+        }
+    }
+
+    // calculate core distance
+    double* knn_distances = new double[num_neighbors];
+    for(size_t point = 0; point < data_set.size(); ++point) {
+        for(size_t i = 0; i < num_neighbors; ++i) {
+            knn_distances[i] = DOUBLE_MAX;
+        }
+
+        for(size_t neighbor = 0; neighbor < data_set.size(); ++neighbor) {
+
+            //Check at which position in the nearest distances the current distance would fit:
+            size_t neighbor_index = num_neighbors;
+            while(neighbor_index >= 1 && distance_matrix[point][neighbor] < knn_distances[neighbor_index-1]) {
+                neighbor_index--;
+            }
+
+            //Shift elements in the array to make room for the current distance:
+            if(neighbor_index < num_neighbors) {
+                for(size_t shift_index = num_neighbors - 1; shift_index > neighbor_index; shift_index--) {
+                    knn_distances[shift_index] = knn_distances[shift_index - 1];
+                }
+                knn_distances[neighbor_index] = distance_matrix[point][neighbor];
+            }
+        }
+        result[point] = knn_distances[num_neighbors-1];
+    }
+    delete[] knn_distances;
+}
+
 UndirectedGraph HDBSCANStar::ConstructMST(const std::vector<std::vector<double>>& data_set,
         const std::vector<double>& core_distances, bool self_edges,
         DistanceCalculator distance_function) {
-    
+
     size_t self_edge_capacity = self_edges ? data_set.size() : 0;
     const double DOUBLE_MAX = std::numeric_limits<double>::max();
     const size_t SIZE_T_MAX = std::numeric_limits<size_t>::max();
 
     //One bit is set (true) for each attached point, or unset (false) for unattached points:
-    std::vector<bool> attached_points(data_set.size()); // bool vector is specialized to act like bitset 
+    std::vector<bool> attached_points(data_set.size()); // bool vector is specialized to act like bitset
 
     //Each point has a current neighbor point in the tree, and a current nearest distance:
     size_t* nearest_mrd_neighbors = new size_t[data_set.size()-1 + self_edge_capacity];
@@ -216,7 +271,7 @@ void HDBSCANStar::ComputeHierarchyAndClusterTree(
         std::string tree_output_file, const char delimiter,
         double* point_noise_levels, size_t* point_last_clusters,
         std::string visualization_output_file, std::vector<Cluster*>& result) {
-    
+
     std::ofstream hierarchy_writer(hierarchy_output_file);
     std::ofstream tree_writer(tree_output_file);
 
@@ -303,7 +358,7 @@ void HDBSCANStar::ComputeHierarchyAndClusterTree(
             * vertex.  If there are two or more valid child clusters (each has >= minClusterSize
             * points), the cluster has split.
             * Note that firstChildCluster will only be fully explored if there is a cluster
-            * split, otherwise, only spurious components are fully explored, in order to label 
+            * split, otherwise, only spurious components are fully explored, in order to label
             * them noise.
             */
            while(!examined_vertices.empty()) {
@@ -364,7 +419,7 @@ void HDBSCANStar::ComputeHierarchyAndClusterTree(
                         point_noise_levels[point] = current_edge_weight;
                         point_last_clusters[point] = examined_cluster_label;
                     }
-                } 
+                }
 
                 if(first_child_cluster != constructing_sub_cluster) {
                     delete constructing_sub_cluster;
@@ -401,14 +456,14 @@ void HDBSCANStar::ComputeHierarchyAndClusterTree(
             output << current_edge_weight << delimiter;
 
             for(size_t i = 0; i < current_cluster_labels_length - 1; ++i) {
-                output << previous_cluster_labels[i] << delimiter;      
+                output << previous_cluster_labels[i] << delimiter;
             }
             output << previous_cluster_labels[current_cluster_labels_length - 1] << std::endl;
-            
+
             std::string content = output.str();
             hierarchy_writer << content;
 
-            hierarchy_chars_written += content.size();            
+            hierarchy_chars_written += content.size();
             line_count++;
         }
 
@@ -461,7 +516,7 @@ void HDBSCANStar::ComputeHierarchyAndClusterTree(
         } else {
             tree_writer << "0\n";
         }
-    } 
+    }
 
     std::fstream visualization_writer(visualization_output_file);
     if(!compact_hierarchy) {
@@ -480,7 +535,7 @@ void HDBSCANStar::FindProminentClusters(const std::vector<Cluster*>& clusters,
         const std::string& hierarchy_file, const std::string& flat_output_file,
         const char delimiter, size_t num_points, bool infinite_stability,
         std::vector<size_t>& result) {
-    
+
     //Take the list of propagated clusters from the root cluster:
     const std::vector<Cluster*>& solution = clusters[1]->GetPropagatedDescendants();
 
@@ -552,10 +607,10 @@ void HDBSCANStar::CalculateOutlierScores(
         size_t* point_last_clusters, double* core_distances,
         const std::string& outlier_scores_outputFile, const char delimiter,
         bool infinite_stability, std::vector<OutlierScore>& result) {
-    
+
     result.clear();
     result.reserve(point_noise_levels_length);
-    
+
     //Iterate through each point, calculating its outlier score:
     for(size_t i = 0; i < point_noise_levels_length; ++i) {
         double eps_max = clusters[point_last_clusters[i]]->GetPropagatedLowestChildDeathLevel();
@@ -585,7 +640,7 @@ void HDBSCANStar::CalculateOutlierScores(
 
 void HDBSCANStar::CalculateNumConstraintsSatisfied(
         const std::set<size_t>& new_cluster_labels, const std::vector<Cluster*>& clusters, const std::vector<Constraint>& constraints, size_t* cluster_labels) {
-    
+
     if(constraints.empty()) {
         return;
     }
@@ -631,7 +686,7 @@ void HDBSCANStar::CalculateNumConstraintsSatisfied(
                     }
                 }
             }
-        } 
+        }
     }
 }
 
@@ -646,7 +701,7 @@ Cluster* HDBSCANStar::CreateNewCluster(const std::set<size_t>& points,
     if(cluster_label != 0) {
         return new Cluster(cluster_label, parent_cluster, edge_weight, points.size());
     }
-    
+
     parent_cluster->AddPointsToVirtualChildCluster(points);
     return nullptr;
 }
