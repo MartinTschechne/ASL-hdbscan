@@ -31,6 +31,10 @@ def main():
     data = np.loadtxt(cfg.data_path,delimiter=',')
     print(f"Data shape: {data.shape}",end='\n\n')
 
+    if data.shape[1] > 2:
+        print("Dimensionality of data points is larger than 2.",
+              "Only the first two dimensions will be used to create scatter plots.",end='\n\n')
+
     fig, axes = plt.subplots(1,5,figsize=(20,4))
 
     for ax, metric in zip(np.ravel(axes), METRICS):
@@ -72,6 +76,7 @@ def main():
 
         # add 0.1 and clip at 1 to make noise data points visible
         alphas = np.clip(clusterer.probabilities_+0.1,a_min=0.0,a_max=1.0)
+        # this will only plot the first two dimensions, regardless of the data dimension
         ax.scatter(data[:,0],data[:,1],c=clusterer.labels_, alpha = alphas)
         ax.set_title(metric)
 
