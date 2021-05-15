@@ -23,6 +23,7 @@ struct RunnerConfig {
     size_t min_cl_size;
     bool compact;
     std::string dist_function;
+    std::string optimization_level;
 };
 
 /**

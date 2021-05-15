@@ -1,36 +1,55 @@
-#include <hdbscan/outlier_score.h>
+#include <hdbscan/HDBSCAN_star.h>
 
-OutlierScore::OutlierScore(double score, double core_distance, size_t id) : 
-    score_(score), 
-    core_distance_(core_distance), 
-    id_(id) {}
-
-size_t OutlierScore::GetId() const {
-    return id_;
-}
-
-double OutlierScore::GetScore() const {
-    return score_;
-}
-
-int OutlierScore::CompareTo(const OutlierScore* const other) const {
-    if(this->score_ > other->score_) {
+int CompareTo(const OutlierScore& a, const OutlierScore& b) {
+    if(a.score > b.score) {
         return 1;
     }
-    if(this->score_ < other->score_) {
+    if(a.score < b.score) {
         return -1;
     }
 
-    if(this->core_distance_ > other->core_distance_) {
+    if(a.core_distance > b.core_distance) {
         return 1;
     }
-    if(this->core_distance_ < other->core_distance_) {
+    if(a.core_distance < b.core_distance) {
         return -1;
     }
 
-    return this->id_ - other->id_;
+    return a.id - b.id;
 }
 
-int OutlierScore::CompareTo(const OutlierScore& other) const {
-    return this->CompareTo(&other);
+void CalculateOutlierScores(
+        const std::vector<Cluster*>& clusters, double* point_noise_levels, size_t point_noise_levels_length,
+        size_t* point_last_clusters, double* core_distances,
+        const std::string& outlier_scores_outputFile, const char delimiter,
+        bool infinite_stability, std::vector<OutlierScore>& result) {
+
+    result.clear();
+    result.reserve(point_noise_levels_length);
+
+    //Iterate through each point, calculating its outlier score:
+    for(size_t i = 0; i < point_noise_levels_length; ++i) {
+        double eps_max = clusters[point_last_clusters[i]]->GetPropagatedLowestChildDeathLevel();
+        double eps = point_noise_levels[i];
+
+        double score = 0.0;
+        if(eps != 0) {
+            score = 1 - (eps_max / eps);
+        }
+
+        result.push_back(OutlierScore(score, core_distances[i], i));
+    }
+
+    //Sort the outlier scores:
+    std::sort(result.begin(), result.end(), [](const OutlierScore& a, const OutlierScore& b)->bool { return a.score < b.score; });
+
+    //Output the outlier scores:
+    std::ofstream writer(outlier_scores_outputFile);
+    if(infinite_stability) {
+        writer << warning_message << "\n";
+    }
+
+    for(const OutlierScore& score : result) {
+        writer << score.score << delimiter << score.id << "\n";
+    }
 }
