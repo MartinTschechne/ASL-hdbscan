@@ -30,6 +30,13 @@ This information can also be accessed by executing
 hdbscan -help
 ```
 
+## Benchmarking
+Different build variants (compiler optimizations) can be added in CMakeLists. To create a new build variant add 
+```
+build_hdbscan_benchmarking("-O3")
+```
+to CMakeLists and change `-O3` to whatever flag you want. All builds will be written to `build/benchmarking` with name `hdbscan<OPTIMIZATION FLAG>` (without <>). These executables can then e.g. be used by a python script to create the plots.
+
 ## Literature
 [Hierarchical Density Estimates for Data Clustering, Visualization, and Outlier Detection](https://dl.acm.org/doi/10.1145/2733381)  
 [Accelerated Hierarchical Density Clustering](https://arxiv.org/abs/1705.07321)
