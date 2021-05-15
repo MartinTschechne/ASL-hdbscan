@@ -20,6 +20,7 @@ add_library(
     src/hdbscan/cluster.cpp
     src/hdbscan/HDBSCAN_star.cpp
     src/hdbscan/runner.cpp
+    src/common/vector.cpp
 )
 
 add_executable(
@@ -36,6 +37,7 @@ add_executable(
     tests/hdbscan/cluster.cpp
     tests/hdbscan/HDBSCAN_star.cpp
     tests/hdbscan/runner.cpp
+    tests/common/vector.cpp
 )
 
 add_executable(
