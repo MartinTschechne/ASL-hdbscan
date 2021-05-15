@@ -7,6 +7,29 @@ Project work for the course [Advanced Systems Lab](http://www.vvz.ethz.ch/Vorles
 * Martin Tschechne
 * Robin Worreby
 
+## Building and running 
+Create the build directory and run cmake and then make. The optimization level can be set from the command line using 
+```
+cmake -D CMAKE_CXX_FLAGS="-O3"
+```
+This will generate two files, `unit_tests` and `hdbscan`. For testing just execute `unit_tests`.  
+`hdbscan` takes 6 required and 6 optional command line arguments. The minimal command to run is 
+```
+./hdbscan -points_file=../data/data_set_medium.csv -hierarchy_file=output/hierarchy.csv -tree_file=output/tree.csv -visualization_file=output/results.vis -partition_file=output/partition.csv -outlier_score_file=output/outlier_scores.csv 
+```
+The optional arguments are  
+* `constraints` path to the constraints csv 
+* `min_pts` minimum number of points (default: 8)
+* `min_cl_size` minimal cluster size (default: 8)
+* `compact` Whether or not to compact the output (default: true) 
+* `dist_function` Which distance function to use (default: euclidean)
+* `optimization_level` Which optimization level to use (default: no_optimization)
+
+This information can also be accessed by executing 
+```
+hdbscan -help
+```
+
 ## Literature
 [Hierarchical Density Estimates for Data Clustering, Visualization, and Outlier Detection](https://dl.acm.org/doi/10.1145/2733381)  
 [Accelerated Hierarchical Density Clustering](https://arxiv.org/abs/1705.07321)

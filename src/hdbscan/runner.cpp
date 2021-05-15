@@ -15,8 +15,9 @@ DEFINE_string(partition_file, "", "Where to write the partition to");
 DEFINE_string(outlier_score_file, "", "Where to write the outlier scores to");
 DEFINE_int32(min_pts, 8, "Minimum number of points");
 DEFINE_int32(min_cl_size, 8, "Minimum cluster size");
-DEFINE_bool(compact, true, "Wether or not to compact the output");
+DEFINE_bool(compact, true, "Whether or not to compact the output");
 DEFINE_string(dist_function, "euclidean", "Which metric to use. One of [euclidean, cosine, manhattan, pearson, supremum]");
+DEFINE_string(optimization_level, "no_optimization", "Which optimization level to use. One of [no_optimization, symmetry, unroll, vectorise]");
 
 RunnerConfig RunnerConfigFromFlags() {
     return {
@@ -30,7 +31,8 @@ RunnerConfig RunnerConfigFromFlags() {
         static_cast<size_t>(FLAGS_min_pts),
         static_cast<size_t>(FLAGS_min_cl_size),
         FLAGS_compact,
-        FLAGS_dist_function
+        FLAGS_dist_function,
+        FLAGS_optimization_level
     };
 }
 
@@ -52,20 +54,21 @@ void HDBSCANRunner(RunnerConfig config) {
     assert(config.visualization_file != "");
     assert(config.outlier_score_file != "");
     
-    std::vector<std::vector<double>> data_set = HDBSCANStar::ReadInDataSet(config.points_file, ',');
+    std::vector<std::vector<double>> data_set = ReadInDataSet(config.points_file, ',');
     size_t num_points = data_set.size();
     
 
     std::vector<Constraint> constraints;
     if(config.constraints != "") {
-        constraints = HDBSCANStar::ReadInConstraints(config.constraints);
+        constraints = ReadInConstraints(config.constraints);
     }
 
     std::vector<double> core_distances;
-    HDBSCANStar::CalculateCoreDistances(data_set, config.min_pts, dist_fun, core_distances);
+    CalculateCoreDistances_t calculate_core_distances_f = GetCalculateCoreDistancesFunction(config.optimization_level);
+    calculate_core_distances_f(data_set, config.min_pts, dist_fun, core_distances);
 
 
-    UndirectedGraph mst = HDBSCANStar::ConstructMST(data_set, core_distances, true, dist_fun);
+    UndirectedGraph mst = ConstructMST(data_set, core_distances, true, dist_fun);
     mst.QuicksortByEdgeWeight();
 
     data_set.clear();
@@ -75,18 +78,18 @@ void HDBSCANRunner(RunnerConfig config) {
 
     std::vector<Cluster*> clusters;
 
-    HDBSCANStar::ComputeHierarchyAndClusterTree(mst, config.min_cl_size, config.compact, 
+    ComputeHierarchyAndClusterTree(mst, config.min_cl_size, config.compact, 
         constraints, config.hierarchy_file, config.tree_file, ',', point_noise_levels, 
         point_last_clusters, config.visualization_file, clusters);
 
-    bool inf_stability = HDBSCANStar::PropagateTree(clusters);
+    bool inf_stability = PropagateTree(clusters);
 
     std::vector<size_t> prominent_clusters;
-    HDBSCANStar::FindProminentClusters(clusters, config.hierarchy_file, config.partition_file, 
+    FindProminentClusters(clusters, config.hierarchy_file, config.partition_file, 
         ',', num_points, inf_stability, prominent_clusters);
 
     std::vector<OutlierScore> outlier_scores;
-    HDBSCANStar::CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters, 
+    CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters, 
         core_distances.data(), config.outlier_score_file, ',', inf_stability, outlier_scores);
 
     delete[] point_last_clusters;

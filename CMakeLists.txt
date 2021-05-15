@@ -18,8 +18,13 @@ add_library(
     src/hdbscan/outlier_score.cpp
     src/hdbscan/undirected_graph.cpp
     src/hdbscan/cluster.cpp
-    src/hdbscan/HDBSCAN_star.cpp
+    src/hdbscan/HDBSCAN_io.cpp
     src/hdbscan/runner.cpp
+    src/hdbscan/calculate_core_distances.cpp
+    src/hdbscan/construct_mst.cpp
+    src/hdbscan/hierarchy_cluster.cpp
+    src/hdbscan/propagate_tree.cpp
+    src/hdbscan/prominent_clusters.cpp
     src/common/list.cpp
     src/common/vector.cpp
 )
@@ -33,7 +38,6 @@ add_executable(
     tests/distances/manhattan_distance.cpp 
     tests/distances/pearson_correlation.cpp 
     tests/distances/supremum_distance.cpp 
-    tests/hdbscan/outlier_score.cpp
     tests/hdbscan/undirected_graph.cpp
     tests/hdbscan/cluster.cpp
     tests/hdbscan/HDBSCAN_star.cpp

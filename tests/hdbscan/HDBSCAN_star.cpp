@@ -8,14 +8,14 @@
 TEST(HDBSCAN_Star, IO) {
     std::string file_name = "../tests/data/read_test.csv";
     std::string file_name_constraints = "../tests/data/example_constraints.csv";
-    auto lines = HDBSCANStar::ReadInDataSet(file_name, ',');
+    auto lines = ReadInDataSet(file_name, ',');
 
     ASSERT_EQ(lines.size(), 3);
     ASSERT_EQ(lines[0].size(), 2);
     ASSERT_EQ(lines[0][0], 1.0);
     ASSERT_EQ(lines[2][1], 90);
 
-    auto constraints = HDBSCANStar::ReadInConstraints(file_name_constraints);
+    auto constraints = ReadInConstraints(file_name_constraints);
     ASSERT_EQ(constraints.size(), 10);
     ASSERT_EQ(constraints[3].GetPointA(), 304);
     ASSERT_EQ(constraints[8].GetPointB(), 455);
@@ -24,22 +24,22 @@ TEST(HDBSCAN_Star, IO) {
 
 TEST(HDBSCAN_Star, core_distances) {
     std::string file_name = "../tests/data/example_data_set.csv";
-    auto data_set = HDBSCANStar::ReadInDataSet(file_name, ',');
+    auto data_set = ReadInDataSet(file_name, ',');
     std::vector<double> core_distances;
 
-    HDBSCANStar::CalculateCoreDistances(data_set, 3, EuclidianDistance, core_distances);
+    CalculateCoreDistancesNoOptimization(data_set, 3, EuclidianDistance, core_distances);
     ASSERT_EQ(core_distances.size(), data_set.size());
     ASSERT_DOUBLE_EQ(core_distances[0], 0.2049413436136352);
 }
 
 TEST(HDBSCAN_Star, core_distances_symmetry) {
     std::string file_name = "../tests/data/example_data_set.csv";
-    auto data_set = HDBSCANStar::ReadInDataSet(file_name, ',');
+    auto data_set = ReadInDataSet(file_name, ',');
     std::vector<double> core_distances_symmetry;
     std::vector<double> core_distances;
 
-    HDBSCANStar::CalculateCoreDistancesSymmetry(data_set, 3, EuclidianDistance, core_distances_symmetry);
-    HDBSCANStar::CalculateCoreDistances(data_set, 3, EuclidianDistance, core_distances);
+    CalculateCoreDistancesSymmetry(data_set, 3, EuclidianDistance, core_distances_symmetry);
+    CalculateCoreDistancesNoOptimization(data_set, 3, EuclidianDistance, core_distances);
     ASSERT_EQ(core_distances_symmetry.size(), data_set.size());
     ASSERT_DOUBLE_EQ(core_distances_symmetry[0], 0.2049413436136352);
 
@@ -63,30 +63,30 @@ TEST(HDBSCAN_Star, create_tree) {
     bool compact = true;
 
 
-    auto data_set = HDBSCANStar::ReadInDataSet(file_name, ',');
+    auto data_set = ReadInDataSet(file_name, ',');
     std::vector<double> core_distances;
 
-    HDBSCANStar::CalculateCoreDistances(data_set, min_pts, EuclidianDistance, core_distances);
-    UndirectedGraph mst = HDBSCANStar::ConstructMST(data_set, core_distances, true, EuclidianDistance);
+    CalculateCoreDistancesNoOptimization(data_set, min_pts, EuclidianDistance, core_distances);
+    UndirectedGraph mst = ConstructMST(data_set, core_distances, true, EuclidianDistance);
     mst.QuicksortByEdgeWeight();
     size_t num_points = data_set.size();
     double* point_noise_levels = new double[num_points];
     size_t* point_last_clusters = new size_t[num_points];
-    auto constraints = HDBSCANStar::ReadInConstraints(file_name_constraints);
+    auto constraints = ReadInConstraints(file_name_constraints);
 
     std::vector<Cluster*> clusters;
     ASSERT_NO_THROW(
-        HDBSCANStar::ComputeHierarchyAndClusterTree(mst, min_cluster_size, compact, constraints,
+        ComputeHierarchyAndClusterTree(mst, min_cluster_size, compact, constraints,
             "test_output/hierarchy.csv", "test_output/tree.csv", ',', point_noise_levels, point_last_clusters,
             "test_output/visualization.vis", clusters)
     );
 
-    bool inf_stability = HDBSCANStar::PropagateTree(clusters);
+    bool inf_stability = PropagateTree(clusters);
 
     std::vector<size_t> res;
     std::vector<OutlierScore> outlier_scores;
-    ASSERT_NO_THROW(HDBSCANStar::FindProminentClusters(clusters, "test_output/hierarchy.csv", "test_output/flat.csv", ',', num_points, inf_stability, res));
-    ASSERT_NO_THROW(HDBSCANStar::CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters, core_distances.data(), "test_output/outlier_score.csv", ',', inf_stability, outlier_scores));
+    ASSERT_NO_THROW(FindProminentClusters(clusters, "test_output/hierarchy.csv", "test_output/flat.csv", ',', num_points, inf_stability, res));
+    ASSERT_NO_THROW(CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters, core_distances.data(), "test_output/outlier_score.csv", ',', inf_stability, outlier_scores));
 
     // check hierarchy
     std::fstream hierarchy_ours("test_output/hierarchy.csv");
