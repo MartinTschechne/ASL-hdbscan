@@ -33,34 +33,33 @@ CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& op
     return CalculateCoreDistancesNoOptimization;
 }
 
-void CalculateCoreDistancesNoOptimization(const std::vector<std::vector<double>>& data_set, size_t k,
-    DistanceCalculator distance_function, std::vector<double>& result) {
+double* CalculateCoreDistancesNoOptimization(const double* const * const data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions) {
 
     size_t num_neighbors = k - 1;
     const double DOUBLE_MAX = std::numeric_limits<double>::max();
-    result.clear();
-    result.resize(data_set.size());
+    double* result = new double[num_points];
 
     if(k == 1) {
-        for(size_t point = 0; point < data_set.size(); ++point) {
+        for(size_t point = 0; point < num_points; ++point) {
             result[point] = 0;
         }
-        return;
+        return result;
     }
 
     double* knn_distances = new double[num_neighbors];
-    for(size_t point = 0; point < data_set.size(); ++point) {
+    for(size_t point = 0; point < num_points; ++point) {
         for(size_t i = 0; i < num_neighbors; ++i) {
             knn_distances[i] = DOUBLE_MAX;
         }
 
         // TODO use symmetry
-        for(size_t neighbor = 0; neighbor < data_set.size(); ++neighbor) {
+        for(size_t neighbor = 0; neighbor < num_points; ++neighbor) {
             if(point == neighbor) {
                 continue;
             }
 
-            double distance = distance_function(data_set[point].data(), data_set[neighbor].data(), data_set[0].size());
+            double distance = distance_function(data_set[point], data_set[neighbor], num_dimensions);
 
             //Check at which position in the nearest distances the current distance would fit:
             size_t neighbor_index = num_neighbors;
@@ -79,30 +78,30 @@ void CalculateCoreDistancesNoOptimization(const std::vector<std::vector<double>>
         result[point] = knn_distances[num_neighbors-1];
     }
     delete[] knn_distances;
+    return result;
 }
 
-void CalculateCoreDistancesSymmetry(const std::vector<std::vector<double>>& data_set, size_t k,
-    DistanceCalculator distance_function, std::vector<double>& result) {
+double* CalculateCoreDistancesSymmetry(const double* const * const data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions) {
 
     size_t num_neighbors = k - 1;
     const double DOUBLE_MAX = std::numeric_limits<double>::max();
-    result.clear();
-    result.resize(data_set.size());
+    double* result = new double[num_points];
 
     if(k == 1) {
-        for(size_t point = 0; point < data_set.size(); ++point) {
+        for(size_t point = 0; point < num_points; ++point) {
             result[point] = 0;
         }
-        return;
+        return result;
     }
 
     // initialize distance matrix with DOUBLE_MAX
-    std::vector<std::vector<double>> distance_matrix(data_set.size(),std::vector<double>(data_set.size(), DOUBLE_MAX));
+    std::vector<std::vector<double>> distance_matrix(num_points, std::vector<double>(num_points, DOUBLE_MAX));
     double d;
     // populate distance matrix
-    for (size_t point = 0; point < data_set.size(); point++) {
-        for (size_t neighbor = point + 1; neighbor < data_set.size(); neighbor++) {
-            d = distance_function(data_set[point].data(), data_set[neighbor].data(), data_set[0].size());
+    for (size_t point = 0; point < num_points; point++) {
+        for (size_t neighbor = point + 1; neighbor < num_points; neighbor++) {
+            d = distance_function(data_set[point], data_set[neighbor], num_dimensions);
             distance_matrix[point][neighbor] = d;
             distance_matrix[neighbor][point] = d;
         }
@@ -110,12 +109,12 @@ void CalculateCoreDistancesSymmetry(const std::vector<std::vector<double>>& data
 
     // calculate core distance
     double* knn_distances = new double[num_neighbors];
-    for(size_t point = 0; point < data_set.size(); ++point) {
+    for(size_t point = 0; point < num_points; ++point) {
         for(size_t i = 0; i < num_neighbors; ++i) {
             knn_distances[i] = DOUBLE_MAX;
         }
 
-        for(size_t neighbor = 0; neighbor < data_set.size(); ++neighbor) {
+        for(size_t neighbor = 0; neighbor < num_points; ++neighbor) {
 
             //Check at which position in the nearest distances the current distance would fit:
             size_t neighbor_index = num_neighbors;
@@ -134,4 +133,5 @@ void CalculateCoreDistancesSymmetry(const std::vector<std::vector<double>>& data
         result[point] = knn_distances[num_neighbors-1];
     }
     delete[] knn_distances;
+    return result;
 }

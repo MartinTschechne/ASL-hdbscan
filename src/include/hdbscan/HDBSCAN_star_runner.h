@@ -12,6 +12,8 @@
  * @brief Simple class for storing input parameters.
  */
 struct RunnerConfig {
+    size_t num_points;
+    size_t num_dimensions;
     std::string points_file;
     std::string constraints;
     std::string hierarchy_file;
@@ -19,7 +21,7 @@ struct RunnerConfig {
     std::string visualization_file;
     std::string partition_file;
     std::string outlier_score_file;
-    size_t min_pts; 
+    size_t num_neighbors; 
     size_t min_cl_size;
     bool compact;
     std::string dist_function;
