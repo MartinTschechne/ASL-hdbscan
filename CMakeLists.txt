@@ -12,8 +12,11 @@ include_directories(
     ${gflags_BINARY_DIR}/include
 )
 
-add_library(
-    hdb_lib
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+set(
+    HDB_SOURCE_FILES
     src/hdbscan/constraint.cpp
     src/hdbscan/outlier_score.cpp
     src/hdbscan/undirected_graph.cpp
@@ -27,6 +30,15 @@ add_library(
     src/hdbscan/prominent_clusters.cpp
     src/common/list.cpp
     src/common/vector.cpp
+)
+
+add_library(
+    hdb_lib
+    ${HDB_SOURCE_FILES}
+)
+set_target_properties(
+    hdb_lib
+    PROPERTIES COMPILE_FLAGS "-O3"
 )
 
 add_executable(
@@ -45,13 +57,6 @@ add_executable(
     tests/common/list.cpp
     tests/common/vector.cpp
 )
-
-add_executable(
-    hdbscan 
-    src/main.cpp
-)
-
-
 target_link_libraries(
     unit_tests
     gtest_main
@@ -60,13 +65,45 @@ target_link_libraries(
     gflags_nothreads_static
     stdc++fs
 )
-
-target_link_libraries(
-    hdbscan
-    gflags_nothreads_static
-    hdb_lib
-    pthread
+set_target_properties(
+    unit_tests
+    PROPERTIES COMPILE_FLAGS "-O3"
 )
+
+function(build_hdbscan exec_name compiler_flags output_directory) 
+    add_executable(
+        ${exec_name}
+        src/main.cpp
+    )
+    add_library(
+        ${exec_name}_lib
+        ${HDB_SOURCE_FILES}
+    )
+    target_link_libraries(
+        ${exec_name}
+        gflags_nothreads_static
+        ${exec_name}_lib
+        pthread
+    )
+    set_target_properties(
+        ${exec_name}
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${output_directory}"
+    )
+    set_target_properties(
+        ${exec_name}
+        ${exec_name}_lib 
+        PROPERTIES COMPILE_FLAGS ${compiler_flags})
+endfunction()
+
+function(build_hdbscan_benchmarking compiler_flags) 
+    build_hdbscan("hdbscan${compiler_flags}" ${compiler_flags} "benchmarking")
+endfunction()
+
+build_hdbscan("hdbscan" "-O3" "")
+
+build_hdbscan_benchmarking("-O0")
+build_hdbscan_benchmarking("-O3")
 
 enable_testing()
 
