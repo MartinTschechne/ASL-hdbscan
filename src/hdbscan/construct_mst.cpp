@@ -69,7 +69,7 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
     }
 
     //Create an array for vertices in the tree that each point attached to:
-    size_t* other_vertex_indices = new size_t[n_pts-1 + self_edge_capacity];
+    size_t* other_vertex_indices = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
     for(size_t i = 0; i < n_pts; ++i) {
         other_vertex_indices[i] = i;
     }
