@@ -56,6 +56,7 @@ add_executable(
     tests/hdbscan/runner.cpp
     tests/common/list.cpp
     tests/common/vector.cpp
+    tests/common/bitset.cpp
 )
 target_link_libraries(
     unit_tests

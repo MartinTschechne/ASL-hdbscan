@@ -1,19 +1,22 @@
 #include <hdbscan/HDBSCAN_star.h>
+#include <float.h>
+#include <stdint.h>
+#include <common/bitset.h>
 
 UndirectedGraph ConstructMST(const double* const * const data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension) {
 
     size_t self_edge_capacity = self_edges ? n_pts : 0;
-    const double DOUBLE_MAX = std::numeric_limits<double>::max();
-    const size_t SIZE_T_MAX = std::numeric_limits<size_t>::max();
+    const double DOUBLE_MAX = DBL_MAX;
+    const size_t SIZE_T_MAX = SIZE_MAX;
 
     //One bit is set (true) for each attached point, or unset (false) for unattached points:
-    std::vector<bool> attached_points(n_pts); // bool vector is specialized to act like bitset
+    BitSet attached_points = CreateBitset(n_pts, false);
 
     //Each point has a current neighbor point in the tree, and a current nearest distance:
-    size_t* nearest_mrd_neighbors = new size_t[n_pts-1 + self_edge_capacity];
-    double* nearest_mrd_distances = new double[n_pts-1 + self_edge_capacity];
+    size_t* nearest_mrd_neighbors = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
+    double* nearest_mrd_distances = (double*)calloc(n_pts-1 + self_edge_capacity, sizeof(double));
 
     for(size_t i = 0; i < n_pts-1; ++i) {
         nearest_mrd_distances[i] = DOUBLE_MAX;
@@ -22,10 +25,10 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
     //The MST is expanded starting with the last point in the data set:
     size_t current_point = n_pts - 1;
     size_t num_attached_points = 1;
-    attached_points[current_point] = true;
+    SetBit(attached_points, current_point, true);
 
     //Continue attaching points to the MST until all points are attached:
-    while(num_attached_points < n_pts) {
+    for(num_attached_points = 1; num_attached_points < n_pts; ++num_attached_points) {
         size_t nearest_mrd_point = SIZE_T_MAX;
         double nearest_mrd_distance = DOUBLE_MAX;
 
@@ -34,7 +37,7 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
             if(current_point == neighbor) {
                 continue;
             }
-            if(attached_points[neighbor]) { // point already attached
+            if(GetBit(attached_points, neighbor)) { // point already attached
                 continue;
             }
 
@@ -61,8 +64,7 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
         }
 
         //Attach the closest point found in this iteration to the tree:
-        attached_points[nearest_mrd_point] = true;
-        ++num_attached_points;
+        SetBit(attached_points, nearest_mrd_point, true);
         current_point = nearest_mrd_point;
     }
 
