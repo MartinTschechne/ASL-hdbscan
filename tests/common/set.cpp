@@ -240,6 +240,7 @@ TEST(set, set_next_get_no_resize) {
     std::set<size_t> std_set;
     set* s = set_create();
 
+
     size_t sample, num_samples{SET_DEFAULT_CAPACITY / 4};
     for (int i = 0; i < num_samples; i++) {
         sample = distrib(gen);
@@ -257,11 +258,12 @@ TEST(set, set_next_get_no_resize) {
 
     ASSERT_EQ(std_set.size(), set_size(s));
 
-    for (auto it = std_set.begin(); it != std_set.end(); it++) {
-        std_set.erase(*it);
-        set_erase(s, *it);
-        ASSERT_EQ(std_set.size(), set_size(s));
+    size_t count{0};
+    for (const size_t& sample : std_set) {
+        set_erase(s, sample);
+        count++;
     }
+    ASSERT_EQ(std_set.size() - count, set_size(s));
 
     set_free(s);
 }
@@ -292,12 +294,15 @@ TEST(set, set_next_get_resize) {
 
     ASSERT_EQ(std_set.size(), set_size(s));
 
-    for (auto it = std_set.begin(); it != std_set.end(); it++) {
-        std_set.erase(*it);
-        set_erase(s, *it);
-        ASSERT_EQ(std_set.size(), set_size(s));
+    
+    size_t count{0};
+    for (const size_t& sample : std_set) {
+        set_erase(s, sample);
+        count++;
     }
-
+    ASSERT_EQ(std_set.size() - count, set_size(s));
+    
+    std_set.clear();
     num_samples *= 4;
     for (int i = 0; i < num_samples; i++) {
         sample = distrib(gen);
@@ -315,12 +320,14 @@ TEST(set, set_next_get_resize) {
 
     ASSERT_EQ(std_set.size(), set_size(s));
 
-    for (auto it = std_set.begin(); it != std_set.end(); it++) {
-        std_set.erase(*it);
-        set_erase(s, *it);
-        ASSERT_EQ(std_set.size(), set_size(s));
+    count = 0;
+    for (const size_t& sample : std_set) {
+        set_erase(s, sample);
+        count++;
     }
-
+    ASSERT_EQ(std_set.size() - count, set_size(s));
+   
+    std_set.clear();
     num_samples *= 4;
     for (int i = 0; i < num_samples; i++) {
         sample = distrib(gen);
@@ -338,11 +345,12 @@ TEST(set, set_next_get_resize) {
 
     ASSERT_EQ(std_set.size(), set_size(s));
 
-    for (auto it = std_set.begin(); it != std_set.end(); it++) {
-        std_set.erase(*it);
-        set_erase(s, *it);
-        ASSERT_EQ(std_set.size(), set_size(s));
+    count = 0;
+    for (const size_t& sample : std_set) {
+        set_erase(s, sample);
+        count++;
     }
+    ASSERT_EQ(std_set.size() - count, set_size(s));
 
     set_free(s);
 }
