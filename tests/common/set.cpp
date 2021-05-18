@@ -189,48 +189,6 @@ TEST(set, set_erase_empty) {
     set_free(s);
 }
 
-// TEST(set, set_prev_get_no_resize) {
-//     const size_t b{2048};
-//     std::random_device rd;
-//     std::mt19937 gen(rd());
-//     std::uniform_int_distribution<size_t> distrib(0, b);
-
-//     std::set<size_t> std_set;
-//     set* s = set_create();
-
-//     size_t sample, num_samples{SET_DEFAULT_CAPACITY / 4};
-//     for (int i = 0; i < num_samples; i++) {
-//         sample = distrib(gen);
-//         std_set.insert(sample);
-//         set_insert(s, sample);
-//     }
-
-//     for (auto it = std_set.rbegin(); it != std_set.rend(); it++) {
-//         printf("std->set: %u\n", *it);
-//         ASSERT_TRUE(set_contains(s, *it));
-//     }
-
-//     ASSERT_EQ(set_end(s)-1, set_prev(s, set_end(s)));
-
-//     for (size_t i = set_end(s)-1; i > set_begin(s); i = set_prev(s, i)) {
-//         printf("set->std: %u->%u\n", i, set_get(s,i));
-//         ASSERT_TRUE(std_set.contains(set_get(s, i)));
-//     }
-
-//     ASSERT_EQ(std_set.size(), set_size(s));
-
-//     for (auto it = std_set.rbegin(); it != std_set.rend(); it++) {
-//         printf("erasing %u\n", *it);
-//         ASSERT_EQ(std_set.contains(*it), set_contains(s, *it));
-//         std_set.erase(*it);
-//         set_erase(s, *it);
-//         ASSERT_EQ(std_set.size(), set_size(s));
-//     }
-
-//     set_free(s);
-// }
-
-
 TEST(set, set_next_get_no_resize) {
     const size_t b{2048};
     std::random_device rd;
