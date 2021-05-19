@@ -58,6 +58,7 @@ add_executable(
     tests/common/vector.cpp
     tests/common/bitset.cpp
     tests/common/set.cpp
+    tests/common/quicksort.cpp
 )
 target_link_libraries(
     unit_tests
