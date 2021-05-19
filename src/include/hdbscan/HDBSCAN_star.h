@@ -47,8 +47,8 @@ struct OutlierScore {
 
 int CompareTo(const OutlierScore& a, const OutlierScore& b);
 
-typedef void(*CalculateCoreDistances_t)(const std::vector<std::vector<double>>&, size_t,
-    DistanceCalculator, std::vector<double>&);
+typedef double*(*CalculateCoreDistances_t)(const double* const * const, size_t,
+    DistanceCalculator, const size_t, const size_t);
 
 /**
  * @brief Reads in the input data set from the file given, assuming the
@@ -62,8 +62,9 @@ typedef void(*CalculateCoreDistances_t)(const std::vector<std::vector<double>>&,
  * @return A double[][] where index [i][j] indicates the jth attribute of
  * data point i
  */
-std::vector<std::vector<double>> ReadInDataSet(std::string const& file_name,
-    const char delimiter);
+double** ReadInDataSet(std::string const& file_name, const char delimiter, const size_t num_points, const size_t point_dimension);
+
+void FreeDataset(const double * const * dataset, size_t num_points);
 
 /**
  * @brief Reads in constraints from the file given, assuming the delimiter
@@ -92,8 +93,8 @@ CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& op
  * between points
  * @return A vector of core distances
  */
-void CalculateCoreDistancesNoOptimization(const std::vector<std::vector<double>>& data_set, size_t k,
-    DistanceCalculator distance_function, std::vector<double>& result);
+double* CalculateCoreDistancesNoOptimization(const double* const * const data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions);
 
     /**
  * @brief  Symmetry optimized version of CalculateCoreDistances.
@@ -106,8 +107,8 @@ void CalculateCoreDistancesNoOptimization(const std::vector<std::vector<double>>
  * between points
  * @return A vector of core distances
  */
-void CalculateCoreDistancesSymmetry(const std::vector<std::vector<double>>& data_set, size_t k,
-    DistanceCalculator distance_function, std::vector<double>& result);
+double* CalculateCoreDistancesSymmetry(const double* const * const data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions);
 
 /**
  * @brief Constructs the minimum spanning tree of mutual reachability
@@ -122,9 +123,9 @@ void CalculateCoreDistancesSymmetry(const std::vector<std::vector<double>>& data
  * @return An UndirectedGraph containing the MST for the data set using the
  * mutual reachability distances
  */
-UndirectedGraph ConstructMST(const std::vector<std::vector<double>>& data_set,
-    const std::vector<double>& core_distances, bool self_edges,
-    DistanceCalculator distance_function);
+UndirectedGraph ConstructMST(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension);
 
 /**
  * @brief Computes the hierarchy and cluster tree from the minimum spanning
@@ -210,7 +211,7 @@ void FindProminentClusters(const std::vector<Cluster*>& clusters,
  */
 void CalculateOutlierScores(
     const std::vector<Cluster*>& clusters, double* point_noise_levels, size_t point_noise_levels_length,
-    size_t* point_last_clusters, double* core_distances,
+    size_t* point_last_clusters, const double* core_distances,
     const std::string& outlier_scores_outputFile, const char delimiter,
     bool infinite_stability, std::vector<OutlierScore>& result);
 

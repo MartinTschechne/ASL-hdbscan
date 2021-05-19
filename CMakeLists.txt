@@ -17,7 +17,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 set(
     HDB_SOURCE_FILES
-    src/hdbscan/constraint.cpp
     src/hdbscan/outlier_score.cpp
     src/hdbscan/undirected_graph.cpp
     src/hdbscan/cluster.cpp
@@ -57,6 +56,7 @@ add_executable(
     tests/hdbscan/runner.cpp
     tests/common/list.cpp
     tests/common/vector.cpp
+    tests/common/bitset.cpp
     tests/common/set.cpp
 )
 target_link_libraries(

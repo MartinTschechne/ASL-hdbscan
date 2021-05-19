@@ -20,7 +20,7 @@ int CompareTo(const OutlierScore& a, const OutlierScore& b) {
 
 void CalculateOutlierScores(
         const std::vector<Cluster*>& clusters, double* point_noise_levels, size_t point_noise_levels_length,
-        size_t* point_last_clusters, double* core_distances,
+        size_t* point_last_clusters, const double* core_distances,
         const std::string& outlier_scores_outputFile, const char delimiter,
         bool infinite_stability, std::vector<OutlierScore>& result) {
 
