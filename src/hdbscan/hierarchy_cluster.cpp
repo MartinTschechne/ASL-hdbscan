@@ -282,14 +282,14 @@ void CalculateNumConstraintsSatisfied(
     }
 
     for(const Constraint& constraint : constraints) {
-        size_t label_a = cluster_labels[constraint.GetPointA()];
-        size_t label_b = cluster_labels[constraint.GetPointB()];
+        size_t label_a = cluster_labels[constraint.point_a];
+        size_t label_b = cluster_labels[constraint.point_b];
 
-        if(constraint.GetType() == Constraint::CONSTRAINT_TYPE::MUST_LINK && label_a == label_b) {
+        if(constraint.type == Constraint::CONSTRAINT_TYPE::MUST_LINK && label_a == label_b) {
             if(new_cluster_labels.find(label_a) != new_cluster_labels.end()) {
                 clusters[label_a]->AddConstraintsSatisfied(2);
             }
-        } else if(constraint.GetType() == Constraint::CONSTRAINT_TYPE::CANNOT_LINK && (label_a != label_b || label_a == 0)) {
+        } else if(constraint.type == Constraint::CONSTRAINT_TYPE::CANNOT_LINK && (label_a != label_b || label_a == 0)) {
             if(label_a != 0 && new_cluster_labels.find(label_a) != new_cluster_labels.end()) {
                 clusters[label_a]->AddConstraintsSatisfied(1);
             }
@@ -299,7 +299,7 @@ void CalculateNumConstraintsSatisfied(
 
             if(label_a == 0) {
                 for(Cluster* parent : parents) {
-                    if(parent->VirtualChildClusterContaintsPoint(constraint.GetPointA())) {
+                    if(parent->VirtualChildClusterContaintsPoint(constraint.point_a)) {
                         parent->AddVirtualChildConstraintsSatisfied(1);
                         break;
                     }
@@ -308,7 +308,7 @@ void CalculateNumConstraintsSatisfied(
 
             if(label_b == 0) {
                 for(Cluster* parent : parents) {
-                    if(parent->VirtualChildClusterContaintsPoint(constraint.GetPointB())) {
+                    if(parent->VirtualChildClusterContaintsPoint(constraint.point_b)) {
                         parent->AddVirtualChildConstraintsSatisfied(1);
                         break;
                     }

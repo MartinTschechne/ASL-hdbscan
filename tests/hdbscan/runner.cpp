@@ -20,6 +20,8 @@ TEST(HDBSCAN_Runner, full_pipeline) {
     bool compact = true;
 
     RunnerConfig runner_config = {
+        500,
+        2,
         file_name,
         file_name_constraints,
         "test_output/hierarchy_runner.csv",
@@ -154,6 +156,8 @@ TEST(HDBSCAN_Runner, full_pipeline_high_dim) {
     bool compact = true;
 
     RunnerConfig runner_config = {
+        10000,
+        32,
         file_name,
         file_name_constraints,
         "test_output/hierarchy_runner_large.csv",

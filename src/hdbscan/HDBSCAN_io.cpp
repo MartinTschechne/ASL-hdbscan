@@ -1,30 +1,28 @@
 #include <hdbscan/HDBSCAN_star.h>
 
-std::vector<std::vector<double>> ReadInDataSet(std::string const& file_name, const char delimiter) {
-    std::vector<std::vector<double>> result;
+double** ReadInDataSet(std::string const& file_name, const char delimiter, const size_t num_points, const size_t point_dimension) {
+    double** result = new double*[num_points];
+    for(size_t i = 0; i < num_points; ++i) {
+        result[i] = new double[point_dimension];
+    }
     std::ifstream file(file_name);
     std::string line;
-    int num_attributes = -1;
     size_t line_count = 0;
 
     while(std::getline(file, line)) {
         std::string value;
-        std::vector<double> row;
         std::stringstream stream(line);
         try {
             std::string value;
+            size_t i = 0;
             while(std::getline(stream, value, delimiter)) {
-                row.push_back(std::stod(value));
+                result[line_count][i] = std::stod(value);
+                ++i;
             }
 
-            if(num_attributes == -1) {
-                num_attributes = row.size();
-            }
-            if(row.size() != num_attributes) {
+            if(i != point_dimension) {
                 throw std::runtime_error("Line " + std::to_string(line_count) + " has a different number of attributes than the first line");
             }
-
-            result.push_back(row);
         } catch(const std::exception& e) {
             std::cout << "Failed to parse line " << line_count << ". " << e.what() << std::endl;
         }
@@ -33,6 +31,14 @@ std::vector<std::vector<double>> ReadInDataSet(std::string const& file_name, con
     }
 
     return result;
+}
+
+void FreeDataset(const double * const * dataset, size_t num_points) {
+    for(size_t i = 0; i < num_points; ++i) {
+        delete[] dataset[i];
+    }
+
+    delete[] dataset;
 }
 
 std::vector<Constraint> ReadInConstraints(std::string const& file_name) {

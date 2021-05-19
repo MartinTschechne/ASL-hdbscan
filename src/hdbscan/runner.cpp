@@ -6,6 +6,8 @@
 
 #include <distances/distances.h>
 
+DEFINE_int32(num_points, 0, "Number of points in the dataset");
+DEFINE_int32(num_dimension, 0, "Number of dimensions in the dataset");
 DEFINE_string(points_file, "", "Input points, csv format");
 DEFINE_string(constraints, "", "Constraints file, optional, csv format");
 DEFINE_string(hierarchy_file, "", "Where to write hierarchy to");
@@ -13,7 +15,7 @@ DEFINE_string(tree_file, "", "Where to write the tree to");
 DEFINE_string(visualization_file, "", "Where to write the visualization to");
 DEFINE_string(partition_file, "", "Where to write the partition to");
 DEFINE_string(outlier_score_file, "", "Where to write the outlier scores to");
-DEFINE_int32(min_pts, 8, "Minimum number of points");
+DEFINE_int32(num_neighbors, 8, "Nearest neighbors");
 DEFINE_int32(min_cl_size, 8, "Minimum cluster size");
 DEFINE_bool(compact, true, "Whether or not to compact the output");
 DEFINE_string(dist_function, "euclidean", "Which metric to use. One of [euclidean, cosine, manhattan, pearson, supremum]");
@@ -21,6 +23,8 @@ DEFINE_string(optimization_level, "no_optimization", "Which optimization level t
 
 RunnerConfig RunnerConfigFromFlags() {
     return {
+        static_cast<size_t>(FLAGS_num_points),
+        static_cast<size_t>(FLAGS_num_dimension),
         FLAGS_points_file,
         FLAGS_constraints,
         FLAGS_hierarchy_file,
@@ -28,7 +32,7 @@ RunnerConfig RunnerConfigFromFlags() {
         FLAGS_visualization_file,
         FLAGS_partition_file,
         FLAGS_outlier_score_file,
-        static_cast<size_t>(FLAGS_min_pts),
+        static_cast<size_t>(FLAGS_num_neighbors),
         static_cast<size_t>(FLAGS_min_cl_size),
         FLAGS_compact,
         FLAGS_dist_function,
@@ -53,9 +57,11 @@ void HDBSCANRunner(RunnerConfig config) {
     assert(config.partition_file != "");
     assert(config.visualization_file != "");
     assert(config.outlier_score_file != "");
+    assert(config.num_points > 0 && config.num_dimensions > 0);
     
-    std::vector<std::vector<double>> data_set = ReadInDataSet(config.points_file, ',');
-    size_t num_points = data_set.size();
+    size_t num_points = config.num_points;
+    size_t num_dimensions = config.num_dimensions;
+    const double * const * data_set = ReadInDataSet(config.points_file, ',', num_points, num_dimensions);
     
 
     std::vector<Constraint> constraints;
@@ -63,15 +69,13 @@ void HDBSCANRunner(RunnerConfig config) {
         constraints = ReadInConstraints(config.constraints);
     }
 
-    std::vector<double> core_distances;
     CalculateCoreDistances_t calculate_core_distances_f = GetCalculateCoreDistancesFunction(config.optimization_level);
-    calculate_core_distances_f(data_set, config.min_pts, dist_fun, core_distances);
+    const double* const core_distances = calculate_core_distances_f(data_set, config.num_neighbors, dist_fun, num_points, num_dimensions);
 
-
-    UndirectedGraph mst = ConstructMST(data_set, core_distances, true, dist_fun);
+    UndirectedGraph mst = ConstructMST(data_set, core_distances, true, dist_fun, num_points, num_dimensions);
     mst.QuicksortByEdgeWeight();
 
-    data_set.clear();
+    FreeDataset(data_set, num_points);
 
     double* point_noise_levels = new double[num_points];
     size_t* point_last_clusters = new size_t[num_points];
@@ -90,8 +94,9 @@ void HDBSCANRunner(RunnerConfig config) {
 
     std::vector<OutlierScore> outlier_scores;
     CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters, 
-        core_distances.data(), config.outlier_score_file, ',', inf_stability, outlier_scores);
+        core_distances, config.outlier_score_file, ',', inf_stability, outlier_scores);
 
     delete[] point_last_clusters;
     delete[] point_noise_levels;
+    delete[] core_distances;
 }

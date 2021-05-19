@@ -7,8 +7,8 @@ TEST(contraint, constraint_basic) {
     Constraint a(point_a, point_b, Constraint::CONSTRAINT_TYPE::CANNOT_LINK);
     Constraint b(point_a, point_b, Constraint::CONSTRAINT_TYPE::MUST_LINK);
 
-    ASSERT_EQ(a.GetPointA(), point_a);
-    ASSERT_EQ(a.GetPointB(), point_b);
-    ASSERT_EQ(a.GetType(), Constraint::CONSTRAINT_TYPE::CANNOT_LINK);
-    ASSERT_EQ(b.GetType(), Constraint::CONSTRAINT_TYPE::MUST_LINK);
+    ASSERT_EQ(a.point_a, point_a);
+    ASSERT_EQ(a.point_b, point_b);
+    ASSERT_EQ(a.type, Constraint::CONSTRAINT_TYPE::CANNOT_LINK);
+    ASSERT_EQ(b.type, Constraint::CONSTRAINT_TYPE::MUST_LINK);
 }
