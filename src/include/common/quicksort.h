@@ -45,7 +45,7 @@ long int Partition(double* a, long int start_index, long int end_index) {
  */
 void Quicksort(double* a, long int start_index, long int end_index) {
     if (start_index < end_index) {
-        size_t pivot_index = Partition(a, start_index, end_index);
+        long int pivot_index = Partition(a, start_index, end_index);
         Quicksort(a, start_index, pivot_index - 1);
         Quicksort(a, pivot_index + 1, end_index);
     }
