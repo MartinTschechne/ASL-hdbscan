@@ -100,6 +100,23 @@ TEST(set, bitset_set_clear_get) {
     bitset_free(b);
 }
 
+TEST(set, set_clear_contains) {
+    set* s = set_create();
+    set_insert(s, 20);
+    set_insert(s, 40);
+
+    ASSERT_TRUE(set_contains(s, 20));
+    ASSERT_TRUE(set_contains(s, 40));
+    ASSERT_FALSE(set_contains(s, 89));
+
+    set_clear(s);
+
+    ASSERT_FALSE(set_contains(s, 20));
+    ASSERT_FALSE(set_contains(s, 40));
+    ASSERT_FALSE(set_contains(s, 89));
+
+}
+
 
 TEST(set, set_create_empty_free) {
     set* s = set_create();

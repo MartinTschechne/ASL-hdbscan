@@ -85,13 +85,13 @@ void Propagate(Cluster* cluster) {
 }
 
 void AddPointsToVirtualChildCluster(Cluster* cluster, const set* const points) {
-    for(size_t i = set_begin(points); i < set_end(points); ++i) {
+    for(size_t i = set_begin(points); i < set_end(points); i = set_next(points, i)) {
         set_insert(cluster->virtual_child_cluster, set_get(points, i));
     }
 }
 
 bool VirtualChildClusterContaintsPoint(Cluster* cluster, size_t point) {
-    return set_find(cluster->virtual_child_cluster, point) != set_end(cluster->virtual_child_cluster);
+    return set_contains(cluster->virtual_child_cluster, point);
 }
 
 void AddVirtualChildConstraintsSatisfied(Cluster* cluster, size_t num_constraints) {
