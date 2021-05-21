@@ -133,6 +133,16 @@ size_t set_begin(const set* s);
 size_t set_next(const set* s, size_t idx);
 
 /**
+ * @brief Imitates reverse iterator by returning next index for given index
+ * of member of set
+ * 
+ * @param s Set to get previous index of given index from
+ * @param idx Index to get preceeding index of
+ * @return size_t Index of member which precedes index idx in set s
+ */
+size_t set_prev(const set* s, size_t idx);
+
+/**
  * @brief Imitates iterator by returning index+1 of last member of set
  * 
  * @param s Set to get last index of member of
@@ -148,7 +158,6 @@ size_t set_end(const set* s);
  * @return size_t Key at index idx in set s
  */
 size_t set_get(const set* s, size_t idx);
-
 
 /**
  * @brief Checks if the set has no members

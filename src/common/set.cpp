@@ -1,6 +1,7 @@
 #include <common/set.h>
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 
 // bitset - required for set:
 
@@ -100,20 +101,20 @@ size_t set_next(const set* s, size_t idx) {
     return next;
 }
 
-// size_t set_prev(const set* s, size_t idx) {
-//     size_t prev = UNDEFINED_VALUE;
-//     if (s && s->capacity > 0) {
-//         prev = idx - 1;
-//         while (prev >= 0) {
-//             if (bitset_get(s->bit_elements, prev)) {
-//                 return prev;
-//             }
-//             prev--;
-//         }
-//         prev = set_end(s);
-//     }
-//     return prev;
-// }
+size_t set_prev(const set* s, size_t idx) {
+    size_t prev = UNDEFINED_VALUE;
+    if (s && s->capacity > 0) {
+        prev = idx;
+        while (prev > 0) {
+            prev--;
+            if (bitset_get(s->bit_elements, prev)) {
+                return prev;
+            }
+        }
+        prev = set_end(s);
+    }
+    return prev;
+}
 
 size_t set_end(const set* s) {
     size_t idx = UNDEFINED_VALUE;
