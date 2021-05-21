@@ -329,3 +329,42 @@ TEST(set, set_next_get_resize) {
 
     set_free(s);
 }
+
+TEST(set, set_prev_get_resize) {
+    const size_t b{16384};
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<size_t> distrib(0, b);
+
+    std::set<size_t> std_set;
+    set* s = set_create();
+
+    size_t sample, num_samples{SET_DEFAULT_CAPACITY * 4};
+    // size_t sample, num_samples{10};
+    for (int i = 0; i < num_samples; i++) {
+        sample = distrib(gen);
+        std_set.insert(sample);
+        set_insert(s, sample);
+    }
+
+    for (auto it = std_set.rbegin(); it != std_set.rend(); it++) {
+        ASSERT_TRUE(set_contains(s, *it));
+    }
+
+    for (size_t i = set_prev(s, set_end(s));
+        i != set_end(s); i = set_prev(s, i)) {
+        ASSERT_TRUE(std_set.contains(set_get(s, i)));
+    }
+
+    ASSERT_EQ(std_set.size(), set_size(s));
+
+    
+    size_t count{0};
+    for (const size_t& sample : std_set) {
+        set_erase(s, sample);
+        count++;
+    }
+    ASSERT_EQ(std_set.size() - count, set_size(s));
+    
+    set_free(s);
+}
