@@ -6,24 +6,24 @@ void FindProminentClusters(const std::vector<Cluster*>& clusters,
         std::vector<size_t>& result) {
 
     //Take the list of propagated clusters from the root cluster:
-    const std::vector<Cluster*>& solution = clusters[1]->GetPropagatedDescendants();
+    const std::vector<Cluster*>* solution = clusters[1]->propagated_descendants;
 
     std::ifstream reader(hierarchy_file);
     size_t* flat_partioning{new size_t[num_points]{0}};
 
     //Store all the file offsets at which to find the birth points for the flat clustering:
     std::map<size_t, std::vector<size_t>*> significant_file_offsets;
-    for(const Cluster* cluster : solution) {
+    for(const Cluster* cluster : *solution) {
         std::vector<size_t>* cluster_list = nullptr;
-        auto entry = significant_file_offsets.find(cluster->GetFileOffset());
+        auto entry = significant_file_offsets.find(cluster->file_offset);
         if(entry == significant_file_offsets.end()) {
             cluster_list = new std::vector<size_t>;
-            significant_file_offsets.insert({cluster->GetFileOffset(), cluster_list});
+            significant_file_offsets.insert({cluster->file_offset, cluster_list});
         } else {
             cluster_list = entry->second;
         }
 
-        cluster_list->push_back(cluster->GetLabel());
+        cluster_list->push_back(cluster->label);
     }
 
     //Go through the hierarchy file, setting labels for the flat clustering:

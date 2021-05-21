@@ -29,7 +29,7 @@ void CalculateOutlierScores(
 
     //Iterate through each point, calculating its outlier score:
     for(size_t i = 0; i < point_noise_levels_length; ++i) {
-        double eps_max = clusters[point_last_clusters[i]]->GetPropagatedLowestChildDeathLevel();
+        double eps_max = clusters[point_last_clusters[i]]->propagated_lowest_child_death_level;
         double eps = point_noise_levels[i];
 
         double score = 0.0;

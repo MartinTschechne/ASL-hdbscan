@@ -30,7 +30,7 @@ void ComputeHierarchyAndClusterTree(
     std::vector<Cluster*>& clusters = result;
     clusters.clear();
     clusters.push_back(nullptr);
-    clusters.push_back(new Cluster(1, nullptr, std::numeric_limits<double>::quiet_NaN(), mst.GetNumVertices()));
+    clusters.push_back(CreateCluster(1, nullptr, std::numeric_limits<double>::quiet_NaN(), mst.GetNumVertices()));
 
     //Calculate number of constraints satisfied for cluster 1:
     std::set<size_t> cluster_one;
@@ -205,8 +205,8 @@ void ComputeHierarchyAndClusterTree(
         //Assign file offsets and calculate the number of constraints satisfied:
         std::set<size_t> new_cluster_labels;
         for(Cluster* new_cluster : new_clusters) {
-            new_cluster->SetFileOffset(hierarchy_chars_written);
-            new_cluster_labels.insert(new_cluster->GetLabel());
+            new_cluster->file_offset = hierarchy_chars_written;
+            new_cluster_labels.insert(new_cluster->label);
         }
         if(!new_cluster_labels.empty()) {
             CalculateNumConstraintsSatisfied(new_cluster_labels, clusters, constraints, current_cluster_labels);
@@ -233,21 +233,21 @@ void ComputeHierarchyAndClusterTree(
             continue;
         }
 
-        tree_writer << cluster->GetLabel() << delimiter;
-        tree_writer << cluster->GetBirthLevel() << delimiter;
-        tree_writer << cluster->GetDeathLevel() << delimiter;
-        tree_writer << cluster->GetStability() << delimiter;
+        tree_writer << cluster->label << delimiter;
+        tree_writer << cluster->birth_level << delimiter;
+        tree_writer << cluster->death_level << delimiter;
+        tree_writer << cluster->stability << delimiter;
 
         if(!constraints.empty()) {
-            tree_writer << 0.5*cluster->GetNumConstraintsSatisfied() / constraints.size() << delimiter;
-            tree_writer << 0.5 * cluster->GetPropagatedNumConstraintsSatisfied() / constraints.size() << delimiter;
+            tree_writer << 0.5*cluster->num_constraints_satisfied / constraints.size() << delimiter;
+            tree_writer << 0.5 * cluster->propagated_num_constraints_satisfied / constraints.size() << delimiter;
         } else {
             tree_writer << 0 << delimiter << 0 << delimiter;
         }
 
-        tree_writer << cluster->GetFileOffset() << delimiter;
-        if(cluster->GetParent() != nullptr) {
-            tree_writer << cluster->GetParent()->GetLabel() << "\n";
+        tree_writer << cluster->file_offset << delimiter;
+        if(cluster->parent != nullptr) {
+            tree_writer << cluster->parent->label << "\n";
         } else {
             tree_writer << "0\n";
         }
@@ -275,7 +275,7 @@ void CalculateNumConstraintsSatisfied(
 
     std::vector<Cluster*> parents;
     for(size_t label : new_cluster_labels) {
-        Cluster* parent = clusters[label]->GetParent();
+        Cluster* parent = clusters[label]->parent;
         if(parent != nullptr && std::find(parents.begin(), parents.end(), parent) == parents.end()) {
             parents.push_back(parent);
         }
@@ -287,20 +287,20 @@ void CalculateNumConstraintsSatisfied(
 
         if(constraint.type == Constraint::CONSTRAINT_TYPE::MUST_LINK && label_a == label_b) {
             if(new_cluster_labels.find(label_a) != new_cluster_labels.end()) {
-                clusters[label_a]->AddConstraintsSatisfied(2);
+                AddConstraintsSatisfied(clusters[label_a], 2);
             }
         } else if(constraint.type == Constraint::CONSTRAINT_TYPE::CANNOT_LINK && (label_a != label_b || label_a == 0)) {
             if(label_a != 0 && new_cluster_labels.find(label_a) != new_cluster_labels.end()) {
-                clusters[label_a]->AddConstraintsSatisfied(1);
+                AddConstraintsSatisfied(clusters[label_a], 1);
             }
             if(label_b != 0 && new_cluster_labels.find(label_b) != new_cluster_labels.end()) {
-                clusters[label_b]->AddConstraintsSatisfied(1);
+                AddConstraintsSatisfied(clusters[label_b], 1);
             }
 
             if(label_a == 0) {
                 for(Cluster* parent : parents) {
-                    if(parent->VirtualChildClusterContaintsPoint(constraint.point_a)) {
-                        parent->AddVirtualChildConstraintsSatisfied(1);
+                    if(VirtualChildClusterContaintsPoint(parent, constraint.point_a)) {
+                        AddVirtualChildConstraintsSatisfied(parent, 1);
                         break;
                     }
                 }
@@ -308,8 +308,8 @@ void CalculateNumConstraintsSatisfied(
 
             if(label_b == 0) {
                 for(Cluster* parent : parents) {
-                    if(parent->VirtualChildClusterContaintsPoint(constraint.point_b)) {
-                        parent->AddVirtualChildConstraintsSatisfied(1);
+                    if(VirtualChildClusterContaintsPoint(parent, constraint.point_b)) {
+                        AddVirtualChildConstraintsSatisfied(parent, 1);
                         break;
                     }
                 }
@@ -324,12 +324,12 @@ Cluster* CreateNewCluster(const std::set<size_t>& points,
     for(size_t point : points) {
         cluster_labels[point] = cluster_label;
     }
-    parent_cluster->DetachPoints(points.size(), edge_weight);
+    DetachPoints(parent_cluster, points.size(), edge_weight);
 
     if(cluster_label != 0) {
-        return new Cluster(cluster_label, parent_cluster, edge_weight, points.size());
+        return CreateCluster(cluster_label, parent_cluster, edge_weight, points.size());
     }
 
-    parent_cluster->AddPointsToVirtualChildCluster(points);
+    AddPointsToVirtualChildCluster(parent_cluster, points);
     return nullptr;
 }

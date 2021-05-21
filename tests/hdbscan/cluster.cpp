@@ -2,36 +2,41 @@
 #include <hdbscan/cluster.h>
 
 TEST(cluster, basic) {
-    Cluster cluster(120, nullptr, 1.0, 10);
+    Cluster* cluster = CreateCluster(120, nullptr, 1.0, 10);
 
     std::set<size_t> points;
     points.insert(12);
     points.insert(3423);
     points.insert(234);
 
-    ASSERT_EQ(cluster.GetLabel(), 120);
-    ASSERT_ANY_THROW(cluster.DetachPoints(12, 2.0));
+    ASSERT_EQ(cluster->label, 120);
+    ASSERT_ANY_THROW(DetachPoints(cluster, 12, 2.0));
 
-    cluster.AddConstraintsSatisfied(3);
-    ASSERT_EQ(cluster.GetNumConstraintsSatisfied(), 3);
+    AddConstraintsSatisfied(cluster, 3);
+    ASSERT_EQ(cluster->num_constraints_satisfied, 3);
 
-    cluster.AddPointsToVirtualChildCluster(points);
-    ASSERT_TRUE(cluster.VirtualChildClusterContaintsPoint(234));
-    ASSERT_FALSE(cluster.VirtualChildClusterContaintsPoint(90));
-    cluster.ReleaseVirtualChildCluster();
-    ASSERT_FALSE(cluster.VirtualChildClusterContaintsPoint(234));
+    AddPointsToVirtualChildCluster(cluster, points);
+    ASSERT_TRUE(VirtualChildClusterContaintsPoint(cluster, 234));
+    ASSERT_FALSE(VirtualChildClusterContaintsPoint(cluster, 90));
+    ReleaseVirtualChildCluster(cluster);
+    ASSERT_FALSE(VirtualChildClusterContaintsPoint(cluster, 234));
+
+    delete cluster;
 }
 
 TEST(cluster, advanced) {
-    Cluster parent(111, nullptr, 2.0, 15);
-    Cluster cluster(120, &parent, 1.0, 10);
+    Cluster* parent = CreateCluster(111, nullptr, 2.0, 15);
+    Cluster* cluster = CreateCluster(120, parent, 1.0, 10);
 
-    ASSERT_TRUE(parent.HasChildren());
+    ASSERT_TRUE(parent->has_children);
 
-    cluster.DetachPoints(4, 2.0);
-    cluster.AddConstraintsSatisfied(5);
-    cluster.Propagate();
+    DetachPoints(cluster, 4, 2.0);
+    AddConstraintsSatisfied(cluster, 5);
+    Propagate(cluster);
 
-    ASSERT_EQ(parent.GetPropagatedNumConstraintsSatisfied(), 5);
-    ASSERT_EQ(parent.GetPropagatedDescendants().size(), 1);
+    ASSERT_EQ(parent->propagated_num_constraints_satisfied, 5);
+    ASSERT_EQ(parent->propagated_descendants->size(), 1);
+
+    delete cluster;
+    delete parent;
 }
