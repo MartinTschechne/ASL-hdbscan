@@ -21,7 +21,7 @@ TEST(cluster, basic) {
     ReleaseVirtualChildCluster(cluster);
     ASSERT_FALSE(VirtualChildClusterContaintsPoint(cluster, 234));
 
-    delete cluster;
+    FreeCluster(cluster);
 }
 
 TEST(cluster, advanced) {
@@ -35,8 +35,8 @@ TEST(cluster, advanced) {
     Propagate(cluster);
 
     ASSERT_EQ(parent->propagated_num_constraints_satisfied, 5);
-    ASSERT_EQ(parent->propagated_descendants->size(), 1);
+    ASSERT_EQ(parent->propagated_descendants->size, 1);
 
-    delete cluster;
+    FreeCluster(cluster);
     delete parent;
 }

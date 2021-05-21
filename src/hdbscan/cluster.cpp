@@ -17,7 +17,8 @@ Cluster* CreateCluster(size_t label, Cluster* parent, double birth_level, size_t
     new_cluster->propagated_num_constraints_satisfied = 0;
     new_cluster->parent = parent;
     new_cluster->has_children = false;
-    new_cluster->propagated_descendants = new std::vector<Cluster*>;
+    new_cluster->propagated_descendants = new Vector;
+    vector_init(new_cluster->propagated_descendants);
     new_cluster->virtual_child_cluster = new std::set<size_t>;
 
     if(parent != nullptr) {
@@ -56,33 +57,29 @@ void Propagate(Cluster* cluster) {
     if(!cluster->has_children) {
         cluster->parent->propagated_num_constraints_satisfied += cluster->num_constraints_satisfied;
         cluster->parent->propagated_stability += cluster->stability;
-        cluster->parent->propagated_descendants->push_back(cluster);
+        vector_push_back(cluster->parent->propagated_descendants, (void*)cluster);
     } else if(cluster->num_constraints_satisfied > cluster->propagated_num_constraints_satisfied) {
         cluster->parent->propagated_num_constraints_satisfied += cluster->num_constraints_satisfied;
         cluster->parent->propagated_stability += cluster->stability;
-        cluster->parent->propagated_descendants->push_back(cluster);
+        vector_push_back(cluster->parent->propagated_descendants, (void*)cluster);
     } else if(cluster->num_constraints_satisfied < cluster->propagated_num_constraints_satisfied) {
         cluster->parent->propagated_num_constraints_satisfied += cluster->propagated_num_constraints_satisfied;
         cluster->parent->propagated_stability += cluster->propagated_stability;
-        cluster->parent->propagated_descendants->insert(
-            std::end(*cluster->parent->propagated_descendants), 
-            std::begin(*cluster->propagated_descendants),
-            std::end(*cluster->propagated_descendants)
-        ); // insert all 
+        for(size_t i = 0; i < cluster->propagated_descendants->size; ++i) {
+            vector_push_back(cluster->parent->propagated_descendants, vector_get(cluster->propagated_descendants, i));
+        } // insert all 
     } else if(cluster->num_constraints_satisfied == cluster->propagated_num_constraints_satisfied) {
         //Chose the parent over descendants if there is a tie in stability:
         if(cluster->stability >= cluster->propagated_stability) {
             cluster->parent->propagated_num_constraints_satisfied += cluster->num_constraints_satisfied;
             cluster->parent->propagated_stability += cluster->stability;
-            cluster->parent->propagated_descendants->push_back(cluster);
+            vector_push_back(cluster->parent->propagated_descendants, cluster);
         } else {
             cluster->parent->propagated_num_constraints_satisfied += cluster->propagated_num_constraints_satisfied;
             cluster->parent->propagated_stability += cluster->propagated_stability;
-            cluster->parent->propagated_descendants->insert(
-            std::end(*cluster->parent->propagated_descendants), 
-            std::begin(*cluster->propagated_descendants),
-            std::end(*cluster->propagated_descendants)
-        ); // insert all 
+            for(size_t i = 0; i < cluster->propagated_descendants->size; ++i) {
+                vector_push_back(cluster->parent->propagated_descendants, vector_get(cluster->propagated_descendants, i));
+            } // insert all 
         }
     }
 }
@@ -108,4 +105,9 @@ void AddConstraintsSatisfied(Cluster* cluster, size_t num_constraints) {
 
 void ReleaseVirtualChildCluster(Cluster* cluster) {
     cluster->virtual_child_cluster->clear();
+}
+
+void FreeCluster(Cluster* cluster) {
+    vector_free(cluster->propagated_descendants);
+    delete cluster;
 }

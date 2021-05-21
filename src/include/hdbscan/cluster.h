@@ -3,7 +3,7 @@
 
 #include <cstddef>
 #include <set>
-#include <vector>
+#include <common/vector.h>
 
 /**
  * @brief An HDBSCAN* cluster, which will have a birth level, death level, stability, and constraint 
@@ -25,7 +25,7 @@ struct Cluster {
     std::set<size_t>* virtual_child_cluster;
     Cluster* parent;
     bool has_children;
-    std::vector<Cluster*>* propagated_descendants;
+    Vector* propagated_descendants;
 };
 
 /**
@@ -93,6 +93,11 @@ void AddConstraintsSatisfied(Cluster* cluster, size_t num_constraints);
  */
 void ReleaseVirtualChildCluster(Cluster* cluster);
 
-
+/**
+ * @brief Freeing the cluster memory
+ * 
+ * @param cluster 
+ */
+void FreeCluster(Cluster* cluster);
 
 #endif
