@@ -17,7 +17,7 @@ Cluster* CreateCluster(size_t label, Cluster* parent, double birth_level, size_t
     new_cluster->propagated_num_constraints_satisfied = 0;
     new_cluster->parent = parent;
     new_cluster->has_children = false;
-    new_cluster->propagated_descendants = new Vector;
+    new_cluster->propagated_descendants = (Vector*)malloc(sizeof(Vector));
     vector_init(new_cluster->propagated_descendants);
     new_cluster->virtual_child_cluster = set_create();
 
@@ -109,5 +109,5 @@ void ReleaseVirtualChildCluster(Cluster* cluster) {
 void FreeCluster(Cluster* cluster) {
     vector_free(cluster->propagated_descendants);
     set_free(cluster->virtual_child_cluster);
-    delete cluster;
+    free(cluster);
 }

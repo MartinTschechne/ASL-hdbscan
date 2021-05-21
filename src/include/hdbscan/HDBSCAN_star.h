@@ -77,7 +77,7 @@ void FreeDataset(const double * const * dataset, size_t num_points);
  * and type of each constraint
  * @return A vector of Constraints
  */
-std::vector<Constraint> ReadInConstraints(
+Vector* ReadInConstraints(
     std::string const& file_name);
 
 CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& optimization_level);
@@ -153,7 +153,7 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
  */
 void ComputeHierarchyAndClusterTree(
     UndirectedGraph& mst, size_t min_cluster_size, bool compact_hierarchy,
-    std::vector<Constraint> constraints, std::string hierarchy_output_file,
+    const Vector* const constraints, std::string hierarchy_output_file,
     std::string tree_output_file, const char delimiter,
     double* point_noise_levels, size_t* point_last_clusters,
     std::string visualization_output_file, Vector* result);
@@ -241,7 +241,7 @@ Cluster* CreateNewCluster(const set* const points,
  * @param cluster_labels An array of current cluster labels for points
  */
 void CalculateNumConstraintsSatisfied(
-    const set* const new_cluster_labels, const Vector* const clusters, const std::vector<Constraint>& constraints, size_t* cluster_labels);
+    const set* const new_cluster_labels, const Vector* const clusters, const Vector* const constraints, size_t* cluster_labels);
 
 
 #endif

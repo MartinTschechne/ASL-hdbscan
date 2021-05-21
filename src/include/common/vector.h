@@ -82,6 +82,8 @@ bool vector_contains(vector* vec, const void* value);
  */
 void vector_erase(vector* vec, size_t pos);
 
+bool vector_empty(const vector* const vec);
+
 /**
  * @brief Appends the given element to the end of the vector
  * 

@@ -64,7 +64,7 @@ void HDBSCANRunner(RunnerConfig config) {
     const double * const * data_set = ReadInDataSet(config.points_file, ',', num_points, num_dimensions);
     
 
-    std::vector<Constraint> constraints;
+    Vector* constraints = nullptr;
     if(config.constraints != "") {
         constraints = ReadInConstraints(config.constraints);
     }

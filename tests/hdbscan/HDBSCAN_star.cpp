@@ -16,10 +16,10 @@ TEST(HDBSCAN_Star, IO) {
     ASSERT_EQ(lines[2][1], 90);
 
     auto constraints = ReadInConstraints(file_name_constraints);
-    ASSERT_EQ(constraints.size(), 10);
-    ASSERT_EQ(constraints[3].point_a, 304);
-    ASSERT_EQ(constraints[8].point_b, 455);
-    ASSERT_EQ(constraints[5].type, Constraint::CONSTRAINT_TYPE::CANNOT_LINK);
+    ASSERT_EQ(constraints->size, 10);
+    ASSERT_EQ(((Constraint*)constraints->elements[3])->point_a, 304);
+    ASSERT_EQ(((Constraint*)constraints->elements[8])->point_b, 455);
+    ASSERT_EQ(((Constraint*)constraints->elements[5])->type, Constraint::CONSTRAINT_TYPE::CANNOT_LINK);
 
     FreeDataset(lines, num_pts);
 }

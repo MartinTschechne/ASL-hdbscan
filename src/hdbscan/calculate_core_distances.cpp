@@ -38,7 +38,7 @@ double* CalculateCoreDistancesNoOptimization(const double* const * const data_se
 
     size_t num_neighbors = k - 1;
     const double DOUBLE_MAX = std::numeric_limits<double>::max();
-    double* result = new double[num_points];
+    double* result = (double*)malloc(num_points*sizeof(double));
 
     if(k == 1) {
         for(size_t point = 0; point < num_points; ++point) {
@@ -47,7 +47,7 @@ double* CalculateCoreDistancesNoOptimization(const double* const * const data_se
         return result;
     }
 
-    double* knn_distances = new double[num_neighbors];
+    double* knn_distances = (double*)malloc(num_neighbors*sizeof(double));
     for(size_t point = 0; point < num_points; ++point) {
         for(size_t i = 0; i < num_neighbors; ++i) {
             knn_distances[i] = DOUBLE_MAX;
@@ -77,7 +77,7 @@ double* CalculateCoreDistancesNoOptimization(const double* const * const data_se
         }
         result[point] = knn_distances[num_neighbors-1];
     }
-    delete[] knn_distances;
+    free(knn_distances);
     return result;
 }
 
@@ -86,7 +86,7 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
 
     size_t num_neighbors = k - 1;
     const double DOUBLE_MAX = std::numeric_limits<double>::max();
-    double* result = new double[num_points];
+    double* result = (double*)malloc(num_points*sizeof(double));
 
     if(k == 1) {
         for(size_t point = 0; point < num_points; ++point) {
@@ -108,7 +108,7 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
     }
 
     // calculate core distance
-    double* knn_distances = new double[num_neighbors];
+    double* knn_distances = (double*)malloc(num_neighbors*sizeof(double));;
     for(size_t point = 0; point < num_points; ++point) {
         for(size_t i = 0; i < num_neighbors; ++i) {
             knn_distances[i] = DOUBLE_MAX;
@@ -132,6 +132,6 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
         }
         result[point] = knn_distances[num_neighbors-1];
     }
-    delete[] knn_distances;
+    free(knn_distances);
     return result;
 }

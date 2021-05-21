@@ -19,6 +19,11 @@ void vector_free(vector* vec) {
     }
 }
 
+bool vector_empty(const vector* const vec) {
+    if(!vec) return true;
+    return vec->size == 0;
+}
+
 size_t vector_size(const vector* vec) {
     size_t size = -1;
     if (vec) {
