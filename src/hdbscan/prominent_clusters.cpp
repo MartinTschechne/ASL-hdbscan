@@ -1,12 +1,12 @@
 #include <hdbscan/HDBSCAN_star.h>
 
-void FindProminentClusters(const std::vector<Cluster*>& clusters,
+void FindProminentClusters(const Vector* const clusters,
         const std::string& hierarchy_file, const std::string& flat_output_file,
         const char delimiter, size_t num_points, bool infinite_stability,
         std::vector<size_t>& result) {
 
     //Take the list of propagated clusters from the root cluster:
-    const Vector* solution = clusters[1]->propagated_descendants;
+    const Vector* solution = ((Cluster*)clusters->elements[1])->propagated_descendants;
 
     std::ifstream reader(hierarchy_file);
     size_t* flat_partioning{new size_t[num_points]{0}};

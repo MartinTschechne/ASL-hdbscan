@@ -19,7 +19,7 @@ int CompareTo(const OutlierScore& a, const OutlierScore& b) {
 }
 
 void CalculateOutlierScores(
-        const std::vector<Cluster*>& clusters, double* point_noise_levels, size_t point_noise_levels_length,
+        const Vector* const clusters, double* point_noise_levels, size_t point_noise_levels_length,
         size_t* point_last_clusters, const double* core_distances,
         const std::string& outlier_scores_outputFile, const char delimiter,
         bool infinite_stability, std::vector<OutlierScore>& result) {
@@ -29,7 +29,7 @@ void CalculateOutlierScores(
 
     //Iterate through each point, calculating its outlier score:
     for(size_t i = 0; i < point_noise_levels_length; ++i) {
-        double eps_max = clusters[point_last_clusters[i]]->propagated_lowest_child_death_level;
+        double eps_max = ((Cluster*)clusters->elements[point_last_clusters[i]])->propagated_lowest_child_death_level;
         double eps = point_noise_levels[i];
 
         double score = 0.0;

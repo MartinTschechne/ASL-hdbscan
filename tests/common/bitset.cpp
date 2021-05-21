@@ -3,7 +3,7 @@
 
 TEST(BitSet, basics) {
     size_t size = 20;
-    BitSet bitset = CreateBitset(size, false);
+    BitSet_t bitset = CreateBitset(size, false);
 
     for(size_t i = 0; i < size; ++i) {
         ASSERT_FALSE(GetBit(bitset, i));

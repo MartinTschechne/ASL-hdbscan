@@ -2,7 +2,7 @@
 #define TEAM33_HDBSCAN_CLUSTER_H
 
 #include <cstddef>
-#include <set>
+#include <common/set.h>
 #include <common/vector.h>
 
 /**
@@ -22,7 +22,7 @@ struct Cluster {
     double propagated_lowest_child_death_level;
     size_t num_constraints_satisfied;
     size_t propagated_num_constraints_satisfied;
-    std::set<size_t>* virtual_child_cluster;
+    set* virtual_child_cluster;
     Cluster* parent;
     bool has_children;
     Vector* propagated_descendants;
@@ -62,7 +62,7 @@ void Propagate(Cluster* cluster);
  * 
  * @param points 
  */
-void AddPointsToVirtualChildCluster(Cluster* cluster, const std::set<size_t>& points);
+void AddPointsToVirtualChildCluster(Cluster* cluster, const set* const points);
 
 /**
  * @brief Check if the child cluster contains a given point

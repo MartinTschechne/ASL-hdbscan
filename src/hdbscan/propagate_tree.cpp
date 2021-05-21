@@ -1,13 +1,15 @@
 #include <hdbscan/HDBSCAN_star.h>
 #include <math.h>
+#include <common/bitset.h>
 
-bool PropagateTree(const std::vector<Cluster*>& clusters) {
+bool PropagateTree(const Vector* const clusters) {
     std::map<int, Cluster*> clusters_to_examine;
-    std::vector<bool> added_to_examination_list(clusters.size(), false);
+    BitSet_t added_to_examination_list = CreateBitset(clusters->size, false);
     bool infinite_stability = false;
 
     //Find all leaf clusters in the cluster tree
-    for(Cluster* cluster : clusters) {
+    for(size_t i = 0; i < clusters->size; ++i) {
+        Cluster* cluster = (Cluster*)clusters->elements[i];
         if(cluster != nullptr && !cluster->has_children) {
             clusters_to_examine.insert({cluster->label, cluster});
             added_to_examination_list[cluster->label];

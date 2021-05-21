@@ -5,7 +5,7 @@ void ComputeHierarchyAndClusterTree(
         std::vector<Constraint> constraints, std::string hierarchy_output_file,
         std::string tree_output_file, const char delimiter,
         double* point_noise_levels, size_t* point_last_clusters,
-        std::string visualization_output_file, std::vector<Cluster*>& result) {
+        std::string visualization_output_file, Vector* result) {
 
     std::ofstream hierarchy_writer(hierarchy_output_file);
     std::ofstream tree_writer(tree_output_file);
@@ -20,30 +20,31 @@ void ComputeHierarchyAndClusterTree(
 
     //The previous and current cluster numbers of each point in the data set:
     size_t current_cluster_labels_length = mst.GetNumVertices();
-    size_t* previous_cluster_labels = new size_t[current_cluster_labels_length];
-    size_t* current_cluster_labels = new size_t[current_cluster_labels_length];
+    size_t* previous_cluster_labels = (size_t*)malloc(current_cluster_labels_length * sizeof(size_t));
+    size_t* current_cluster_labels = (size_t*)malloc(current_cluster_labels_length * sizeof(size_t));
     for(size_t i = 0; i < current_cluster_labels_length; ++i) {
         current_cluster_labels[i] = 1;
         previous_cluster_labels[i] = 1;
     }
     //A list of clusters in the cluster tree, with the 0th cluster (noise) null:
-    std::vector<Cluster*>& clusters = result;
-    clusters.clear();
-    clusters.push_back(nullptr);
-    clusters.push_back(CreateCluster(1, nullptr, std::numeric_limits<double>::quiet_NaN(), mst.GetNumVertices()));
+    Vector* clusters = result;
+    vector_clear(clusters);
+    vector_push_back(clusters, nullptr);
+    vector_push_back(clusters, (void*)CreateCluster(1, nullptr, std::numeric_limits<double>::quiet_NaN(), mst.GetNumVertices()));
 
     //Calculate number of constraints satisfied for cluster 1:
-    std::set<size_t> cluster_one;
-    cluster_one.insert(1);
+    set* cluster_one = set_create();
+    set_insert(cluster_one, 1);
     CalculateNumConstraintsSatisfied(cluster_one, clusters, constraints, current_cluster_labels);
 
     //Sets for the clusters and vertices that are affected by the edge(s) being removed:
-    std::set<size_t> affected_cluster_labels;
-    std::set<size_t> affected_vertices;
+    set* affected_cluster_labels = set_create();
+    set* affected_vertices = set_create();
 
     while(current_edge_index > 0) {
         double current_edge_weight = mst.GetEdgeWeightAtIndex(current_edge_index - 1);
-        std::vector<Cluster*> new_clusters;
+        Vector* new_clusters = new Vector;
+        vector_init(new_clusters);
 
         //Remove all edges tied with the current edge weight, and store relevant clusters and vertices:
         while(current_edge_index > 0 && mst.GetEdgeWeightAtIndex(current_edge_index - 1) == current_edge_weight) {
@@ -56,35 +57,33 @@ void ComputeHierarchyAndClusterTree(
                 --current_edge_index;
                 continue;
             }
-
-            affected_vertices.insert(first_vertex);
-            affected_vertices.insert(second_vertex);
-            affected_cluster_labels.insert(current_cluster_labels[first_vertex]);
+            
+            set_insert(affected_vertices, first_vertex);
+            set_insert(affected_vertices, second_vertex);
+            set_insert(affected_cluster_labels, current_cluster_labels[first_vertex]);
             --current_edge_index;
         }
 
-        if(affected_cluster_labels.empty()) {
+        if(set_empty(affected_cluster_labels)) {
             continue;
         }
 
         //Check each cluster affected for a possible split:
-        while(!affected_cluster_labels.empty()) {
-            std::set<size_t>::iterator examined_cluster_label_it = --affected_cluster_labels.end();
-            size_t examined_cluster_label = *examined_cluster_label_it;
-            affected_cluster_labels.erase(examined_cluster_label_it);
-            std::set<size_t> examined_vertices;
+        while(!set_empty(affected_cluster_labels)) {
+            size_t examined_cluster_label_it = set_end(affected_cluster_labels) - 1;
+            size_t examined_cluster_label = set_get(affected_cluster_labels, examined_cluster_label_it);
+            set_erase(affected_cluster_labels, examined_cluster_label_it); // TODO is this right?
+            set* examined_vertices = set_create();
 
             //Get all affected vertices that are members of the cluster currently being examined:
-            for(std::set<size_t>::iterator it = affected_vertices.begin(); it != affected_vertices.end(); ) {
-                if(current_cluster_labels[*it] == examined_cluster_label) {
-                    examined_vertices.insert(*it);
-                    it = affected_vertices.erase(it);
-                    continue;
+            for(size_t it = set_begin(affected_vertices); it < set_end(affected_vertices); it = set_next(affected_vertices, it)) {
+                if(current_cluster_labels[it] == examined_cluster_label) {
+                    set_insert(examined_vertices, it);
+                    set_erase(affected_vertices, it);
                 }
-                ++it;
             }
 
-            std::set<size_t>* first_child_cluster = nullptr;
+            set* first_child_cluster = nullptr;
             std::list<size_t>* unexplored_first_child_cluster_points = nullptr;
             size_t num_child_clusters = 0;
 
@@ -96,16 +95,16 @@ void ComputeHierarchyAndClusterTree(
             * split, otherwise, only spurious components are fully explored, in order to label
             * them noise.
             */
-           while(!examined_vertices.empty()) {
-                std::set<size_t>* constructing_sub_cluster = new std::set<size_t>;
+           while(!set_empty(examined_vertices)) {
+                set* constructing_sub_cluster = set_create();
                 std::list<size_t>* unexplored_sub_cluster_points = new std::list<size_t>;
                 bool any_edges = false;
                 bool incremented_child_count = false;
 
-                std::set<size_t>::iterator root_vertex = --examined_vertices.end();
-                constructing_sub_cluster->insert(*root_vertex);
-                unexplored_sub_cluster_points->push_back(*root_vertex);
-                examined_vertices.erase(root_vertex);
+                size_t root_vertex = set_end(examined_vertices) - 1;
+                set_insert(constructing_sub_cluster, root_vertex);
+                unexplored_sub_cluster_points->push_back(root_vertex);
+                set_erase(examined_vertices, root_vertex);
 
                 //Explore this potential child cluster as long as there are unexplored points:
                 while(!unexplored_sub_cluster_points->empty()) {
@@ -113,15 +112,15 @@ void ComputeHierarchyAndClusterTree(
                     unexplored_sub_cluster_points->pop_front();
                     for(size_t neighbor : mst.GetEdgeListForVertex(vertex_to_explore)) {
                         any_edges = true;
-                        if(constructing_sub_cluster->find(neighbor) == constructing_sub_cluster->end()) {
-                            constructing_sub_cluster->insert(neighbor);
+                        if(!set_contains(constructing_sub_cluster, neighbor)) {
+                            set_insert(constructing_sub_cluster, neighbor);
+                            set_erase(examined_vertices, neighbor);
                             unexplored_sub_cluster_points->push_back(neighbor);
-                            examined_vertices.erase(neighbor);
                         }
                     }
 
                     //Check if this potential child cluster is a valid cluster:
-                    if(!incremented_child_count && constructing_sub_cluster->size() >= min_cluster_size && any_edges) {
+                    if(!incremented_child_count && constructing_sub_cluster->size >= min_cluster_size && any_edges) {
                         incremented_child_count = true;
                         num_child_clusters++;
 
@@ -135,22 +134,23 @@ void ComputeHierarchyAndClusterTree(
                 }
 
                 //If there could be a split, and this child cluster is valid:
-                if((num_child_clusters >= 2) && (constructing_sub_cluster->size() >= min_cluster_size) && any_edges) {
+                if((num_child_clusters >= 2) && (constructing_sub_cluster->size >= min_cluster_size) && any_edges) {
                     //Check this child cluster is not equal to the unexplored first child cluster:
-                    size_t first_child_cluster_member = *(--first_child_cluster->end());
-                    if(constructing_sub_cluster->find(first_child_cluster_member) != constructing_sub_cluster->end()) {
+                    size_t first_child_cluster_member = set_get(first_child_cluster, set_end(first_child_cluster)-1);
+                    if(set_contains(constructing_sub_cluster, first_child_cluster_member)) {
                         num_child_clusters--;
                     } else {
                         //Otherwise, create a new cluster:
-                        Cluster* new_cluster = CreateNewCluster(*constructing_sub_cluster, current_cluster_labels, clusters[examined_cluster_label], next_cluster_label, current_edge_weight);
-                        new_clusters.push_back(new_cluster);
-                        clusters.push_back(new_cluster);
+                        Cluster* new_cluster = CreateNewCluster(constructing_sub_cluster, current_cluster_labels, (Cluster*)(clusters->elements[examined_cluster_label]), next_cluster_label, current_edge_weight);
+                        vector_push_back(new_clusters, (void*)new_cluster);
+                        vector_push_back(clusters, (void*)new_cluster);
                         next_cluster_label++;
                     }
-                } else if(constructing_sub_cluster->size() < min_cluster_size || !any_edges) { //If this child cluster is not valid cluster, assign it to noise:
-                    CreateNewCluster(*constructing_sub_cluster, current_cluster_labels, clusters[examined_cluster_label], 0, current_edge_weight);
+                } else if(constructing_sub_cluster->size < min_cluster_size || !any_edges) { //If this child cluster is not valid cluster, assign it to noise:
+                    CreateNewCluster(constructing_sub_cluster, current_cluster_labels, (Cluster*)(clusters->elements[examined_cluster_label]), 0, current_edge_weight);
 
-                    for(size_t point : *constructing_sub_cluster) {
+                    for(size_t i = set_begin(constructing_sub_cluster); i < set_end(constructing_sub_cluster); i = set_next(constructing_sub_cluster, i)) {
+                        size_t point = set_get(constructing_sub_cluster, i);
                         point_noise_levels[point] = current_edge_weight;
                         point_last_clusters[point] = examined_cluster_label;
                     }
@@ -162,23 +162,23 @@ void ComputeHierarchyAndClusterTree(
                 }
            }
            //Finish exploring and cluster the first child cluster if there was a split and it was not already clustered:
-           if((num_child_clusters >= 2) && (current_cluster_labels[*first_child_cluster->begin()] == examined_cluster_label)) {
-               while(!unexplored_first_child_cluster_points->empty()) {
-                   size_t vertex_to_explore = unexplored_first_child_cluster_points->front();
-                   unexplored_first_child_cluster_points->pop_front();
+           if((num_child_clusters >= 2) && (current_cluster_labels[set_get(first_child_cluster, set_begin(first_child_cluster))] == examined_cluster_label)) {
+                while(!unexplored_first_child_cluster_points->empty()) {
+                    size_t vertex_to_explore = unexplored_first_child_cluster_points->front();
+                    unexplored_first_child_cluster_points->pop_front();
 
-                   for(size_t neighbor : mst.GetEdgeListForVertex(vertex_to_explore)) {
-                       if(first_child_cluster->find(neighbor) == first_child_cluster->end()) {
-                           first_child_cluster->insert(neighbor);
-                           unexplored_first_child_cluster_points->push_back(neighbor);
-                       }
-                   }
-               }
+                    for(size_t neighbor : mst.GetEdgeListForVertex(vertex_to_explore)) {
+                        if(!set_contains(first_child_cluster, neighbor)) {
+                            set_insert(first_child_cluster, neighbor);
+                            unexplored_first_child_cluster_points->push_back(neighbor);
+                        }
+                    }
+                }
 
-               Cluster* new_cluster = CreateNewCluster(*first_child_cluster, current_cluster_labels, clusters[examined_cluster_label], next_cluster_label, current_edge_weight);
-               new_clusters.push_back(new_cluster);
-               clusters.push_back(new_cluster);
-               next_cluster_label++;
+                Cluster* new_cluster = CreateNewCluster(first_child_cluster, current_cluster_labels, (Cluster*)(clusters->elements[examined_cluster_label]), next_cluster_label, current_edge_weight);
+                vector_push_back(new_clusters, (void*)new_cluster);
+                vector_push_back(clusters, (void*)new_cluster);
+                next_cluster_label++;
            }
 
             delete first_child_cluster;
@@ -186,7 +186,7 @@ void ComputeHierarchyAndClusterTree(
         }
 
         //Write out the current level of the hierarchy:
-        if(!compact_hierarchy || next_level_significant || !new_clusters.empty()) {
+        if(!compact_hierarchy || next_level_significant || new_clusters->size != 0) {
             std::stringstream output;
             output << current_edge_weight << delimiter;
 
@@ -203,12 +203,13 @@ void ComputeHierarchyAndClusterTree(
         }
 
         //Assign file offsets and calculate the number of constraints satisfied:
-        std::set<size_t> new_cluster_labels;
-        for(Cluster* new_cluster : new_clusters) {
+        set* new_cluster_labels = set_create();
+        for(size_t i = 0; i < new_clusters->size; ++i) {
+            Cluster* new_cluster = (Cluster*)new_clusters->elements[i];
             new_cluster->file_offset = hierarchy_chars_written;
-            new_cluster_labels.insert(new_cluster->label);
+            set_insert(new_cluster_labels, new_cluster->label);
         }
-        if(!new_cluster_labels.empty()) {
+        if(!set_empty(new_cluster_labels)) {
             CalculateNumConstraintsSatisfied(new_cluster_labels, clusters, constraints, current_cluster_labels);
         }
 
@@ -216,7 +217,7 @@ void ComputeHierarchyAndClusterTree(
             previous_cluster_labels[i] = current_cluster_labels[i];
         }
 
-        next_level_significant = !new_clusters.empty();
+        next_level_significant = new_clusters->size != 0;
     }
 
     //Write out the final level of the hierarchy (all points noise):
@@ -228,7 +229,8 @@ void ComputeHierarchyAndClusterTree(
     line_count++;
 
     //Write out the cluster tree:
-    for(Cluster* cluster : clusters) {
+    for(size_t i = 0; i < clusters->size; ++i) {
+        Cluster* cluster = (Cluster*)clusters->elements[i];
         if(cluster == nullptr) {
             continue;
         }
@@ -267,17 +269,20 @@ void ComputeHierarchyAndClusterTree(
 }
 
 void CalculateNumConstraintsSatisfied(
-        const std::set<size_t>& new_cluster_labels, const std::vector<Cluster*>& clusters, const std::vector<Constraint>& constraints, size_t* cluster_labels) {
+        const set* const new_cluster_labels, const Vector* const clusters, const std::vector<Constraint>& constraints, size_t* cluster_labels) {
 
     if(constraints.empty()) {
         return;
     }
 
-    std::vector<Cluster*> parents;
-    for(size_t label : new_cluster_labels) {
-        Cluster* parent = clusters[label]->parent;
-        if(parent != nullptr && std::find(parents.begin(), parents.end(), parent) == parents.end()) {
-            parents.push_back(parent);
+    Vector* parents = new Vector;
+    vector_init(parents);
+
+    for(size_t i = set_begin(new_cluster_labels); i < set_end(new_cluster_labels); i = set_next(new_cluster_labels, i)) {
+        size_t label = set_get(new_cluster_labels, i);
+        Cluster* parent = ((Cluster*)vector_get(clusters, label))->parent;
+        if(parent != nullptr && !vector_contains(parents, parent)) {
+            vector_push_back(parents, (void*)parent);
         }
     }
 
@@ -286,28 +291,29 @@ void CalculateNumConstraintsSatisfied(
         size_t label_b = cluster_labels[constraint.point_b];
 
         if(constraint.type == Constraint::CONSTRAINT_TYPE::MUST_LINK && label_a == label_b) {
-            if(new_cluster_labels.find(label_a) != new_cluster_labels.end()) {
-                AddConstraintsSatisfied(clusters[label_a], 2);
+            if(set_contains(new_cluster_labels, label_a)) {
+                AddConstraintsSatisfied((Cluster*)vector_get(clusters, label_a), 2);
             }
         } else if(constraint.type == Constraint::CONSTRAINT_TYPE::CANNOT_LINK && (label_a != label_b || label_a == 0)) {
-            if(label_a != 0 && new_cluster_labels.find(label_a) != new_cluster_labels.end()) {
-                AddConstraintsSatisfied(clusters[label_a], 1);
+            if(label_a != 0 && set_contains(new_cluster_labels, label_a)) {
+                AddConstraintsSatisfied((Cluster*)vector_get(clusters, label_a), 1);
             }
-            if(label_b != 0 && new_cluster_labels.find(label_b) != new_cluster_labels.end()) {
-                AddConstraintsSatisfied(clusters[label_b], 1);
+            if(label_b != 0 && set_contains(new_cluster_labels, label_b)) {
+                AddConstraintsSatisfied((Cluster*)vector_get(clusters, label_b), 1);
             }
 
             if(label_a == 0) {
-                for(Cluster* parent : parents) {
+                for(size_t i = 0; i < parents->size; ++i) {
+                    Cluster* parent = (Cluster*)parents->elements[i];
                     if(VirtualChildClusterContaintsPoint(parent, constraint.point_a)) {
                         AddVirtualChildConstraintsSatisfied(parent, 1);
                         break;
                     }
                 }
             }
-
             if(label_b == 0) {
-                for(Cluster* parent : parents) {
+                for(size_t i = 0; i < parents->size; ++i) {
+                    Cluster* parent = (Cluster*)parents->elements[i];
                     if(VirtualChildClusterContaintsPoint(parent, constraint.point_b)) {
                         AddVirtualChildConstraintsSatisfied(parent, 1);
                         break;
@@ -318,16 +324,16 @@ void CalculateNumConstraintsSatisfied(
     }
 }
 
-Cluster* CreateNewCluster(const std::set<size_t>& points,
+Cluster* CreateNewCluster(const set* const points,
         size_t* cluster_labels, Cluster* parent_cluster, size_t cluster_label,
         double edge_weight) {
-    for(size_t point : points) {
-        cluster_labels[point] = cluster_label;
+    for(size_t i = set_begin(points); i < set_end(points); i = set_next(points, i)) {
+        cluster_labels[set_get(points, i)] = cluster_label;
     }
-    DetachPoints(parent_cluster, points.size(), edge_weight);
+    DetachPoints(parent_cluster, points->size, edge_weight);
 
     if(cluster_label != 0) {
-        return CreateCluster(cluster_label, parent_cluster, edge_weight, points.size());
+        return CreateCluster(cluster_label, parent_cluster, edge_weight, points->size);
     }
 
     AddPointsToVirtualChildCluster(parent_cluster, points);

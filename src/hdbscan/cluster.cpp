@@ -19,7 +19,7 @@ Cluster* CreateCluster(size_t label, Cluster* parent, double birth_level, size_t
     new_cluster->has_children = false;
     new_cluster->propagated_descendants = new Vector;
     vector_init(new_cluster->propagated_descendants);
-    new_cluster->virtual_child_cluster = new std::set<size_t>;
+    new_cluster->virtual_child_cluster = set_create();
 
     if(parent != nullptr) {
         parent->has_children = true;
@@ -84,15 +84,14 @@ void Propagate(Cluster* cluster) {
     }
 }
 
-void AddPointsToVirtualChildCluster(Cluster* cluster, const std::set<size_t>& points) {
-    cluster->virtual_child_cluster->insert(
-        std::begin(points),
-        std::end(points)
-    );
+void AddPointsToVirtualChildCluster(Cluster* cluster, const set* const points) {
+    for(size_t i = set_begin(points); i < set_end(points); ++i) {
+        set_insert(cluster->virtual_child_cluster, set_get(points, i));
+    }
 }
 
 bool VirtualChildClusterContaintsPoint(Cluster* cluster, size_t point) {
-    return cluster->virtual_child_cluster->find(point) != cluster->virtual_child_cluster->end();
+    return set_find(cluster->virtual_child_cluster, point) != set_end(cluster->virtual_child_cluster);
 }
 
 void AddVirtualChildConstraintsSatisfied(Cluster* cluster, size_t num_constraints) {
@@ -104,10 +103,11 @@ void AddConstraintsSatisfied(Cluster* cluster, size_t num_constraints) {
 }
 
 void ReleaseVirtualChildCluster(Cluster* cluster) {
-    cluster->virtual_child_cluster->clear();
+    set_clear(cluster->virtual_child_cluster);
 }
 
 void FreeCluster(Cluster* cluster) {
     vector_free(cluster->propagated_descendants);
+    set_free(cluster->virtual_child_cluster);
     delete cluster;
 }

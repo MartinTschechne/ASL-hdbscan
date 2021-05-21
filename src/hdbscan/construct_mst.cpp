@@ -12,7 +12,7 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
     const size_t SIZE_T_MAX = SIZE_MAX;
 
     //One bit is set (true) for each attached point, or unset (false) for unattached points:
-    BitSet attached_points = CreateBitset(n_pts, false);
+    BitSet_t attached_points = CreateBitset(n_pts, false);
 
     //Each point has a current neighbor point in the tree, and a current nearest distance:
     size_t* nearest_mrd_neighbors = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));

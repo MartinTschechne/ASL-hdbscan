@@ -52,6 +52,15 @@ void vector_clear(vector* vec) {
 
 }
 
+bool vector_contains(vector* vec, const void* value) {
+    for(size_t i = 0; i < vec->size; ++i) {
+        if(vec->elements[i] == value) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void vector_insert(vector* vec, size_t pos, size_t count, const void* value) {
     if (vec) {
         if (0 <= pos && pos <= vec->size) {

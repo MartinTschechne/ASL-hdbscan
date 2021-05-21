@@ -80,7 +80,8 @@ void HDBSCANRunner(RunnerConfig config) {
     double* point_noise_levels = new double[num_points];
     size_t* point_last_clusters = new size_t[num_points];
 
-    std::vector<Cluster*> clusters;
+    Vector* clusters = new Vector;
+    vector_init(clusters);
 
     ComputeHierarchyAndClusterTree(mst, config.min_cl_size, config.compact, 
         constraints, config.hierarchy_file, config.tree_file, ',', point_noise_levels, 

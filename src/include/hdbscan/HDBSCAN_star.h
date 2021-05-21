@@ -156,7 +156,7 @@ void ComputeHierarchyAndClusterTree(
     std::vector<Constraint> constraints, std::string hierarchy_output_file,
     std::string tree_output_file, const char delimiter,
     double* point_noise_levels, size_t* point_last_clusters,
-    std::string visualization_output_file, std::vector<Cluster*>& result);
+    std::string visualization_output_file, Vector* result);
 
 /**
  * @brief Propagates constraint satisfaction, stability, and lowest child
@@ -168,7 +168,7 @@ void ComputeHierarchyAndClusterTree(
  * @return true if there are any clusters with infinite stability, false
  * otherwise
  */
-bool PropagateTree(const std::vector<Cluster*>& clusters);
+bool PropagateTree(const Vector* const  clusters);
 
 /**
  * @brief Produces a flat clustering result using constraint satisfaction
@@ -185,7 +185,7 @@ bool PropagateTree(const std::vector<Cluster*>& clusters);
  * stability, false otherwise
  * @return An array of labels for the flat clustering result
  */
-void FindProminentClusters(const std::vector<Cluster*>& clusters,
+void FindProminentClusters(const Vector* const clusters,
     const std::string& hierarchy_file, const std::string& flat_output_file,
     const char delimiter, size_t num_points, bool infinite_stability,
     std::vector<size_t>& result);
@@ -210,7 +210,7 @@ void FindProminentClusters(const std::vector<Cluster*>& clusters,
  * @return An vector of OutlierScores, sorted in descending order
  */
 void CalculateOutlierScores(
-    const std::vector<Cluster*>& clusters, double* point_noise_levels, size_t point_noise_levels_length,
+    const Vector* const clusters, double* point_noise_levels, size_t point_noise_levels_length,
     size_t* point_last_clusters, const double* core_distances,
     const std::string& outlier_scores_outputFile, const char delimiter,
     bool infinite_stability, std::vector<OutlierScore>& result);
@@ -227,7 +227,7 @@ void CalculateOutlierScores(
  * their previous Cluster
  * @return The new Cluster, or null if the clusterId was 0
  */
-Cluster* CreateNewCluster(const std::set<size_t>& points,
+Cluster* CreateNewCluster(const set* const points,
     size_t* cluster_labels, Cluster* parent_cluster, size_t cluster_label,
     double edge_weight);
 
@@ -241,7 +241,7 @@ Cluster* CreateNewCluster(const std::set<size_t>& points,
  * @param cluster_labels An array of current cluster labels for points
  */
 void CalculateNumConstraintsSatisfied(
-    const std::set<size_t>& new_cluster_labels, const std::vector<Cluster*>& clusters, const std::vector<Constraint>& constraints, size_t* cluster_labels);
+    const set* const new_cluster_labels, const Vector* const clusters, const std::vector<Constraint>& constraints, size_t* cluster_labels);
 
 
 #endif

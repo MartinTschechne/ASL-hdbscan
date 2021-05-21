@@ -83,7 +83,8 @@ TEST(HDBSCAN_Star, create_tree) {
     size_t* point_last_clusters = new size_t[num_pts];
     auto constraints = ReadInConstraints(file_name_constraints);
 
-    std::vector<Cluster*> clusters;
+    Vector* clusters = new Vector;
+    vector_init(clusters);
     ASSERT_NO_THROW(
         ComputeHierarchyAndClusterTree(mst, min_cluster_size, compact, constraints,
             "test_output/hierarchy.csv", "test_output/tree.csv", ',', point_noise_levels, point_last_clusters,
