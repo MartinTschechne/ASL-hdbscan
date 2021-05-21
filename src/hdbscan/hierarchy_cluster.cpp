@@ -72,17 +72,19 @@ void ComputeHierarchyAndClusterTree(
 
         //Check each cluster affected for a possible split:
         while(!set_empty(affected_cluster_labels)) {
-            size_t examined_cluster_label_it = set_end(affected_cluster_labels) - 1;
+            size_t examined_cluster_label_it = set_prev(affected_cluster_labels, set_end(affected_cluster_labels));
             size_t examined_cluster_label = set_get(affected_cluster_labels, examined_cluster_label_it);
-            set_erase(affected_cluster_labels, examined_cluster_label_it);
+            set_erase(affected_cluster_labels, examined_cluster_label); // @Beat is this right?
             set* examined_vertices = set_create();
 
             //Get all affected vertices that are members of the cluster currently being examined:
+            // @Beat is this the correct way to iterate when we erase elements? 
+            // In the C++ impl erase returns the next valid iterator
             for(size_t it = set_begin(affected_vertices); it < set_end(affected_vertices); it = set_next(affected_vertices, it)) {
                 size_t value = set_get(affected_vertices, it);
                 if(current_cluster_labels[value] == examined_cluster_label) {
                     set_insert(examined_vertices, value);
-                    set_erase(affected_vertices, value);
+                    set_erase(affected_vertices, value); // Careful, here we delete value not index @ Beat should we change this (performance)?
                 }
             }
 
@@ -108,7 +110,7 @@ void ComputeHierarchyAndClusterTree(
                 size_t root_vertex = set_get(examined_vertices, root_vertex_index);
                 set_insert(constructing_sub_cluster, root_vertex);
                 list_push_back(unexplored_sub_cluster_points, root_vertex);
-                set_erase(examined_vertices, root_vertex);
+                set_erase(examined_vertices, root_vertex); // Careful, here we delete value not index @ Beat should we change this (performance)?
 
                 //Explore this potential child cluster as long as there are unexplored points:
                 while(!list_empty(unexplored_sub_cluster_points)) {
@@ -118,7 +120,7 @@ void ComputeHierarchyAndClusterTree(
                         any_edges = true;
                         if(!set_contains(constructing_sub_cluster, neighbor)) {
                             set_insert(constructing_sub_cluster, neighbor);
-                            set_erase(examined_vertices, neighbor);
+                            set_erase(examined_vertices, neighbor); // Here we want to delete by value 
                             list_push_back(unexplored_sub_cluster_points, neighbor);
                         }
                     }
@@ -140,7 +142,7 @@ void ComputeHierarchyAndClusterTree(
                 //If there could be a split, and this child cluster is valid:
                 if((num_child_clusters >= 2) && (constructing_sub_cluster->size >= min_cluster_size) && any_edges) {
                     //Check this child cluster is not equal to the unexplored first child cluster:
-                    size_t first_child_cluster_member = set_get(first_child_cluster, set_end(first_child_cluster)-1);
+                    size_t first_child_cluster_member = set_get(first_child_cluster, set_prev(first_child_cluster, set_end(first_child_cluster)));
                     if(set_contains(constructing_sub_cluster, first_child_cluster_member)) {
                         num_child_clusters--;
                     } else {
