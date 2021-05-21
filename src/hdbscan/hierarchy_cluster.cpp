@@ -104,7 +104,7 @@ void ComputeHierarchyAndClusterTree(
                 bool any_edges = false;
                 bool incremented_child_count = false;
 
-                size_t root_vertex_index = set_begin(examined_vertices); // TODO get last entry
+                size_t root_vertex_index = set_prev(examined_vertices, set_end(examined_vertices));
                 size_t root_vertex = set_get(examined_vertices, root_vertex_index);
                 set_insert(constructing_sub_cluster, root_vertex);
                 list_push_back(unexplored_sub_cluster_points, root_vertex);
