@@ -29,6 +29,7 @@ set(
     src/hdbscan/prominent_clusters.cpp
     src/common/list.cpp
     src/common/vector.cpp
+    src/common/set.cpp
 )
 
 add_library(
@@ -56,6 +57,8 @@ add_executable(
     tests/common/list.cpp
     tests/common/vector.cpp
     tests/common/bitset.cpp
+    tests/common/set.cpp
+    tests/common/quicksort.cpp
 )
 target_link_libraries(
     unit_tests
