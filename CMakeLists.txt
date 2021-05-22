@@ -31,6 +31,7 @@ set(
     src/common/list.cpp
     src/common/vector.cpp
     src/common/set.cpp
+    src/common/ordered_set.cpp
 )
 
 add_library(
@@ -61,6 +62,7 @@ add_executable(
     tests/common/bitset.cpp
     tests/common/set.cpp
     tests/common/quicksort.cpp
+    tests/common/ordered_set.cpp
 )
 target_link_libraries(
     unit_tests
