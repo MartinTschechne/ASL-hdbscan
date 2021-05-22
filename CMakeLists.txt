@@ -19,6 +19,7 @@ set(
     HDB_SOURCE_FILES
     src/hdbscan/outlier_score.cpp
     src/hdbscan/undirected_graph.cpp
+    src/hdbscan/_C_undirected_graph.cpp
     src/hdbscan/cluster.cpp
     src/hdbscan/HDBSCAN_io.cpp
     src/hdbscan/runner.cpp
@@ -51,6 +52,7 @@ add_executable(
     tests/distances/pearson_correlation.cpp 
     tests/distances/supremum_distance.cpp 
     tests/hdbscan/undirected_graph.cpp
+    tests/hdbscan/_C_undirected_graph.cpp
     tests/hdbscan/cluster.cpp
     tests/hdbscan/HDBSCAN_star.cpp
     tests/hdbscan/runner.cpp
