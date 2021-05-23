@@ -101,18 +101,20 @@ size_t OS_size(const OrderedSet* os);
 void OS_clear(OrderedSet* os);
 
 /**
- * @brief Inserts a key into an ordered set if its not already present
+ * @brief Inserts a key into an ordered set if it's not already present
  * 
  * @param os Set to insert key into
  * @param value Key to insert into set
+ * @return Index of the inserted key or the key that prevented the insertion
  */
-void OS_insert(OrderedSet* os, size_t key);
+size_t OS_insert(OrderedSet* os, size_t key);
 
 /**
  * @brief Erases a key from an ordered set if present
  * 
  * @param os Set to erase key from
  * @param key Key to erase from set
+ * @return Index following the last removed key
  */
 size_t OS_erase(OrderedSet* os, size_t key);
 

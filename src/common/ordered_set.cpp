@@ -81,10 +81,11 @@ void OS_clear(OrderedSet* os) {
     }
 }
 
-void OS_insert(OrderedSet* os, size_t key) {
+size_t OS_insert(OrderedSet* os, size_t key) {
+    size_t pos = UNDEFINED_VALUE;
     if (os) {
         if (OS_size(os) > 0) {
-            size_t pos = OS_bisect_right(os, key, 0, OS_end(os));
+            pos = OS_bisect_right(os, key, 0, OS_end(os));
             if (pos == 0 || os->elements[pos-1] != key) {
                 if (OS_size(os) == os->capacity) {
                     OS_resize(os, 2 * os->capacity);
@@ -93,14 +94,16 @@ void OS_insert(OrderedSet* os, size_t key) {
                     os->elements[i] = os->elements[i-1];
                     }
                 os->elements[pos] = key;
-                os->size++; 
+                os->size++;
             }
         }
         else {
-            os->elements[0] = key;
+            pos = 0;
+            os->elements[pos] = key;
             os->size = 1;
         }
     }
+    return pos;
 }
 
 size_t OS_erase(OrderedSet* os, size_t key) {
@@ -133,7 +136,10 @@ size_t OS_find(const OrderedSet* os, size_t key) {
 size_t OS_find_btw(const OrderedSet* os, size_t key, size_t lo, size_t hi) {
     size_t idx = UNDEFINED_VALUE;
     if (os) {
-        size_t pos = OS_bisect_right(os, key, lo, hi) - 1;
+        size_t pos = OS_bisect_right(os, key, lo, hi);
+        if (pos > 0) {
+            pos--;
+        }
         if (os->elements[pos] == key) {
             idx = pos;
         }
@@ -176,9 +182,9 @@ void OS_resize(OrderedSet* os, size_t capacity) {
 }
 
 void OS_print(const OrderedSet* os) {
-    printf("size %d: ",OS_size(os));
-    for (size_t i = 0; i<OS_size(os);i++) {
-        printf("%d ", os->elements[i]);
+    printf("size %lu: ",OS_size(os));
+    for (size_t i = 0; i < OS_size(os); i++) {
+        printf("%lu ", os->elements[i]);
     }
     printf("\n");
 }

@@ -32,6 +32,7 @@ set(
     src/common/vector.cpp
     src/common/set.cpp
     src/common/ordered_set.cpp
+    src/common/map.cpp
 )
 
 add_library(
@@ -63,6 +64,7 @@ add_executable(
     tests/common/set.cpp
     tests/common/quicksort.cpp
     tests/common/ordered_set.cpp
+    tests/common/map.cpp
 )
 target_link_libraries(
     unit_tests
