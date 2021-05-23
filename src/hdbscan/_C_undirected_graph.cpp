@@ -14,6 +14,9 @@ UndirectedGraph_C* UDG_Create(size_t num_vertices, size_t* vertices_A,
         udg->edge_weights_length_ * sizeof(*udg->edge_weights_));
     udg->edges_ = (vector*)malloc(sizeof(*udg->edges_));
     vector_init(udg->edges_);
+    for(size_t i = 0; i < num_vertices; ++i) {
+       vector_push_back(udg->edges_, (void*)vector_create());
+    }
 
     for (int i = 0; i < udg->num_vertices_; i++) {
         vector* vertex_adjacents = vector_create();
@@ -25,15 +28,14 @@ UndirectedGraph_C* UDG_Create(size_t num_vertices, size_t* vertices_A,
         udg->vertices_A_[i] = vertices_A[i];
         udg->vertices_B_[i] = vertices_B[i];
        
-        vector* adjacents_one = UDG_GetEdgeListForVertex(
-            udg, udg->vertices_A_[i]);
-        vector* adjacents_two = UDG_GetEdgeListForVertex(
-            udg, udg->vertices_B_[i]);
+        size_t* vertex_one = (size_t*)malloc(sizeof(size_t));
+        *vertex_one = vertices_A[i];
+        size_t* vertex_two = (size_t*)malloc(sizeof(size_t));
+        *vertex_two = vertices_B[i];
 
-        vector_push_back(adjacents_one, &(udg->vertices_B_[i]));
-        if (udg->vertices_A_[i] != udg->vertices_B_[i]) {
-            vector_push_back(
-                adjacents_two, (void*)&(udg->vertices_A_[i]));
+        vector_push_back((vector*)udg->edges_->elements[*vertex_one], (void*)vertex_two);
+        if(*vertex_one != *vertex_two) {
+            vector_push_back((vector*)udg->edges_->elements[*vertex_two], (void*)vertex_one);
         }
     }
     return udg;

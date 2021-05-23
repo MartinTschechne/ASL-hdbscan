@@ -76,8 +76,8 @@ TEST(HDBSCAN_Star, create_tree) {
     auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
 
     double* core_distances = CalculateCoreDistancesNoOptimization(data_set, min_pts, EuclidianDistance, num_pts, dim);
-    UndirectedGraph mst = ConstructMST(data_set, core_distances, true, EuclidianDistance, num_pts, dim);
-    mst.QuicksortByEdgeWeight();
+    UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, EuclidianDistance, num_pts, dim);
+    UDG_QuicksortByEdgeWeight(mst);
 
     double* point_noise_levels = new double[num_pts];
     size_t* point_last_clusters = new size_t[num_pts];
@@ -90,6 +90,8 @@ TEST(HDBSCAN_Star, create_tree) {
             "test_output/hierarchy.csv", "test_output/tree.csv", ',', point_noise_levels, point_last_clusters,
             "test_output/visualization.vis", clusters)
     );
+
+    UDG_Free(mst);
 
     bool inf_stability = PropagateTree(clusters);
 

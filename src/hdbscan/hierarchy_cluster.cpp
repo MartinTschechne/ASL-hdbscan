@@ -3,7 +3,7 @@
 #include <common/list.h>
 
 void ComputeHierarchyAndClusterTree(
-        UndirectedGraph& mst, size_t min_cluster_size, bool compact_hierarchy,
+        UndirectedGraph_C* mst, size_t min_cluster_size, bool compact_hierarchy,
         const Vector* const constraints, std::string hierarchy_output_file,
         std::string tree_output_file, const char delimiter,
         double* point_noise_levels, size_t* point_last_clusters,
@@ -16,12 +16,12 @@ void ComputeHierarchyAndClusterTree(
     size_t line_count = 0; //Indicates the number of lines written into hierarchyFile.
 
     //The current edge being removed from the MST:
-    size_t current_edge_index = mst.GetNumEdges();
+    size_t current_edge_index = UDG_GetNumEdges(mst);
     size_t next_cluster_label = 2;
     bool next_level_significant = true;
 
     //The previous and current cluster numbers of each point in the data set:
-    size_t current_cluster_labels_length = mst.GetNumVertices();
+    size_t current_cluster_labels_length = UDG_GetNumVertices(mst);
     size_t* previous_cluster_labels = (size_t*)malloc(current_cluster_labels_length * sizeof(size_t));
     size_t* current_cluster_labels = (size_t*)malloc(current_cluster_labels_length * sizeof(size_t));
     for(size_t i = 0; i < current_cluster_labels_length; ++i) {
@@ -32,7 +32,7 @@ void ComputeHierarchyAndClusterTree(
     Vector* clusters = result;
     vector_clear(clusters);
     vector_push_back(clusters, nullptr);
-    vector_push_back(clusters, (void*)CreateCluster(1, nullptr, SNAN, mst.GetNumVertices()));
+    vector_push_back(clusters, (void*)CreateCluster(1, nullptr, SNAN, UDG_GetNumVertices(mst)));
 
     //Calculate number of constraints satisfied for cluster 1:
     OrderedSet* cluster_one = OS_create();
@@ -44,16 +44,16 @@ void ComputeHierarchyAndClusterTree(
     OrderedSet* affected_vertices = OS_create();
 
     while(current_edge_index > 0) {
-        double current_edge_weight = mst.GetEdgeWeightAtIndex(current_edge_index - 1);
+        double current_edge_weight = UDG_GetEdgeWeightAtIndex(mst, current_edge_index - 1);
         Vector* new_clusters = (Vector*)malloc(sizeof(Vector));
         vector_init(new_clusters);
 
         //Remove all edges tied with the current edge weight, and store relevant clusters and vertices:
-        while(current_edge_index > 0 && mst.GetEdgeWeightAtIndex(current_edge_index - 1) == current_edge_weight) {
-            size_t first_vertex = mst.GetFirstVertexAtIndex(current_edge_index - 1);
-            size_t second_vertex = mst.GetSecondVertexAtIndex(current_edge_index - 1);
-            mst.RemoveVertexFromEdgeList(first_vertex, second_vertex);
-            mst.RemoveVertexFromEdgeList(second_vertex, first_vertex);
+        while(current_edge_index > 0 && UDG_GetEdgeWeightAtIndex(mst, current_edge_index - 1) == current_edge_weight) {
+            size_t first_vertex = UDG_GetFirstVertexAtIndex(mst, current_edge_index - 1);
+            size_t second_vertex = UDG_GetSecondVertexAtIndex(mst, current_edge_index - 1);
+            UDG_RemoveVertexFromEdgeList(mst, first_vertex, second_vertex);
+            UDG_RemoveVertexFromEdgeList(mst, second_vertex, first_vertex);
 
             if(current_cluster_labels[first_vertex] == 0) {
                 --current_edge_index;
@@ -116,7 +116,9 @@ void ComputeHierarchyAndClusterTree(
                 while(!list_empty(unexplored_sub_cluster_points)) {
                     size_t vertex_to_explore = list_front(unexplored_sub_cluster_points);
                     list_pop_front(unexplored_sub_cluster_points);
-                    for(size_t neighbor : mst.GetEdgeListForVertex(vertex_to_explore)) {
+                    vector* edge_list = UDG_GetEdgeListForVertex(mst, vertex_to_explore);
+                    for(size_t neighbor_it = 0; neighbor_it < edge_list->size; ++neighbor_it) {
+                        size_t neighbor = *((size_t*)edge_list->elements[neighbor_it]);
                         any_edges = true;
                         if(!OS_contains(constructing_sub_cluster, neighbor)) {
                             OS_insert(constructing_sub_cluster, neighbor);
@@ -173,7 +175,9 @@ void ComputeHierarchyAndClusterTree(
                     size_t vertex_to_explore = list_front(unexplored_first_child_cluster_points);
                     list_pop_front(unexplored_first_child_cluster_points);
 
-                    for(size_t neighbor : mst.GetEdgeListForVertex(vertex_to_explore)) {
+                    vector* edge_list = UDG_GetEdgeListForVertex(mst, vertex_to_explore);
+                    for(size_t neighbor_it = 0; neighbor_it < edge_list->size; ++neighbor_it) {
+                        size_t neighbor = *((size_t*)edge_list->elements[neighbor_it]);
                         if(!OS_contains(first_child_cluster, neighbor)) {
                             OS_insert(first_child_cluster, neighbor);
                             list_push_back(unexplored_first_child_cluster_points, neighbor);

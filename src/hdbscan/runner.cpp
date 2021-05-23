@@ -72,8 +72,8 @@ void HDBSCANRunner(RunnerConfig config) {
     CalculateCoreDistances_t calculate_core_distances_f = GetCalculateCoreDistancesFunction(config.optimization_level);
     const double* const core_distances = calculate_core_distances_f(data_set, config.num_neighbors, dist_fun, num_points, num_dimensions);
 
-    UndirectedGraph mst = ConstructMST(data_set, core_distances, true, dist_fun, num_points, num_dimensions);
-    mst.QuicksortByEdgeWeight();
+    UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, dist_fun, num_points, num_dimensions);
+    UDG_QuicksortByEdgeWeight(mst);
 
     FreeDataset(data_set, num_points);
 
@@ -86,6 +86,8 @@ void HDBSCANRunner(RunnerConfig config) {
     ComputeHierarchyAndClusterTree(mst, config.min_cl_size, config.compact, 
         constraints, config.hierarchy_file, config.tree_file, ',', point_noise_levels, 
         point_last_clusters, config.visualization_file, clusters);
+
+    UDG_Free(mst);
 
     bool inf_stability = PropagateTree(clusters);
 

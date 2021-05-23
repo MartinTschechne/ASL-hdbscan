@@ -15,7 +15,7 @@
 #include <distances/distance_calculator.h>
 #include <hdbscan/cluster.h>
 #include <hdbscan/constraint.h>
-#include <hdbscan/undirected_graph.h>
+#include <hdbscan/_C_undirected_graph.h>
 #include <common/ordered_set.h>
 
 /**
@@ -123,7 +123,7 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
  * @return An UndirectedGraph containing the MST for the data set using the
  * mutual reachability distances
  */
-UndirectedGraph ConstructMST(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST(const double* const * const data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension);
 
@@ -152,7 +152,7 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
  * @return The cluster tree
  */
 void ComputeHierarchyAndClusterTree(
-    UndirectedGraph& mst, size_t min_cluster_size, bool compact_hierarchy,
+    UndirectedGraph_C* mst, size_t min_cluster_size, bool compact_hierarchy,
     const Vector* const constraints, std::string hierarchy_output_file,
     std::string tree_output_file, const char delimiter,
     double* point_noise_levels, size_t* point_last_clusters,

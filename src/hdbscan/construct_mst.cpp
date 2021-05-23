@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <common/bitset.h>
 
-UndirectedGraph ConstructMST(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST(const double* const * const data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension) {
 
@@ -84,5 +84,5 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
         }
     }
 
-    return UndirectedGraph(n_pts, nearest_mrd_neighbors, other_vertex_indices, nearest_mrd_distances, n_pts-1 + self_edge_capacity);
+    return UDG_Create(n_pts, nearest_mrd_neighbors, other_vertex_indices, nearest_mrd_distances, n_pts-1 + self_edge_capacity);
 }
