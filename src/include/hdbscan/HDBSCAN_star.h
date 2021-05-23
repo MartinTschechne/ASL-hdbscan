@@ -2,7 +2,6 @@
 #define TEAM33_HDBSCAN_STAR_H
 
 #include <cstddef>
-#include <set>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -17,6 +16,7 @@
 #include <hdbscan/cluster.h>
 #include <hdbscan/constraint.h>
 #include <hdbscan/undirected_graph.h>
+#include <common/ordered_set.h>
 
 /**
  * Implementation of the HDBSCAN* algorithm, which is broken into several
@@ -227,7 +227,7 @@ void CalculateOutlierScores(
  * their previous Cluster
  * @return The new Cluster, or null if the clusterId was 0
  */
-Cluster* CreateNewCluster(const set* const points,
+Cluster* CreateNewCluster(const OrderedSet* const points,
     size_t* cluster_labels, Cluster* parent_cluster, size_t cluster_label,
     double edge_weight);
 
@@ -241,7 +241,7 @@ Cluster* CreateNewCluster(const set* const points,
  * @param cluster_labels An array of current cluster labels for points
  */
 void CalculateNumConstraintsSatisfied(
-    const set* const new_cluster_labels, const Vector* const clusters, const Vector* const constraints, size_t* cluster_labels);
+    const OrderedSet* const new_cluster_labels, const Vector* const clusters, const Vector* const constraints, size_t* cluster_labels);
 
 
 #endif

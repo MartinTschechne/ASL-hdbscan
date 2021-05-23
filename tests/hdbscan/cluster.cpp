@@ -4,10 +4,10 @@
 TEST(cluster, basic) {
     Cluster* cluster = CreateCluster(120, nullptr, 1.0, 10);
 
-    set* points = set_create();
-    set_insert(points, 12);
-    set_insert(points, 3423);
-    set_insert(points, 234);
+    OrderedSet* points = OS_create();
+    OS_insert(points, 12);
+    OS_insert(points, 3423);
+    OS_insert(points, 234);
 
     ASSERT_EQ(cluster->label, 120);
     ASSERT_ANY_THROW(DetachPoints(cluster, 12, 2.0));

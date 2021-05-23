@@ -61,10 +61,6 @@ void FindProminentClusters(const Vector* const clusters,
     }
 
     for(size_t i = 0; i < num_points-1; ++i) {
-        if(std::to_string(flat_partioning[i]).size() > 1) {
-            size_t v = flat_partioning[i];
-            std::cout << flat_partioning[i] << std::endl;
-        }
         writer << flat_partioning[i] << delimiter;
     }
 
