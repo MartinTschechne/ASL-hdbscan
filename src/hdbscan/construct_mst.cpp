@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <common/bitset.h>
 
-UndirectedGraph ConstructMST(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST(const double* const * const data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension) {
 
@@ -12,7 +12,7 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
     const size_t SIZE_T_MAX = SIZE_MAX;
 
     //One bit is set (true) for each attached point, or unset (false) for unattached points:
-    BitSet attached_points = CreateBitset(n_pts, false);
+    BitSet_t attached_points = CreateBitset(n_pts, false);
 
     //Each point has a current neighbor point in the tree, and a current nearest distance:
     size_t* nearest_mrd_neighbors = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
@@ -84,5 +84,5 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
         }
     }
 
-    return UndirectedGraph(n_pts, nearest_mrd_neighbors, other_vertex_indices, nearest_mrd_distances, n_pts-1 + self_edge_capacity);
+    return UDG_Create(n_pts, nearest_mrd_neighbors, other_vertex_indices, nearest_mrd_distances, n_pts-1 + self_edge_capacity);
 }

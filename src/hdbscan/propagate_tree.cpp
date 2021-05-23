@@ -1,15 +1,18 @@
 #include <hdbscan/HDBSCAN_star.h>
+#include <math.h>
+#include <common/bitset.h>
 
-bool PropagateTree(const std::vector<Cluster*>& clusters) {
+bool PropagateTree(const Vector* const clusters) {
     std::map<int, Cluster*> clusters_to_examine;
-    std::vector<bool> added_to_examination_list(clusters.size(), false);
+    BitSet_t added_to_examination_list = CreateBitset(clusters->size, false);
     bool infinite_stability = false;
 
     //Find all leaf clusters in the cluster tree
-    for(Cluster* cluster : clusters) {
-        if(cluster != nullptr && !cluster->HasChildren()) {
-            clusters_to_examine.insert({cluster->GetLabel(), cluster});
-            added_to_examination_list[cluster->GetLabel()];
+    for(size_t i = 0; i < clusters->size; ++i) {
+        Cluster* cluster = (Cluster*)clusters->elements[i];
+        if(cluster != nullptr && !cluster->has_children) {
+            clusters_to_examine.insert({cluster->label, cluster});
+            added_to_examination_list[cluster->label];
         }
     }
 
@@ -19,17 +22,17 @@ bool PropagateTree(const std::vector<Cluster*>& clusters) {
         Cluster* current_cluster = cluster_last_it->second;
         clusters_to_examine.erase(cluster_last_it);
 
-        current_cluster->Propagate();
-        if(current_cluster->GetStability() == std::numeric_limits<double>::infinity()) {
+        Propagate(current_cluster);
+        if(current_cluster->stability == INFINITY) {
             infinite_stability = true;
         }
 
-        if(current_cluster->GetParent() != nullptr) {
-            Cluster* parent = current_cluster->GetParent();
+        if(current_cluster->parent != nullptr) {
+            Cluster* parent = current_cluster->parent;
 
-            if(!added_to_examination_list[parent->GetLabel()]) {
-                clusters_to_examine.insert({parent->GetLabel(), parent});
-                added_to_examination_list[parent->GetLabel()] = true;
+            if(!added_to_examination_list[parent->label]) {
+                clusters_to_examine.insert({parent->label, parent});
+                added_to_examination_list[parent->label] = true;
             }
         }
     }

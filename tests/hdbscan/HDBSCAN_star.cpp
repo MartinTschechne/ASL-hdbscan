@@ -16,10 +16,10 @@ TEST(HDBSCAN_Star, IO) {
     ASSERT_EQ(lines[2][1], 90);
 
     auto constraints = ReadInConstraints(file_name_constraints);
-    ASSERT_EQ(constraints.size(), 10);
-    ASSERT_EQ(constraints[3].point_a, 304);
-    ASSERT_EQ(constraints[8].point_b, 455);
-    ASSERT_EQ(constraints[5].type, Constraint::CONSTRAINT_TYPE::CANNOT_LINK);
+    ASSERT_EQ(constraints->size, 10);
+    ASSERT_EQ(((Constraint*)constraints->elements[3])->point_a, 304);
+    ASSERT_EQ(((Constraint*)constraints->elements[8])->point_b, 455);
+    ASSERT_EQ(((Constraint*)constraints->elements[5])->type, Constraint::CONSTRAINT_TYPE::CANNOT_LINK);
 
     FreeDataset(lines, num_pts);
 }
@@ -76,24 +76,27 @@ TEST(HDBSCAN_Star, create_tree) {
     auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
 
     double* core_distances = CalculateCoreDistancesNoOptimization(data_set, min_pts, EuclidianDistance, num_pts, dim);
-    UndirectedGraph mst = ConstructMST(data_set, core_distances, true, EuclidianDistance, num_pts, dim);
-    mst.QuicksortByEdgeWeight();
+    UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, EuclidianDistance, num_pts, dim);
+    UDG_QuicksortByEdgeWeight(mst);
 
     double* point_noise_levels = new double[num_pts];
     size_t* point_last_clusters = new size_t[num_pts];
     auto constraints = ReadInConstraints(file_name_constraints);
 
-    std::vector<Cluster*> clusters;
+    Vector* clusters = new Vector;
+    vector_init(clusters);
     ASSERT_NO_THROW(
         ComputeHierarchyAndClusterTree(mst, min_cluster_size, compact, constraints,
             "test_output/hierarchy.csv", "test_output/tree.csv", ',', point_noise_levels, point_last_clusters,
             "test_output/visualization.vis", clusters)
     );
 
+    UDG_Free(mst);
+
     bool inf_stability = PropagateTree(clusters);
 
-    std::vector<size_t> res;
-    std::vector<OutlierScore> outlier_scores;
+    vector* res = vector_create();
+    vector* outlier_scores = vector_create();
     ASSERT_NO_THROW(FindProminentClusters(clusters, "test_output/hierarchy.csv", "test_output/flat.csv", ',', num_pts, inf_stability, res));
     ASSERT_NO_THROW(CalculateOutlierScores(clusters, point_noise_levels, num_pts, point_last_clusters, core_distances, "test_output/outlier_score.csv", ',', inf_stability, outlier_scores));
 

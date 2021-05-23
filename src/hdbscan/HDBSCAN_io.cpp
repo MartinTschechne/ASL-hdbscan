@@ -33,16 +33,17 @@ double** ReadInDataSet(std::string const& file_name, const char delimiter, const
     return result;
 }
 
-void FreeDataset(const double * const * dataset, size_t num_points) {
+void FreeDataset(double** dataset, size_t num_points) {
     for(size_t i = 0; i < num_points; ++i) {
-        delete[] dataset[i];
+        free(dataset[i]);
     }
 
-    delete[] dataset;
+    free(dataset);
 }
 
-std::vector<Constraint> ReadInConstraints(std::string const& file_name) {
-    std::vector<Constraint> result;
+Vector* ReadInConstraints(std::string const& file_name) {
+    Vector* result = (Vector*)malloc(sizeof(Vector));
+    vector_init(result);
     std::ifstream file(file_name);
     std::string line;
     int num_attributes = -1;
@@ -61,12 +62,17 @@ std::vector<Constraint> ReadInConstraints(std::string const& file_name) {
         stream.ignore();
         stream >> link_type;
 
-        Constraint::CONSTRAINT_TYPE contraint_type =
+        Constraint::CONSTRAINT_TYPE constraint_type =
             link_type == Constraint::MUST_LINK_TAG
             ? Constraint::CONSTRAINT_TYPE::MUST_LINK
             : Constraint::CONSTRAINT_TYPE::CANNOT_LINK;
 
-        result.push_back(Constraint(point_a, point_b, contraint_type));
+        Constraint* constraint = (Constraint*)malloc(sizeof(Constraint));
+        constraint->point_a = point_a;
+        constraint->point_b = point_b;
+        constraint->type = constraint_type;
+
+        vector_push_back(result, (void*)constraint);
 
         line_count++;
     }

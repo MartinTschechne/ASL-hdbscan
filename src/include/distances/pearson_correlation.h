@@ -1,7 +1,7 @@
 #ifndef TEAM33_DISTANCES_PEARSON_CORRELATION_H
 #define TEAM33_DISTANCES_PEARSON_CORRELATION_H
 
-#include <cmath>
+#include <math.h>
 
 /**
  * @brief Computes the pearson correlation d = 1 - (cov(X,Y) / (std_dev(X) * std_dev(Y)))
@@ -33,7 +33,7 @@ inline double PearsonCorrelation(const double* a, const double* b, size_t n) {
         std_b += ((b[i] - mean_b) * (b[i] - mean_b));
     }
 
-    return (1.0 - (cov / std::sqrt(std_a * std_b)));
+    return (1.0 - (cov / sqrt(std_a * std_b)));
 }
 
 
@@ -94,7 +94,7 @@ inline double PearsonCorrelationUnrolled(const double* a, const double* b, size_
         std_b_0 += ((b[i] - mean_b_0) * (b[i] - mean_b_0));
     }
 
-    return (1.0 - ((cov_0 + cov_1) / std::sqrt((std_a_0+std_a_1) * (std_b_0 + std_b_1))));
+    return (1.0 - ((cov_0 + cov_1) / sqrt((std_a_0+std_a_1) * (std_b_0 + std_b_1))));
 }
 
 #endif

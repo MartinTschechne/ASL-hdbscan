@@ -32,7 +32,8 @@ TEST(HDBSCAN_Runner, full_pipeline) {
         min_pts,
         min_cluster_size,
         compact,
-        "euclidean"
+        "euclidean",
+        "no_optimization"
     };
 
     HDBSCANRunner(runner_config);
@@ -168,7 +169,8 @@ TEST(HDBSCAN_Runner, full_pipeline_high_dim) {
         min_pts,
         min_cluster_size,
         compact,
-        "euclidean"
+        "euclidean",
+        "no_optimization"
     };
 
     HDBSCANRunner(runner_config);

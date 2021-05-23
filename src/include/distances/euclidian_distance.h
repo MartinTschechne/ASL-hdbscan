@@ -1,7 +1,7 @@
 #ifndef TEAM33_DISTANCES_EUCLIDIAN_DISTANCE_H
 #define TEAM33_DISTANCES_EUCLIDIAN_DISTANCE_H
 
-#include <cmath>
+#include <math.h>
 
 /**
  * @brief Computes the Euclidian distance between a and b
@@ -19,7 +19,7 @@ inline double EuclidianDistance(const double* a, const double* b, size_t n) {
         distance += diff * diff;
     }
 
-    return std::sqrt(distance);
+    return sqrt(distance);
 }
 
 
@@ -52,7 +52,7 @@ inline double EuclidianDistanceUnrolled(const double* a, const double* b, size_t
         distance_0 += diff_0 * diff_0;
     }
 
-    return std::sqrt(distance_0 + distance_1);
+    return sqrt(distance_0 + distance_1);
 }
 
 #endif

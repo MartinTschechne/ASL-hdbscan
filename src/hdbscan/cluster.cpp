@@ -1,154 +1,113 @@
 #include <hdbscan/cluster.h>
 
-#include <limits>
+#include <float.h>
 #include <stdexcept>
 
-Cluster::Cluster(size_t label, Cluster* parent, double birth_level, size_t num_points) : 
-    label_(label), 
-    parent_(parent),
-    birth_level_(birth_level),
-    num_points_(num_points),
-    death_level_(0.0),
-    file_offset_(0),
-    stability_(0.0),
-    propagated_stability_(0.0),
-    propagated_lowest_child_death_level_(std::numeric_limits<double>::max()),
-    num_constraints_satisfied_(0),
-    propagated_num_constraints_satisfied_(0),
-    has_children_(false) {
-    
-    if(parent_ != nullptr) {
-        parent_->has_children_ = true;
+Cluster* CreateCluster(size_t label, Cluster* parent, double birth_level, size_t num_points) {
+    Cluster* new_cluster = (Cluster*)malloc(sizeof(Cluster));
+    new_cluster->label = label; 
+    new_cluster->birth_level = birth_level; 
+    new_cluster->death_level = 0.0; 
+    new_cluster->num_points = num_points; 
+    new_cluster->file_offset = 0; 
+    new_cluster->stability = 0.0; 
+    new_cluster->propagated_stability = 0.0; 
+    new_cluster->propagated_lowest_child_death_level = DBL_MAX;
+    new_cluster->num_constraints_satisfied = 0;
+    new_cluster->propagated_num_constraints_satisfied = 0;
+    new_cluster->parent = parent;
+    new_cluster->has_children = false;
+    new_cluster->propagated_descendants = (Vector*)malloc(sizeof(Vector));
+    vector_init(new_cluster->propagated_descendants);
+    new_cluster->virtual_child_cluster = OS_create();
+
+    if(parent != nullptr) {
+        parent->has_children = true;
     }
+
+    return new_cluster;
 }
 
 
-void Cluster::DetachPoints(size_t num_points, double level) {
-    if(num_points > this->num_points_) { // I think assert is hidden by some gtest module
+void DetachPoints(Cluster* cluster, size_t num_points, double level) {
+    if(num_points > cluster->num_points) { // I think assert is hidden by some gtest module
         throw std::invalid_argument("Number of points to detach cannot be greater than the number of points in the cluster");
     }
-    this->num_points_ -= num_points;
-    this->stability_ += (num_points * (1.0 / level - 1.0 / this->birth_level_));
-    if(this->num_points_ == 0) {
-        this->death_level_ = level;
+    cluster->num_points -= num_points;
+    cluster->stability += (num_points * (1.0 / level - 1.0 / cluster->birth_level));
+    if(cluster->num_points == 0) {
+        cluster->death_level = level;
     }
 }
 
-void Cluster::Propagate() {
-    if(parent_ == nullptr) {
+void Propagate(Cluster* cluster) {
+    if(cluster->parent == nullptr) {
         return;
     }
 
     //Propagate lowest death level of any descendants:
-    if(propagated_lowest_child_death_level_ == std::numeric_limits<double>::max()) {
-        propagated_lowest_child_death_level_ = death_level_;
+    if(cluster->propagated_lowest_child_death_level == DBL_MAX) {
+        cluster->propagated_lowest_child_death_level = cluster->death_level;
     }
-    if(propagated_lowest_child_death_level_ < parent_->propagated_lowest_child_death_level_) {
-        parent_->propagated_lowest_child_death_level_ = propagated_lowest_child_death_level_;
+    if(cluster->propagated_lowest_child_death_level < cluster->parent->propagated_lowest_child_death_level) {
+        cluster->parent->propagated_lowest_child_death_level = cluster->propagated_lowest_child_death_level;
     }
 
     //If this cluster has no children, it must propagate itself:
-    if(!has_children_) {
-        parent_->propagated_num_constraints_satisfied_ += num_constraints_satisfied_;
-        parent_->propagated_stability_ += stability_;
-        parent_->propagated_descendants_.push_back(this);
-    } else if(num_constraints_satisfied_ > propagated_num_constraints_satisfied_) {
-        parent_->propagated_num_constraints_satisfied_ += num_constraints_satisfied_;
-        parent_->propagated_stability_ += stability_;
-        parent_->propagated_descendants_.push_back(this);
-    } else if(num_constraints_satisfied_ < propagated_num_constraints_satisfied_) {
-        parent_->propagated_num_constraints_satisfied_ += propagated_num_constraints_satisfied_;
-        parent_->propagated_stability_ += propagated_stability_;
-        parent_->propagated_descendants_.insert(
-            std::end(parent_->propagated_descendants_), 
-            std::begin(propagated_descendants_),
-            std::end(propagated_descendants_)
-        ); // insert all 
-    } else if(num_constraints_satisfied_ == propagated_num_constraints_satisfied_) {
+    if(!cluster->has_children) {
+        cluster->parent->propagated_num_constraints_satisfied += cluster->num_constraints_satisfied;
+        cluster->parent->propagated_stability += cluster->stability;
+        vector_push_back(cluster->parent->propagated_descendants, (void*)cluster);
+    } else if(cluster->num_constraints_satisfied > cluster->propagated_num_constraints_satisfied) {
+        cluster->parent->propagated_num_constraints_satisfied += cluster->num_constraints_satisfied;
+        cluster->parent->propagated_stability += cluster->stability;
+        vector_push_back(cluster->parent->propagated_descendants, (void*)cluster);
+    } else if(cluster->num_constraints_satisfied < cluster->propagated_num_constraints_satisfied) {
+        cluster->parent->propagated_num_constraints_satisfied += cluster->propagated_num_constraints_satisfied;
+        cluster->parent->propagated_stability += cluster->propagated_stability;
+        for(size_t i = 0; i < cluster->propagated_descendants->size; ++i) {
+            vector_push_back(cluster->parent->propagated_descendants, vector_get(cluster->propagated_descendants, i));
+        } // insert all 
+    } else if(cluster->num_constraints_satisfied == cluster->propagated_num_constraints_satisfied) {
         //Chose the parent over descendants if there is a tie in stability:
-        if(stability_ >= propagated_stability_) {
-            parent_->propagated_num_constraints_satisfied_ += num_constraints_satisfied_;
-            parent_->propagated_stability_ += stability_;
-            parent_->propagated_descendants_.push_back(this);
+        if(cluster->stability >= cluster->propagated_stability) {
+            cluster->parent->propagated_num_constraints_satisfied += cluster->num_constraints_satisfied;
+            cluster->parent->propagated_stability += cluster->stability;
+            vector_push_back(cluster->parent->propagated_descendants, cluster);
         } else {
-            parent_->propagated_num_constraints_satisfied_ += propagated_num_constraints_satisfied_;
-            parent_->propagated_stability_ += propagated_stability_;
-            parent_->propagated_descendants_.insert(
-            std::end(parent_->propagated_descendants_), 
-            std::begin(propagated_descendants_),
-            std::end(propagated_descendants_)
-        ); // insert all 
+            cluster->parent->propagated_num_constraints_satisfied += cluster->propagated_num_constraints_satisfied;
+            cluster->parent->propagated_stability += cluster->propagated_stability;
+            for(size_t i = 0; i < cluster->propagated_descendants->size; ++i) {
+                vector_push_back(cluster->parent->propagated_descendants, vector_get(cluster->propagated_descendants, i));
+            } // insert all 
         }
     }
 }
 
-void Cluster::AddPointsToVirtualChildCluster(const std::set<size_t>& points) {
-    virtual_child_cluster_.insert(
-        std::begin(points),
-        std::end(points)
-    );
+void AddPointsToVirtualChildCluster(Cluster* cluster, const OrderedSet* const points) {
+    for(size_t i = OS_begin(points); i < OS_end(points); i = OS_next(points, i)) {
+        OS_insert(cluster->virtual_child_cluster, OS_get(points, i));
+    }
 }
 
-bool Cluster::VirtualChildClusterContaintsPoint(size_t point) const {
-    return virtual_child_cluster_.find(point) != virtual_child_cluster_.end();
+bool VirtualChildClusterContaintsPoint(Cluster* cluster, size_t point) {
+    return OS_contains(cluster->virtual_child_cluster, point);
 }
 
-void Cluster::AddVirtualChildConstraintsSatisfied(size_t num_constraints) {
-    propagated_num_constraints_satisfied_ += num_constraints;
+void AddVirtualChildConstraintsSatisfied(Cluster* cluster, size_t num_constraints) {
+    cluster->propagated_num_constraints_satisfied += num_constraints;
 }
 
-void Cluster::AddConstraintsSatisfied(size_t num_constraints) {
-    num_constraints_satisfied_ += num_constraints;
+void AddConstraintsSatisfied(Cluster* cluster, size_t num_constraints) {
+    cluster->num_constraints_satisfied += num_constraints;
 }
 
-void Cluster::ReleaseVirtualChildCluster() {
-    virtual_child_cluster_.clear();
+void ReleaseVirtualChildCluster(Cluster* cluster) {
+    OS_clear(cluster->virtual_child_cluster);
 }
 
-size_t Cluster::GetLabel() const {
-    return label_;
-}
-
-Cluster* Cluster::GetParent() const {
-    return parent_;
-}
-
-double Cluster::GetBirthLevel() const {
-    return birth_level_;
-}
-
-double Cluster::GetDeathLevel() const {
-    return death_level_;
-}
-
-size_t Cluster::GetFileOffset() const {
-    return file_offset_;
-}
-
-void Cluster::SetFileOffset(size_t offset) {
-    file_offset_ = offset;
-}
-
-double Cluster::GetStability() {
-    return stability_;
-}
-
-double Cluster::GetPropagatedLowestChildDeathLevel() const {
-    return propagated_lowest_child_death_level_;
-}
-
-size_t Cluster::GetNumConstraintsSatisfied() const {
-    return num_constraints_satisfied_;
-}
-
-size_t Cluster::GetPropagatedNumConstraintsSatisfied() const {
-    return propagated_num_constraints_satisfied_;
-}
-
-bool Cluster::HasChildren() const {
-    return has_children_;
-}
-
-const std::vector<Cluster*>& Cluster::GetPropagatedDescendants() const {
-    return propagated_descendants_;
+void FreeCluster(Cluster* cluster) {
+    vector_free(cluster->propagated_descendants);
+    OS_free(cluster->virtual_child_cluster);
+    free(cluster);
 }

@@ -27,6 +27,11 @@ void vector_free(vector* vec) {
     }
 }
 
+bool vector_empty(const vector* const vec) {
+    if(!vec) return true;
+    return vec->size == 0;
+}
+
 size_t vector_size(const vector* vec) {
     size_t size = -1;
     if (vec) {
@@ -58,6 +63,15 @@ void vector_clear(vector* vec) {
         vec->size = 0;
     }
 
+}
+
+bool vector_contains(vector* vec, const void* value) {
+    for(size_t i = 0; i < vec->size; ++i) {
+        if(vec->elements[i] == value) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void vector_insert(vector* vec, size_t pos, size_t count, const void* value) {

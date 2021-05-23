@@ -114,7 +114,7 @@ void OS_insert(OrderedSet* os, size_t key);
  * @param os Set to erase key from
  * @param key Key to erase from set
  */
-void OS_erase(OrderedSet* os, size_t key);
+size_t OS_erase(OrderedSet* os, size_t key);
 
 /**
  * @brief Finds a key in an ordered set

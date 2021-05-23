@@ -80,6 +80,8 @@ void vector_clear(vector* vec);
  */
 void vector_insert(vector* vec, size_t pos, size_t count, const void* value);
 
+bool vector_contains(vector* vec, const void* value);
+
 /**
  * @brief Erases specified element from the vector
  * 
@@ -87,6 +89,8 @@ void vector_insert(vector* vec, size_t pos, size_t count, const void* value);
  * @param pos Position at which to remove element
  */
 void vector_erase(vector* vec, size_t pos);
+
+bool vector_empty(const vector* const vec);
 
 /**
  * @brief Appends the given element to the end of the vector

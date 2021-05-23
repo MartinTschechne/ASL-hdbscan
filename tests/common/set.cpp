@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <set>
 #include <random>
+#include <cstdlib>
 
 TEST(set, bitset_create_free) {
     const size_t num_bits{512};
@@ -98,6 +99,23 @@ TEST(set, bitset_set_clear_get) {
     }
 
     bitset_free(b);
+}
+
+TEST(set, set_clear_contains) {
+    set* s = set_create();
+    set_insert(s, 20);
+    set_insert(s, 40);
+
+    ASSERT_TRUE(set_contains(s, 20));
+    ASSERT_TRUE(set_contains(s, 40));
+    ASSERT_FALSE(set_contains(s, 89));
+
+    set_clear(s);
+
+    ASSERT_FALSE(set_contains(s, 20));
+    ASSERT_FALSE(set_contains(s, 40));
+    ASSERT_FALSE(set_contains(s, 89));
+
 }
 
 
@@ -350,4 +368,38 @@ TEST(set, set_prev_get_resize) {
     ASSERT_EQ(std_set.size() - count, set_size(s));
     
     set_free(s);
+}
+
+int compare(const void* a, const void* b) {
+    if(*(size_t*)a > *(size_t*)b) return 1;
+    if(*(size_t*)a < *(size_t*)b) return -1;
+    return 0;
+}
+
+TEST(set, iterate_and_erase) {
+    size_t values[] = {13, 5, 29, 11, 15};
+    size_t n = 5;
+    size_t count = 0;
+
+    set* s = set_create();
+
+    for(size_t i = 0; i < n; ++i) {
+        set_insert(s, values[i]);
+    }
+
+    qsort((void*)values, n, sizeof(size_t), compare);
+    size_t set_index = set_begin(s);
+    for(size_t i = 0; i < n; ++i) {
+        ASSERT_EQ(values[i], set_get(s, set_index));
+        set_index = set_next(s, set_index);
+    }
+
+    for(size_t i = set_begin(s); i < set_end(s); i = set_next(s, i)) {
+        size_t value = set_get(s, i);
+        ASSERT_EQ(values[count], value);
+        set_erase(s, value);
+        count++;
+    }
+
+    ASSERT_EQ(count, n);
 }

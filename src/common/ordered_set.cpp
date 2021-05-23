@@ -103,12 +103,14 @@ void OS_insert(OrderedSet* os, size_t key) {
     }
 }
 
-void OS_erase(OrderedSet* os, size_t key) {
+size_t OS_erase(OrderedSet* os, size_t key) {
+    size_t pos = 0;
+    size_t next_index = pos;
     if (os) {
-        size_t pos = 0;
         if (OS_size(os) > 0) {
             pos = OS_bisect_right(os, key, 0, OS_end(os)) - 1;
         }
+        next_index = pos;
         if (os->elements[pos] == key) {
             for (; pos < OS_end(os)-1; pos++) {
                 os->elements[pos] = os->elements[pos+1];
@@ -120,6 +122,8 @@ void OS_erase(OrderedSet* os, size_t key) {
             }
         }
     }
+
+    return next_index;
 }
 
 size_t OS_find(const OrderedSet* os, size_t key) {

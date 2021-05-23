@@ -266,3 +266,37 @@ TEST(ordered_set, ordered_OS_prev_get_resize) {
     
     OS_free(os);
 }
+
+int compare_os(const void* a, const void* b) {
+    if(*(size_t*)a > *(size_t*)b) return 1;
+    if(*(size_t*)a < *(size_t*)b) return -1;
+    return 0;
+}
+
+TEST(ordered_set, iterate_and_erase) {
+    size_t values[] = {13, 5, 29, 11, 15};
+    size_t n = 5;
+    size_t count = 0;
+
+    OrderedSet* s = OS_create();
+
+    for(size_t i = 0; i < n; ++i) {
+        OS_insert(s, values[i]);
+    }
+
+    qsort((void*)values, n, sizeof(size_t), compare_os);
+    size_t set_index = OS_begin(s);
+    for(size_t i = 0; i < n; ++i) {
+        ASSERT_EQ(values[i], OS_get(s, set_index));
+        set_index = OS_next(s, set_index);
+    }
+
+    for(size_t i = OS_begin(s); i < OS_end(s); ) {
+        size_t value = OS_get(s, i);
+        ASSERT_EQ(values[count], value);
+        i = OS_erase(s, value);
+        count++;
+    }
+
+    ASSERT_EQ(count, n);
+}

@@ -22,7 +22,7 @@ inline double CosineSimilarity(const double* a, const double* b, size_t n) {
         mag_b += b[i]*b[i];
     }
 
-    return 1.0 - (dot_product / std::sqrt(mag_a * mag_b));
+    return 1.0 - (dot_product / sqrt(mag_a * mag_b));
 }
 
 
@@ -63,7 +63,7 @@ inline double CosineSimilarityUnrolled(const double* a, const double* b, size_t 
     dot_product_0 += dot_product_1;
     mag_a_0 += mag_a_1;
     mag_b_0 += mag_b_1;
-    return 1.0 - (dot_product_0 / std::sqrt(mag_a_0 * mag_b_0));
+    return 1.0 - (dot_product_0 / sqrt(mag_a_0 * mag_b_0));
 }
 
 #endif

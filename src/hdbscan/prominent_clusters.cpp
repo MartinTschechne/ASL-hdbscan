@@ -1,34 +1,37 @@
 #include <hdbscan/HDBSCAN_star.h>
 
-void FindProminentClusters(const std::vector<Cluster*>& clusters,
+void FindProminentClusters(const Vector* const clusters,
         const std::string& hierarchy_file, const std::string& flat_output_file,
         const char delimiter, size_t num_points, bool infinite_stability,
-        std::vector<size_t>& result) {
+        vector* result) {
 
     //Take the list of propagated clusters from the root cluster:
-    const std::vector<Cluster*>& solution = clusters[1]->GetPropagatedDescendants();
+    const Vector* solution = ((Cluster*)clusters->elements[1])->propagated_descendants;
 
     std::ifstream reader(hierarchy_file);
-    size_t* flat_partioning{new size_t[num_points]{0}};
+    size_t* flat_partioning = (size_t*)calloc(num_points, sizeof(size_t));
 
     //Store all the file offsets at which to find the birth points for the flat clustering:
-    std::map<size_t, std::vector<size_t>*> significant_file_offsets;
-    for(const Cluster* cluster : solution) {
-        std::vector<size_t>* cluster_list = nullptr;
-        auto entry = significant_file_offsets.find(cluster->GetFileOffset());
+    std::map<size_t, vector*> significant_file_offsets;
+    for(size_t i = 0; i < solution->size; ++i) {
+        const Cluster* cluster = (Cluster*)vector_get(solution, i);
+        vector* cluster_list = nullptr;
+        auto entry = significant_file_offsets.find(cluster->file_offset);
         if(entry == significant_file_offsets.end()) {
-            cluster_list = new std::vector<size_t>;
-            significant_file_offsets.insert({cluster->GetFileOffset(), cluster_list});
+            cluster_list = vector_create();
+            significant_file_offsets.insert({cluster->file_offset, cluster_list});
         } else {
             cluster_list = entry->second;
         }
 
-        cluster_list->push_back(cluster->GetLabel());
+        size_t* label = (size_t*)malloc(sizeof(size_t));
+        *label = cluster->label;
+        vector_push_back(cluster_list, (void*)label);
     }
 
     //Go through the hierarchy file, setting labels for the flat clustering:
     for(auto it = significant_file_offsets.begin(); it != significant_file_offsets.end(); ) {
-        std::vector<size_t>* cluster_list = it->second;
+        vector* cluster_list = it->second;
         size_t offset = it->first;
 
         reader.seekg(offset, std::ios::beg);
@@ -44,7 +47,16 @@ void FindProminentClusters(const std::vector<Cluster*>& clusters,
                 continue;
             }
             size_t label = std::stoi(part);
-            if(std::find(cluster_list->begin(), cluster_list->end(), label) != cluster_list->end()) {
+            
+            bool contains = false;
+            for(size_t i = 0; i < cluster_list->size; ++i) {
+                if(*((size_t*)cluster_list->elements[i]) == label) {
+                    contains = true;
+                    break;
+                }
+            }
+
+            if(contains) {
                 flat_partioning[i-1] = label;
             }
 
@@ -60,13 +72,9 @@ void FindProminentClusters(const std::vector<Cluster*>& clusters,
     }
 
     for(size_t i = 0; i < num_points-1; ++i) {
-        if(std::to_string(flat_partioning[i]).size() > 1) {
-            size_t v = flat_partioning[i];
-            std::cout << flat_partioning[i] << std::endl;
-        }
         writer << flat_partioning[i] << delimiter;
     }
 
     writer << flat_partioning[num_points-1] << "\n";
-    delete[] flat_partioning;
+    free(flat_partioning);
 }

@@ -2,7 +2,6 @@
 #define TEAM33_HDBSCAN_STAR_H
 
 #include <cstddef>
-#include <set>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -16,7 +15,8 @@
 #include <distances/distance_calculator.h>
 #include <hdbscan/cluster.h>
 #include <hdbscan/constraint.h>
-#include <hdbscan/undirected_graph.h>
+#include <hdbscan/_C_undirected_graph.h>
+#include <common/ordered_set.h>
 
 /**
  * Implementation of the HDBSCAN* algorithm, which is broken into several
@@ -46,6 +46,7 @@ struct OutlierScore {
 };
 
 int CompareTo(const OutlierScore& a, const OutlierScore& b);
+int CompareOutlierScores(const void* a, const void* b);
 
 typedef double*(*CalculateCoreDistances_t)(const double* const * const, size_t,
     DistanceCalculator, const size_t, const size_t);
@@ -64,7 +65,7 @@ typedef double*(*CalculateCoreDistances_t)(const double* const * const, size_t,
  */
 double** ReadInDataSet(std::string const& file_name, const char delimiter, const size_t num_points, const size_t point_dimension);
 
-void FreeDataset(const double * const * dataset, size_t num_points);
+void FreeDataset(double** dataset, size_t num_points);
 
 /**
  * @brief Reads in constraints from the file given, assuming the delimiter
@@ -77,7 +78,7 @@ void FreeDataset(const double * const * dataset, size_t num_points);
  * and type of each constraint
  * @return A vector of Constraints
  */
-std::vector<Constraint> ReadInConstraints(
+Vector* ReadInConstraints(
     std::string const& file_name);
 
 CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& optimization_level);
@@ -123,7 +124,7 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
  * @return An UndirectedGraph containing the MST for the data set using the
  * mutual reachability distances
  */
-UndirectedGraph ConstructMST(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST(const double* const * const data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension);
 
@@ -152,11 +153,11 @@ UndirectedGraph ConstructMST(const double* const * const data_set,
  * @return The cluster tree
  */
 void ComputeHierarchyAndClusterTree(
-    UndirectedGraph& mst, size_t min_cluster_size, bool compact_hierarchy,
-    std::vector<Constraint> constraints, std::string hierarchy_output_file,
+    UndirectedGraph_C* mst, size_t min_cluster_size, bool compact_hierarchy,
+    const Vector* const constraints, std::string hierarchy_output_file,
     std::string tree_output_file, const char delimiter,
     double* point_noise_levels, size_t* point_last_clusters,
-    std::string visualization_output_file, std::vector<Cluster*>& result);
+    std::string visualization_output_file, Vector* result);
 
 /**
  * @brief Propagates constraint satisfaction, stability, and lowest child
@@ -168,7 +169,7 @@ void ComputeHierarchyAndClusterTree(
  * @return true if there are any clusters with infinite stability, false
  * otherwise
  */
-bool PropagateTree(const std::vector<Cluster*>& clusters);
+bool PropagateTree(const Vector* const  clusters);
 
 /**
  * @brief Produces a flat clustering result using constraint satisfaction
@@ -185,10 +186,10 @@ bool PropagateTree(const std::vector<Cluster*>& clusters);
  * stability, false otherwise
  * @return An array of labels for the flat clustering result
  */
-void FindProminentClusters(const std::vector<Cluster*>& clusters,
+void FindProminentClusters(const Vector* const clusters,
     const std::string& hierarchy_file, const std::string& flat_output_file,
     const char delimiter, size_t num_points, bool infinite_stability,
-    std::vector<size_t>& result);
+    vector* result);
 
 /**
  * @brief Produces the outlier score for each point in the data set, and
@@ -210,10 +211,10 @@ void FindProminentClusters(const std::vector<Cluster*>& clusters,
  * @return An vector of OutlierScores, sorted in descending order
  */
 void CalculateOutlierScores(
-    const std::vector<Cluster*>& clusters, double* point_noise_levels, size_t point_noise_levels_length,
+    const Vector* const clusters, double* point_noise_levels, size_t point_noise_levels_length,
     size_t* point_last_clusters, const double* core_distances,
     const std::string& outlier_scores_outputFile, const char delimiter,
-    bool infinite_stability, std::vector<OutlierScore>& result);
+    bool infinite_stability, vector* result);
 
 /**
  * @brief Removes the set of points from their parent Cluster, and creates
@@ -227,7 +228,7 @@ void CalculateOutlierScores(
  * their previous Cluster
  * @return The new Cluster, or null if the clusterId was 0
  */
-Cluster* CreateNewCluster(const std::set<size_t>& points,
+Cluster* CreateNewCluster(const OrderedSet* const points,
     size_t* cluster_labels, Cluster* parent_cluster, size_t cluster_label,
     double edge_weight);
 
@@ -241,7 +242,7 @@ Cluster* CreateNewCluster(const std::set<size_t>& points,
  * @param cluster_labels An array of current cluster labels for points
  */
 void CalculateNumConstraintsSatisfied(
-    const std::set<size_t>& new_cluster_labels, const std::vector<Cluster*>& clusters, const std::vector<Constraint>& constraints, size_t* cluster_labels);
+    const OrderedSet* const new_cluster_labels, const Vector* const clusters, const Vector* const constraints, size_t* cluster_labels);
 
 
 #endif
