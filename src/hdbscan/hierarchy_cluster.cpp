@@ -84,7 +84,7 @@ void ComputeHierarchyAndClusterTree(
                 size_t value = OS_get(affected_vertices, it);
                 if(current_cluster_labels[value] == examined_cluster_label) {
                     OS_insert(examined_vertices, value);
-                    it = OS_erase(affected_vertices, value); // Careful, here we delete value not index @ Beat should we change this (performance)?
+                    it = OS_erase(affected_vertices, value);
                 }
             }
 
@@ -110,7 +110,7 @@ void ComputeHierarchyAndClusterTree(
                 size_t root_vertex = OS_get(examined_vertices, root_vertex_index);
                 OS_insert(constructing_sub_cluster, root_vertex);
                 list_push_back(unexplored_sub_cluster_points, root_vertex);
-                OS_erase(examined_vertices, root_vertex); // Careful, here we delete value not index @ Beat should we change this (performance)?
+                OS_erase(examined_vertices, root_vertex);
 
                 //Explore this potential child cluster as long as there are unexplored points:
                 while(!list_empty(unexplored_sub_cluster_points)) {

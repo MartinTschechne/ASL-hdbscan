@@ -61,7 +61,7 @@ void HDBSCANRunner(RunnerConfig config) {
     
     size_t num_points = config.num_points;
     size_t num_dimensions = config.num_dimensions;
-    const double * const * data_set = ReadInDataSet(config.points_file, ',', num_points, num_dimensions);
+    double** data_set = ReadInDataSet(config.points_file, ',', num_points, num_dimensions);
     
 
     Vector* constraints = nullptr;
@@ -70,18 +70,17 @@ void HDBSCANRunner(RunnerConfig config) {
     }
 
     CalculateCoreDistances_t calculate_core_distances_f = GetCalculateCoreDistancesFunction(config.optimization_level);
-    const double* const core_distances = calculate_core_distances_f(data_set, config.num_neighbors, dist_fun, num_points, num_dimensions);
+    double* core_distances = calculate_core_distances_f(data_set, config.num_neighbors, dist_fun, num_points, num_dimensions);
 
     UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, dist_fun, num_points, num_dimensions);
     UDG_QuicksortByEdgeWeight(mst);
 
     FreeDataset(data_set, num_points);
 
-    double* point_noise_levels = new double[num_points];
-    size_t* point_last_clusters = new size_t[num_points];
+    double* point_noise_levels = (double*)malloc(sizeof(double)*num_points);
+    size_t* point_last_clusters = (size_t*)malloc(sizeof(size_t)*num_points);
 
-    Vector* clusters = new Vector;
-    vector_init(clusters);
+    Vector* clusters = vector_create();
 
     ComputeHierarchyAndClusterTree(mst, config.min_cl_size, config.compact, 
         constraints, config.hierarchy_file, config.tree_file, ',', point_noise_levels, 
@@ -91,15 +90,15 @@ void HDBSCANRunner(RunnerConfig config) {
 
     bool inf_stability = PropagateTree(clusters);
 
-    std::vector<size_t> prominent_clusters;
+    vector* prominent_clusters = vector_create();
     FindProminentClusters(clusters, config.hierarchy_file, config.partition_file, 
         ',', num_points, inf_stability, prominent_clusters);
 
-    std::vector<OutlierScore> outlier_scores;
+    vector* outlier_scores = vector_create();
     CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters, 
         core_distances, config.outlier_score_file, ',', inf_stability, outlier_scores);
 
-    delete[] point_last_clusters;
-    delete[] point_noise_levels;
-    delete[] core_distances;
+    free(point_last_clusters);
+    free(point_noise_levels);
+    free(core_distances);
 }

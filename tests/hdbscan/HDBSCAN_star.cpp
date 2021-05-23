@@ -95,8 +95,8 @@ TEST(HDBSCAN_Star, create_tree) {
 
     bool inf_stability = PropagateTree(clusters);
 
-    std::vector<size_t> res;
-    std::vector<OutlierScore> outlier_scores;
+    vector* res = vector_create();
+    vector* outlier_scores = vector_create();
     ASSERT_NO_THROW(FindProminentClusters(clusters, "test_output/hierarchy.csv", "test_output/flat.csv", ',', num_pts, inf_stability, res));
     ASSERT_NO_THROW(CalculateOutlierScores(clusters, point_noise_levels, num_pts, point_last_clusters, core_distances, "test_output/outlier_score.csv", ',', inf_stability, outlier_scores));
 

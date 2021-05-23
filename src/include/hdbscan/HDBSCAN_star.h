@@ -46,6 +46,7 @@ struct OutlierScore {
 };
 
 int CompareTo(const OutlierScore& a, const OutlierScore& b);
+int CompareOutlierScores(const void* a, const void* b);
 
 typedef double*(*CalculateCoreDistances_t)(const double* const * const, size_t,
     DistanceCalculator, const size_t, const size_t);
@@ -64,7 +65,7 @@ typedef double*(*CalculateCoreDistances_t)(const double* const * const, size_t,
  */
 double** ReadInDataSet(std::string const& file_name, const char delimiter, const size_t num_points, const size_t point_dimension);
 
-void FreeDataset(const double * const * dataset, size_t num_points);
+void FreeDataset(double** dataset, size_t num_points);
 
 /**
  * @brief Reads in constraints from the file given, assuming the delimiter
@@ -188,7 +189,7 @@ bool PropagateTree(const Vector* const  clusters);
 void FindProminentClusters(const Vector* const clusters,
     const std::string& hierarchy_file, const std::string& flat_output_file,
     const char delimiter, size_t num_points, bool infinite_stability,
-    std::vector<size_t>& result);
+    vector* result);
 
 /**
  * @brief Produces the outlier score for each point in the data set, and
@@ -213,7 +214,7 @@ void CalculateOutlierScores(
     const Vector* const clusters, double* point_noise_levels, size_t point_noise_levels_length,
     size_t* point_last_clusters, const double* core_distances,
     const std::string& outlier_scores_outputFile, const char delimiter,
-    bool infinite_stability, std::vector<OutlierScore>& result);
+    bool infinite_stability, vector* result);
 
 /**
  * @brief Removes the set of points from their parent Cluster, and creates

@@ -33,12 +33,12 @@ double** ReadInDataSet(std::string const& file_name, const char delimiter, const
     return result;
 }
 
-void FreeDataset(const double * const * dataset, size_t num_points) {
+void FreeDataset(double** dataset, size_t num_points) {
     for(size_t i = 0; i < num_points; ++i) {
-        delete[] dataset[i];
+        free(dataset[i]);
     }
 
-    delete[] dataset;
+    free(dataset);
 }
 
 Vector* ReadInConstraints(std::string const& file_name) {

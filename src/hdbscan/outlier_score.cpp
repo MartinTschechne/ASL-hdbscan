@@ -1,4 +1,5 @@
 #include <hdbscan/HDBSCAN_star.h>
+#include <cstdlib>
 
 int CompareTo(const OutlierScore& a, const OutlierScore& b) {
     if(a.score > b.score) {
@@ -18,14 +19,17 @@ int CompareTo(const OutlierScore& a, const OutlierScore& b) {
     return a.id - b.id;
 }
 
+int CompareOutlierScores(const void* a, const void* b) {
+    return CompareTo(*(OutlierScore*)a, *(OutlierScore*)b);
+}
+
 void CalculateOutlierScores(
         const Vector* const clusters, double* point_noise_levels, size_t point_noise_levels_length,
         size_t* point_last_clusters, const double* core_distances,
         const std::string& outlier_scores_outputFile, const char delimiter,
-        bool infinite_stability, std::vector<OutlierScore>& result) {
-
-    result.clear();
-    result.reserve(point_noise_levels_length);
+        bool infinite_stability, vector* result) {
+    
+    vector_clear(result);
 
     //Iterate through each point, calculating its outlier score:
     for(size_t i = 0; i < point_noise_levels_length; ++i) {
@@ -37,11 +41,15 @@ void CalculateOutlierScores(
             score = 1 - (eps_max / eps);
         }
 
-        result.push_back(OutlierScore(score, core_distances[i], i));
+        OutlierScore* new_score = (OutlierScore*)malloc(sizeof(OutlierScore));
+        new_score->core_distance = core_distances[i];
+        new_score->score = score;
+        new_score->id = i;
+        vector_push_back(result, (void*)new_score);
     }
 
     //Sort the outlier scores:
-    std::sort(result.begin(), result.end(), [](const OutlierScore& a, const OutlierScore& b)->bool { return a.score < b.score; });
+    qsort(result->elements, result->size, sizeof(void*), CompareOutlierScores);
 
     //Output the outlier scores:
     std::ofstream writer(outlier_scores_outputFile);
@@ -49,7 +57,8 @@ void CalculateOutlierScores(
         writer << warning_message << "\n";
     }
 
-    for(const OutlierScore& score : result) {
-        writer << score.score << delimiter << score.id << "\n";
+    for(size_t i = 0; i < result->size; ++i) {
+        OutlierScore* score = (OutlierScore*)result->elements[i];
+        writer << score->score << delimiter << score->id << "\n";
     }
 }

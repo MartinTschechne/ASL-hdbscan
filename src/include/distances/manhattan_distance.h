@@ -1,8 +1,6 @@
 #ifndef TEAM33_DISTANCES_MANHATTAN_DISTANCE_H
 #define TEAM33_DISTANCES_MANHATTAN_DISTANCE_H
 
-#include <cmath>
-
 /**
  * @brief Computes the Manhattan distance between a and b
  *
@@ -14,7 +12,7 @@
 inline double ManhattanDistance(const double* a, const double* b, size_t n) {
     double distance = 0.0;
     for(size_t i = 0; i < n; ++i) {
-        distance += std::abs(a[i] - b[i]);
+        distance += abs(a[i] - b[i]);
     }
 
     return distance;
@@ -35,13 +33,13 @@ inline double ManhattanDistanceUnrolled(const double* a, const double* b, size_t
 
     size_t i = 0;
     for(; i < n-1; i+=2) {
-        distance_0 += std::abs(a[i] - b[i]);
-        distance_1 += std::abs(a[i+1] - b[i+1]);
+        distance_0 += abs(a[i] - b[i]);
+        distance_1 += abs(a[i+1] - b[i+1]);
     }
 
     // scalar clean-up
     for (; i < n; i++) {
-        distance_0 += std::abs(a[i] - b[i]);
+        distance_0 += abs(a[i] - b[i]);
     }
 
     return distance_0 + distance_1;

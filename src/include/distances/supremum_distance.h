@@ -1,6 +1,8 @@
 #ifndef TEAM33_DISTANCES_SUPREMUM_DISTANCE_H
 #define TEAM33_DISTANCES_SUPREMUM_DISTANCE_H
 
+#include <cstddef>
+#include <cstdlib>
 #include <cmath>
 
 /**
@@ -14,7 +16,7 @@
 inline double SupremumDistance(const double* a, const double* b, size_t n) {
     double distance = 0.0;
     for(size_t i = 0; i < n; ++i) {
-        double diff = std::abs(a[i] - b[i]);
+        double diff = abs(a[i] - b[i]);
         if(diff > distance) {
             distance = diff;
         }
@@ -39,14 +41,14 @@ inline double SupremumDistanceUnrolled(const double* a, const double* b, size_t 
 
     size_t i = 0;
     for(; i < n-1; i+=2) {
-        double diff_0 = std::abs(a[i] - b[i]);
-        double diff_1 = std::abs(a[i+1] - b[i+1]);
-        distance = std::fmax(distance, std::fmax(diff_0, diff_1));
+        double diff_0 = abs(a[i] - b[i]);
+        double diff_1 = abs(a[i+1] - b[i+1]);
+        distance = fmax(distance, fmax(diff_0, diff_1));
     }
 
     // scalar clean-up
     for (; i < n; i++) {
-        double diff_0 = std::abs(a[i] - b[i]);
+        double diff_0 = abs(a[i] - b[i]);
         if(diff_0 > distance) {
             distance = diff_0;
         }
