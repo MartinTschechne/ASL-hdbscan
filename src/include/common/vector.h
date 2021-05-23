@@ -13,11 +13,19 @@ typedef struct Vector {
 
 /**
  * @brief Allocates memory for payload and initializes a vector with default
- * capacity 
+ * capacity at an existing vector pointer
  * 
  * @param vec Vector to initialize
  */
 void vector_init(vector* vec);
+
+/**
+ * @brief Allocates memory for payload and initializes a vector with default
+ * capacity at an existing vector pointer
+ * 
+ * @return Initialized vector
+ */
+vector* vector_create();
 
 /**
  * @brief Releases memory previously allocated for vector payload
