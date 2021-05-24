@@ -34,7 +34,7 @@ void FindProminentClusters(const Vector* const clusters,
     //Go through the hierarchy file, setting labels for the flat clustering:
     for(size_t it = Map_begin(significant_file_offsets); it < Map_end(significant_file_offsets); it = Map_next(significant_file_offsets, it)) {
         vector* cluster_list = (vector*)Map_get_idx(significant_file_offsets, it);
-        size_t offset = OS_get(significant_file_offsets->keys, it);
+        size_t offset = Map_key_from_idx(significant_file_offsets, it);
 
         reader.seekg(offset, std::ios::beg);
         std::string line;

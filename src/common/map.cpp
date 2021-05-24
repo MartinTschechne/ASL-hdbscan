@@ -72,7 +72,7 @@ void* Map_get_idx(const Map* m, size_t idx) {
 
 size_t Map_key_from_idx(const Map* m, size_t idx) {
     if(!m) return UNDEFINED_VALUE;
-    return m->keys->elements[idx];
+    return OS_get(m->keys, idx);
 }
 
 void* Map_get(const Map* m, size_t key) {
