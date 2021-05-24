@@ -1,4 +1,5 @@
 #include <hdbscan/HDBSCAN_star.h>
+#include <common/map.h>
 
 void FindProminentClusters(const Vector* const clusters,
         const std::string& hierarchy_file, const std::string& flat_output_file,
@@ -12,16 +13,17 @@ void FindProminentClusters(const Vector* const clusters,
     size_t* flat_partioning = (size_t*)calloc(num_points, sizeof(size_t));
 
     //Store all the file offsets at which to find the birth points for the flat clustering:
-    std::map<size_t, vector*> significant_file_offsets;
+    Map* significant_file_offsets = Map_create();
+
     for(size_t i = 0; i < solution->size; ++i) {
         const Cluster* cluster = (Cluster*)vector_get(solution, i);
         vector* cluster_list = nullptr;
-        auto entry = significant_file_offsets.find(cluster->file_offset);
-        if(entry == significant_file_offsets.end()) {
+        size_t index = Map_find(significant_file_offsets, cluster->file_offset);
+        if(index == Map_end(significant_file_offsets)) {
             cluster_list = vector_create();
-            significant_file_offsets.insert({cluster->file_offset, cluster_list});
+            Map_insert(significant_file_offsets, cluster->file_offset, (void*)cluster_list);
         } else {
-            cluster_list = entry->second;
+            cluster_list = (vector*)Map_get_idx(significant_file_offsets, index);
         }
 
         size_t* label = (size_t*)malloc(sizeof(size_t));
@@ -30,9 +32,9 @@ void FindProminentClusters(const Vector* const clusters,
     }
 
     //Go through the hierarchy file, setting labels for the flat clustering:
-    for(auto it = significant_file_offsets.begin(); it != significant_file_offsets.end(); ) {
-        vector* cluster_list = it->second;
-        size_t offset = it->first;
+    for(size_t it = Map_begin(significant_file_offsets); it < Map_end(significant_file_offsets); it = Map_next(significant_file_offsets, it)) {
+        vector* cluster_list = (vector*)Map_get_idx(significant_file_offsets, it);
+        size_t offset = OS_get(significant_file_offsets->keys, it);
 
         reader.seekg(offset, std::ios::beg);
         std::string line;
@@ -62,8 +64,9 @@ void FindProminentClusters(const Vector* const clusters,
 
             ++i;
         }
-        it = significant_file_offsets.erase(it);
     }
+
+    Map_clear(significant_file_offsets);
 
     //Output the flat clustering result:
     std::ofstream writer(flat_output_file);

@@ -70,6 +70,11 @@ void* Map_get_idx(const Map* m, size_t idx) {
     return value;
 }
 
+size_t Map_key_from_idx(const Map* m, size_t idx) {
+    if(!m) return UNDEFINED_VALUE;
+    return m->keys->elements[idx];
+}
+
 void* Map_get(const Map* m, size_t key) {
     size_t pos = Map_find(m, key);
     if (pos != Map_end(m)) {

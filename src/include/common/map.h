@@ -75,6 +75,8 @@ size_t Map_end(const Map* m);
  */
 void* Map_get_idx(const Map* m, size_t idx);
 
+size_t Map_key_from_idx(const Map* m, size_t idx);
+
 /**
  * @brief Imitates operator[] by getting the value for a given key in a map
  * 
