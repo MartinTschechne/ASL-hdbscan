@@ -3,8 +3,11 @@
 #include <gflags/gflags.h>
 #include <stdexcept>
 #include <cassert>
+#include <iostream>
+#include <fstream>
 
 #include <distances/distances.h>
+#include <benchmark/tsc_x86.h>
 
 DEFINE_int32(num_points, 0, "Number of points in the dataset");
 DEFINE_int32(num_dimension, 0, "Number of dimensions in the dataset");
@@ -58,22 +61,35 @@ void HDBSCANRunner(RunnerConfig config) {
     assert(config.visualization_file != "");
     assert(config.outlier_score_file != "");
     assert(config.num_points > 0 && config.num_dimensions > 0);
-    
+
     size_t num_points = config.num_points;
     size_t num_dimensions = config.num_dimensions;
     double** data_set = ReadInDataSet(config.points_file, ',', num_points, num_dimensions);
-    
 
     Vector* constraints = nullptr;
     if(config.constraints != "") {
         constraints = ReadInConstraints(config.constraints);
     }
 
+    std::ofstream benchmark_runner;
+    benchmark_runner.open("measurements_runner.txt");
+    benchmark_runner << "# Benchmarks from file runner\n";
+    benchmark_runner << "# Optimization flags: " << FLAGS_optimization_level << "\n";
+    benchmark_runner << "# Compiler flags: " << "Unknown" << "\n";
+    benchmark_runner << "# Dimensions of data set: " << num_dimensions << "\n";
+    benchmark_runner << "Region,Cycles" << '\n';
+
+    long int start = start_tsc();
     CalculateCoreDistances_t calculate_core_distances_f = GetCalculateCoreDistancesFunction(config.optimization_level);
     double* core_distances = calculate_core_distances_f(data_set, config.num_neighbors, dist_fun, num_points, num_dimensions);
+    long int cycles = stop_tsc(start);
+    benchmark_runner << "calculate_distances," << cycles << "\n";
 
+    start = start_tsc();
     UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, dist_fun, num_points, num_dimensions);
     UDG_QuicksortByEdgeWeight(mst);
+    cycles = stop_tsc(start);
+    benchmark_runner << "construct_mst," << cycles << "\n";
 
     FreeDataset(data_set, num_points);
 
@@ -82,23 +98,39 @@ void HDBSCANRunner(RunnerConfig config) {
 
     Vector* clusters = vector_create();
 
-    ComputeHierarchyAndClusterTree(mst, config.min_cl_size, config.compact, 
-        constraints, config.hierarchy_file, config.tree_file, ',', point_noise_levels, 
+    start = start_tsc();
+    ComputeHierarchyAndClusterTree(mst, config.min_cl_size, config.compact,
+        constraints, config.hierarchy_file, config.tree_file, ',', point_noise_levels,
         point_last_clusters, config.visualization_file, clusters);
+    cycles = stop_tsc(start);
+    benchmark_runner << "compute_hierarchy," << cycles << "\n";
 
     UDG_Free(mst);
 
+    start = start_tsc();
     bool inf_stability = PropagateTree(clusters);
+    cycles = stop_tsc(start);
+    benchmark_runner << "propagate_tree," << cycles << "\n";
 
     vector* prominent_clusters = vector_create();
-    FindProminentClusters(clusters, config.hierarchy_file, config.partition_file, 
+
+    start = start_tsc();
+    FindProminentClusters(clusters, config.hierarchy_file, config.partition_file,
         ',', num_points, inf_stability, prominent_clusters);
+    cycles = stop_tsc(start);
+    benchmark_runner << "find_clusters," << cycles << "\n";
+
 
     vector* outlier_scores = vector_create();
-    CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters, 
+
+    start = start_tsc();
+    CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters,
         core_distances, config.outlier_score_file, ',', inf_stability, outlier_scores);
+    cycles = stop_tsc(start);
+    benchmark_runner << "calculate_outliers," << cycles << "\n";
 
     free(point_last_clusters);
     free(point_noise_levels);
     free(core_distances);
+    benchmark_runner.close();
 }
