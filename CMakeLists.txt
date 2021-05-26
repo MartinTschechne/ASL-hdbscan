@@ -48,11 +48,11 @@ add_executable(
     unit_tests # executable
     tests/main.cpp # dependency
     tests/hdbscan/constraint.cpp
-    tests/distances/cosine_similarity.cpp 
-    tests/distances/euclidian_distance.cpp 
-    tests/distances/manhattan_distance.cpp 
-    tests/distances/pearson_correlation.cpp 
-    tests/distances/supremum_distance.cpp 
+    tests/distances/cosine_similarity.cpp
+    tests/distances/euclidian_distance.cpp
+    tests/distances/manhattan_distance.cpp
+    tests/distances/pearson_correlation.cpp
+    tests/distances/supremum_distance.cpp
     tests/hdbscan/undirected_graph.cpp
     tests/hdbscan/_C_undirected_graph.cpp
     tests/hdbscan/cluster.cpp
@@ -79,7 +79,7 @@ set_target_properties(
     PROPERTIES COMPILE_FLAGS "-O3"
 )
 
-function(build_hdbscan exec_name compiler_flags output_directory) 
+function(build_hdbscan exec_name compiler_flags output_directory)
     add_executable(
         ${exec_name}
         src/main.cpp
@@ -101,11 +101,11 @@ function(build_hdbscan exec_name compiler_flags output_directory)
     )
     set_target_properties(
         ${exec_name}
-        ${exec_name}_lib 
+        ${exec_name}_lib
         PROPERTIES COMPILE_FLAGS ${compiler_flags})
 endfunction()
 
-function(build_hdbscan_benchmarking compiler_flags) 
+function(build_hdbscan_benchmarking compiler_flags)
     build_hdbscan("hdbscan${compiler_flags}" ${compiler_flags} "benchmarking")
 endfunction()
 
@@ -115,6 +115,11 @@ build_hdbscan_benchmarking("-O0")
 build_hdbscan_benchmarking("-O3")
 
 enable_testing()
+
+add_executable(
+    distance_benchmark
+    distance_benchmark/main.cpp
+)
 
 # add_subdirectory(src)
 # add_subdirectory(tests)
