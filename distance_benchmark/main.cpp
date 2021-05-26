@@ -108,7 +108,7 @@ int main(int argc, char const *argv[]) {
             }
         }
         cycles = stop_tsc(start)/(num_runs*NUM_POINTS);
-        printf("%s,%i,%i,%i\n", d_funcs[f].fname.c_str(), NUM_POINTS, DIM, cycles);
+        printf("%s,%li,%li,%lli\n", d_funcs[f].fname.c_str(), NUM_POINTS, DIM, cycles);
 
     }
 
