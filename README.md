@@ -15,7 +15,7 @@ cmake -D CMAKE_CXX_FLAGS="-O3"
 This will generate two files, `unit_tests` and `hdbscan`. For testing just execute `unit_tests`.  
 `hdbscan` takes 6 required and 6 optional command line arguments. The minimal command to run is 
 ```
-./hdbscan -points_file=../data/data_set_medium.csv -hierarchy_file=output/hierarchy.csv -tree_file=output/tree.csv -visualization_file=output/results.vis -partition_file=output/partition.csv -outlier_score_file=output/outlier_scores.csv 
+./hdbscan -points_file=../data/data_set_medium.csv -hierarchy_file=output/hierarchy.csv -tree_file=output/tree.csv -visualization_file=output/results.vis -partition_file=output/partition.csv -outlier_score_file=output/outlier_scores.csv -num_points 1000 -num_dimension 2
 ```
 The optional arguments are  
 * `constraints` path to the constraints csv 
