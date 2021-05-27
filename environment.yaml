@@ -6,4 +6,6 @@ dependencies:
   - python=3.8
   - hdbscan
   - matplotlib
+  - seaborn=0.11.1
+  - pandas=1.2.4
 prefix: /home/martin/miniconda3/envs/hdbscan_env
