@@ -75,9 +75,10 @@ inline double EuclideanDistance_4Unrolled(
     double diff_1 = 0.0;
     double diff_2 = 0.0;
     double diff_3 = 0.0;
-    size_t i = 0;
 
-    for (; i < n - 3; i += 4) {
+    long int i = 0;
+    long int m = (long int)n;
+    for (; i < m - 3; i += 4) {
         diff_0 = a[i  ] - b[i  ];
         diff_1 = a[i+1] - b[i+1];
         diff_2 = a[i+2] - b[i+2];
@@ -90,7 +91,7 @@ inline double EuclideanDistance_4Unrolled(
     }
 
     // scalar clean-up
-    for (; i < n; i++) {
+    for (; i < m; i++) {
         diff_0 = a[i] - b[i];
         distance_0 += diff_0 * diff_0;
     }
@@ -112,9 +113,9 @@ inline double EuclideanDistance_Vectorized(
     __m256d a_val_0, a_val_1, b_val_0, b_val_1, diff_vec_0, diff_vec_1;
     __m256d dist_accum_0 = _mm256_setzero_pd(),
         dist_accum_1 = _mm256_setzero_pd();
+
     long int i = 0;
     long int m = (long int)n;
-
     for (; i < m - 7; i += 8) {
         a_val_0 = _mm256_loadu_pd(&a[i]);
         a_val_1 = _mm256_loadu_pd(&a[i+4]);

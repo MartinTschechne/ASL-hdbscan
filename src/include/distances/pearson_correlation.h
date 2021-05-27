@@ -123,8 +123,9 @@ inline double PearsonCorrelation_4Unrolled(
     double mean_a_3 = 0.0;
     double mean_b_3 = 0.0;
 
-    size_t i = 0;
-    for (; i < n-3; i+=4) {
+    long int i = 0;
+    long int m = (long int)n;
+    for (; i < m - 3; i += 4) {
         mean_a_0 += a[i];
         mean_a_1 += a[i+1];
         mean_a_2 += a[i+2];
@@ -137,7 +138,7 @@ inline double PearsonCorrelation_4Unrolled(
     }
 
     // scalar clean-up
-    for (; i < n; i++) {
+    for (; i < m; i++) {
         mean_a_0 += a[i];
         mean_b_0 += b[i];
     }
@@ -159,7 +160,7 @@ inline double PearsonCorrelation_4Unrolled(
     double std_b_3 = 0.0;
 
     i = 0;
-    for (; i < n-3; i+=4) {
+    for (; i < m - 3; i += 4) {
         cov_0   += ((a[i  ] - mean_a_0) * (b[i  ] - mean_b_0));
         std_a_0 += ((a[i  ] - mean_a_0) * (a[i  ] - mean_a_0));
         std_b_0 += ((b[i  ] - mean_b_0) * (b[i  ] - mean_b_0));
@@ -175,7 +176,7 @@ inline double PearsonCorrelation_4Unrolled(
     }
 
     // scalar clean-up
-    for (; i < n; i++) {
+    for (; i < m; i++) {
         cov_0   += ((a[i  ] - mean_a_0) * (b[i  ] - mean_b_0));
         std_a_0 += ((a[i  ] - mean_a_0) * (a[i  ] - mean_a_0));
         std_b_0 += ((b[i  ] - mean_b_0) * (b[i  ] - mean_b_0));
@@ -253,8 +254,9 @@ inline double PearsonCorrelation_4UnrolledOnepass(
     double std_b_2 = 0.;
     double std_b_3 = 0.;
 
-    size_t i = 1;
-    for (; i < n-3; i+=4) {
+    long int i = 1;
+    long int m = (long int)n;
+    for (; i < m - 3; i += 4) {
         double ip1inv_0 = 1. / (i+1);
         double ip1inv_1 = 1. / (i+2);
         double ip1inv_2 = 1. / (i+3);
@@ -293,7 +295,7 @@ inline double PearsonCorrelation_4UnrolledOnepass(
         mean_b_0 += temp_b_3 * ip1inv_3;
     }
 
-    for (; i < n; ++i) {
+    for (; i < m; i++) {
         double ip1inv = 1. / (i+1);
         double temp_a = a[i] - mean_a_0;
         double temp_b = b[i] - mean_b_0;
@@ -326,9 +328,10 @@ inline double PearsonCorrelation_Vectorized(
 
     __m256d a_val, b_val, a_accum = _mm256_setzero_pd(),
         b_accum = _mm256_setzero_pd();
-    size_t i;
 
-    for (i = 0; i < n - 3; i += 4) {
+    long int i = 0;
+    long int m = (long int)n;
+    for (; i < m - 3; i += 4) {
         a_val = _mm256_loadu_pd(&a[i]);
         b_val = _mm256_loadu_pd(&b[i]);
         a_accum = _mm256_add_pd(a_accum, a_val);
@@ -338,7 +341,7 @@ inline double PearsonCorrelation_Vectorized(
     double mean_a = _mm256_reduce_sum_pd(a_val);
     double mean_b = _mm256_reduce_sum_pd(b_val);
 
-    for (; i < n; i++) {
+    for (; i < m; i++) {
         mean_a += a[i];
         mean_b += b[i];
     }
@@ -349,11 +352,10 @@ inline double PearsonCorrelation_Vectorized(
     const __m256d mean_a_vec = _mm256_set1_pd(mean_a);
     const __m256d mean_b_vec = _mm256_set1_pd(mean_b);
 
-
     __m256d a_diff, b_diff, cov_accum = _mm256_setzero_pd(),
         std_a_accum = _mm256_setzero_pd(), std_b_accum = _mm256_setzero_pd();
 
-    for (i = 0; i < n - 3; i += 4) {
+    for (i = 0; i < m - 3; i += 4) {
         a_val = _mm256_loadu_pd(&a[i]);
         a_diff = _mm256_sub_pd(a_val, mean_a_vec);
         b_val = _mm256_loadu_pd(&b[i]);
@@ -367,7 +369,7 @@ inline double PearsonCorrelation_Vectorized(
     double std_a = _mm256_reduce_sum_pd(std_a_accum);
     double std_b = _mm256_reduce_sum_pd(std_b_accum);
 
-    for (; i < n; i++) {
+    for (; i < m; i++) {
         cov += ((a[i] - mean_a) * (b[i] - mean_b));
         std_a += ((a[i] - mean_a) * (a[i] - mean_a));
         std_b += ((b[i] - mean_b) * (b[i] - mean_b));
@@ -375,6 +377,5 @@ inline double PearsonCorrelation_Vectorized(
 
     return (1.0 - (cov / sqrt(std_a * std_b)));
 }
-
 
 #endif
