@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <hdbscan/HDBSCAN_star_runner.h>
-#include <distances/euclidian_distance.h>
+#include <distances/euclidean_distance.h>
 #include <filesystem>
 #include <fstream>
 
@@ -38,7 +38,7 @@ TEST(HDBSCAN_Runner, full_pipeline) {
 
     HDBSCANRunner(runner_config);
 
-    // check hierarchy 
+    // check hierarchy
     std::fstream hierarchy_ours("test_output/hierarchy_runner.csv");
     std::fstream hierarchy_ref(hierarchy_ref_file);
 
@@ -53,7 +53,7 @@ TEST(HDBSCAN_Runner, full_pipeline) {
         ref.push_back(line);
     }
     for(size_t i = 0; i < ref.size(); ++i) {
-        std::stringstream stream_ours(ours[i]); 
+        std::stringstream stream_ours(ours[i]);
         std::stringstream stream_ref(ref[i]);
 
         size_t count = 0;
@@ -83,7 +83,7 @@ TEST(HDBSCAN_Runner, full_pipeline) {
         ref.push_back(line);
     }
     for(size_t i = 0; i < ref.size(); ++i) {
-        std::stringstream stream_ours(ours[i]); 
+        std::stringstream stream_ours(ours[i]);
         std::stringstream stream_ref(ref[i]);
 
         size_t count = 0;
@@ -103,7 +103,7 @@ TEST(HDBSCAN_Runner, full_pipeline) {
         }
     }
 
-    //Check flat 
+    //Check flat
     std::fstream flat_ours("test_output/partition_runner.csv");
     std::fstream flat_ref(flat_ref_file);
     while(std::getline(flat_ref, line)) {
@@ -111,27 +111,27 @@ TEST(HDBSCAN_Runner, full_pipeline) {
         ASSERT_EQ(line, other);
     }
 
-    //Check outlier 
+    //Check outlier
     std::fstream outlier_ours("test_output/outlier_score_runner.csv");
     std::fstream outlier_ref(outlier_ref_file);
 
     std::map<size_t, double> scores_ref;
     std::map<size_t, double> scores_ours;
     while(std::getline(outlier_ref, line)) {
-        std::stringstream stream(line);    
+        std::stringstream stream(line);
         double value;
         size_t label;
         char delim;
         stream >> value >> delim >> label;
-        scores_ref.insert({label, value});    
+        scores_ref.insert({label, value});
     }
     while(std::getline(outlier_ours, line)) {
-        std::stringstream stream(line);    
+        std::stringstream stream(line);
         double value;
         size_t label;
         char delim;
         stream >> value >> delim >> label;
-        scores_ours.insert({label, value});    
+        scores_ours.insert({label, value});
     }
     for(auto& elem : scores_ref) {
         ASSERT_NEAR(elem.second, scores_ours.at(elem.first), 0.0001);
@@ -175,7 +175,7 @@ TEST(HDBSCAN_Runner, full_pipeline_high_dim) {
 
     HDBSCANRunner(runner_config);
 
-    // check hierarchy 
+    // check hierarchy
     std::fstream hierarchy_ours("test_output/hierarchy_runner_large.csv");
     std::fstream hierarchy_ref(hierarchy_ref_file);
 
@@ -190,7 +190,7 @@ TEST(HDBSCAN_Runner, full_pipeline_high_dim) {
         ref.push_back(line);
     }
     for(size_t i = 0; i < ref.size(); ++i) {
-        std::stringstream stream_ours(ours[i]); 
+        std::stringstream stream_ours(ours[i]);
         std::stringstream stream_ref(ref[i]);
 
         size_t count = 0;
@@ -220,7 +220,7 @@ TEST(HDBSCAN_Runner, full_pipeline_high_dim) {
         ref.push_back(line);
     }
     for(size_t i = 0; i < ref.size(); ++i) {
-        std::stringstream stream_ours(ours[i]); 
+        std::stringstream stream_ours(ours[i]);
         std::stringstream stream_ref(ref[i]);
 
         size_t count = 0;
@@ -240,7 +240,7 @@ TEST(HDBSCAN_Runner, full_pipeline_high_dim) {
         }
     }
 
-    //Check flat 
+    //Check flat
     std::fstream flat_ours("test_output/partition_runner_large.csv");
     std::fstream flat_ref(flat_ref_file);
     while(std::getline(flat_ref, line)) {
@@ -248,27 +248,27 @@ TEST(HDBSCAN_Runner, full_pipeline_high_dim) {
         ASSERT_EQ(line, other);
     }
 
-    //Check outlier 
+    //Check outlier
     std::fstream outlier_ours("test_output/outlier_score_runner_large.csv");
     std::fstream outlier_ref(outlier_ref_file);
 
     std::map<size_t, double> scores_ref;
     std::map<size_t, double> scores_ours;
     while(std::getline(outlier_ref, line)) {
-        std::stringstream stream(line);    
+        std::stringstream stream(line);
         double value;
         size_t label;
         char delim;
         stream >> value >> delim >> label;
-        scores_ref.insert({label, value});    
+        scores_ref.insert({label, value});
     }
     while(std::getline(outlier_ours, line)) {
-        std::stringstream stream(line);    
+        std::stringstream stream(line);
         double value;
         size_t label;
         char delim;
         stream >> value >> delim >> label;
-        scores_ours.insert({label, value});    
+        scores_ours.insert({label, value});
     }
     for(auto& elem : scores_ref) {
         ASSERT_NEAR(elem.second, scores_ours.at(elem.first), 0.0001);

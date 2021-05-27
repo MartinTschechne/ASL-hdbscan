@@ -42,7 +42,7 @@ add_library(
 )
 set_target_properties(
     hdb_lib
-    PROPERTIES COMPILE_FLAGS "-O3"
+    PROPERTIES COMPILE_FLAGS "-O3 -march=native"
 )
 
 add_executable(
@@ -50,7 +50,7 @@ add_executable(
     tests/main.cpp # dependency
     tests/hdbscan/constraint.cpp
     tests/distances/cosine_similarity.cpp
-    tests/distances/euclidian_distance.cpp
+    tests/distances/euclidean_distance.cpp
     tests/distances/manhattan_distance.cpp
     tests/distances/pearson_correlation.cpp
     tests/distances/supremum_distance.cpp

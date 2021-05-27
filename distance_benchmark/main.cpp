@@ -30,20 +30,32 @@ void fill_data(double* data, const size_t num_points, const size_t dim) {
 func_array* get_distance_functions(std::string f_name) {
     if (f_name == "euclidean") {
         static func_array ds[] = {
-                                    {EuclidianDistance, "Baseline"},
-                                    {EuclidianDistanceUnrolled, "2-fold Unrolled"}
+                                    {EuclideanDistance, "Baseline"},
+                                    {EuclideanDistanceUnrolled, "2-fold Unrolled"},
+                                    {EuclideanDistance_4Unrolled,
+                                    "4-fold Unrolled"},
+                                    {EuclideanDistance_Vectorized,
+                                    "AVX Vectorized"}
                                 };
         return ds;
     } else if (f_name == "cosine") {
         static func_array ds[] = {
                                     {CosineSimilarity, "Baseline"},
-                                    {CosineSimilarityUnrolled, "2-fold Unrolled"}
+                                    {CosineSimilarityUnrolled, "2-fold Unrolled"},
+                                    {CosineSimilarity_4Unrolled,
+                                    "4-fold Unrolled"},
+                                    {CosineSimilarity_Vectorized,
+                                    "AVX Vectorized"}
                                 };
         return ds;
     } else if (f_name == "manhattan") {
         static func_array ds[] = {
                                     {ManhattanDistance, "Baseline"},
-                                    {ManhattanDistanceUnrolled, "2-fold Unrolled"}
+                                    {ManhattanDistanceUnrolled, "2-fold Unrolled"},
+                                    {ManhattanDistanceUnrolled,
+                                     "4-fold Unrolled"},
+                                    {ManhattanDistanceUnrolled,
+                                    "AVX Vectorized"}
                                 };
         return ds;
     } else if (f_name == "pearson") {
@@ -51,9 +63,9 @@ func_array* get_distance_functions(std::string f_name) {
                                     {PearsonCorrelation, "Baseline"},
                                     {PearsonCorrelationUnrolled, "2-fold Unrolled"},
                                     {PearsonCorrelation_4Unrolled, "4-fold Unrolled"},
-                                    {PearsonCorrelation_Onepass, "Single Pass"
-                                    },
-                                    {PearsonCorrelation_4UnrolledOnepass, "Single Pass 4-fold Unrolled"},
+                                    // {PearsonCorrelation_Onepass, "Single Pass"
+                                    // },
+                                    // {PearsonCorrelation_4UnrolledOnepass, "Single Pass 4-fold Unrolled"},
                                     {PearsonCorrelation_Vectorized, "AVX Vectorized"}
                                 };
         return ds;
