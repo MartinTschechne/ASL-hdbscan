@@ -54,3 +54,57 @@ TEST(distances, cosine_similarity1_unrolled) {
 
     ASSERT_NEAR(sim, 0.376110322, 0.0001);
 }
+
+TEST(distances, cosine_similarity_similar_4unrolled) {
+    double a[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+    double b[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+
+    double sim = CosineSimilarity_4Unrolled(a, b, 5);
+
+    ASSERT_NEAR(sim, 0.0, 0.0001);
+}
+
+TEST(distances, cosine_similarity_ortho_4unrolled) {
+    double a[3] = {2.0, -4.2, -3.15};
+    double b[3] = {-21.84, -21.155, 14.34};
+
+    double sim = CosineSimilarity_4Unrolled(a, b, 3);
+
+    ASSERT_NEAR(sim, 1.0, 0.0001);
+}
+
+TEST(distances, cosine_similarity1_4unrolled) {
+    double a[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+    double b[5] = {2.5, 8.5, 2.0, 1.0, 3.0};
+
+    double sim = CosineSimilarity_4Unrolled(a, b, 5);
+
+    ASSERT_NEAR(sim, 0.376110322, 0.0001);
+}
+
+TEST(distances, cosine_similarity_similar_vectorized) {
+    double a[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+    double b[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+
+    double sim = CosineSimilarity_Vectorized(a, b, 5);
+
+    ASSERT_NEAR(sim, 0.0, 0.0001);
+}
+
+TEST(distances, cosine_similarity_ortho_vectorized) {
+    double a[3] = {2.0, -4.2, -3.15};
+    double b[3] = {-21.84, -21.155, 14.34};
+
+    double sim = CosineSimilarity_Vectorized(a, b, 3);
+
+    ASSERT_NEAR(sim, 1.0, 0.0001);
+}
+
+TEST(distances, cosine_similarity1_vectorized) {
+    double a[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+    double b[5] = {2.5, 8.5, 2.0, 1.0, 3.0};
+
+    double sim = CosineSimilarity_Vectorized(a, b, 5);
+
+    ASSERT_NEAR(sim, 0.376110322, 0.0001);
+}

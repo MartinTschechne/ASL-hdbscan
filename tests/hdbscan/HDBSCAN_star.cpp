@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <hdbscan/HDBSCAN_star.h>
-#include <distances/euclidian_distance.h>
+#include <distances/euclidean_distance.h>
 #include <distances/supremum_distance.h>
 #include <fstream>
 #include <filesystem>
@@ -30,7 +30,7 @@ TEST(HDBSCAN_Star, core_distances) {
     size_t dim = 2;
     auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
 
-    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, 3, EuclidianDistance, num_pts, dim);
+    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, 3, EuclideanDistance, num_pts, dim);
     ASSERT_DOUBLE_EQ(core_distances[0], 0.2049413436136352);
 
     FreeDataset(data_set, num_pts);
@@ -43,8 +43,8 @@ TEST(HDBSCAN_Star, core_distances_symmetry) {
     size_t dim = 2;
     auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
 
-    double* core_distances_symmetry = CalculateCoreDistancesSymmetry(data_set, 3, EuclidianDistance, num_pts, dim);
-    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, 3, EuclidianDistance, num_pts, dim);
+    double* core_distances_symmetry = CalculateCoreDistancesSymmetry(data_set, 3, EuclideanDistance, num_pts, dim);
+    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, 3, EuclideanDistance, num_pts, dim);
 
     ASSERT_DOUBLE_EQ(core_distances_symmetry[0], 0.2049413436136352);
 
@@ -75,8 +75,8 @@ TEST(HDBSCAN_Star, create_tree) {
 
     auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
 
-    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, min_pts, EuclidianDistance, num_pts, dim);
-    UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, EuclidianDistance, num_pts, dim);
+    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, min_pts, EuclideanDistance, num_pts, dim);
+    UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, EuclideanDistance, num_pts, dim);
     UDG_QuicksortByEdgeWeight(mst);
 
     double* point_noise_levels = new double[num_pts];

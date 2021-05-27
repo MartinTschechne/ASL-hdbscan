@@ -44,7 +44,7 @@ RunnerConfig RunnerConfigFromFlags() {
 }
 
 DistanceCalculator GetDistanceCalculator(const std::string& func_name) {
-    if(func_name == "euclidean") return EuclidianDistance;
+    if(func_name == "euclidean") return EuclideanDistance;
     if(func_name == "cosine") return CosineSimilarity;
     if(func_name == "manhattan") return ManhattanDistance;
     if(func_name == "pearson") return PearsonCorrelation;
