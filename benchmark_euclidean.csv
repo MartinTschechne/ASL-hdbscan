@@ -1,5 +1,0 @@
-NAME,NUM_POINTS,DIM,CYC
-Baseline,1024,2,33
-2-fold Unrolled,1024,2,33
-Baseline,1024,4,50
-2-fold Unrolled,1024,4,47
