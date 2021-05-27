@@ -49,13 +49,20 @@ func_array* get_distance_functions(std::string f_name) {
     } else if (f_name == "pearson") {
         static func_array ds[] = {
                                     {PearsonCorrelation, "Baseline"},
-                                    {PearsonCorrelationUnrolled, "2-fold Unrolled"}
+                                    {PearsonCorrelationUnrolled, "2-fold Unrolled"},
+                                    {PearsonCorrelation_4Unrolled, "4-fold Unrolled"},
+                                    {PearsonCorrelation_Onepass, "Single Pass"
+                                    },
+                                    {PearsonCorrelation_4UnrolledOnepass, "Single Pass 4-fold Unrolled"},
+                                    {PearsonCorrelation_Vectorized, "AVX Vectorized"}
                                 };
         return ds;
     } else if (f_name == "supremum") {
         static func_array ds[] = {
                                     {SupremumDistance, "Baseline"},
-                                    {SupremumDistanceUnrolled, "2-fold Unrolled"}
+                                    {SupremumDistanceUnrolled, "2-fold Unrolled"},
+                                    {SupremumDistance_4Unrolled, "4-fold Unrolled"},
+                                    {SupremumDistance_Vectorized, "AVX Vectorized"}
                                 };
         return ds;
     } else {
@@ -84,7 +91,7 @@ int main(int argc, char const *argv[]) {
     myInt64 cycles;
     myInt64 start;
     num_runs = NUM_RUNS;
-    for (size_t f = 0; f < 2; ++f) {
+    for (size_t f = 0; f < 4; ++f) {
 #ifdef CALIBRATE
         while(num_runs < (1 << 14)) {
             start = start_tsc();
