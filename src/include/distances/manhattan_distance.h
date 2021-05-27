@@ -63,8 +63,9 @@ inline double ManhattanDistance_4Unrolled(
     double distance_2 = 0.0;
     double distance_3 = 0.0;
 
-    size_t i = 0;
-    for(; i < n - 3; i += 4) {
+    long int i = 0;
+    long int m = (long int)n;
+    for(; i < m - 3; i += 4) {
         distance_0 += abs(a[i  ] - b[i  ]);
         distance_1 += abs(a[i+1] - b[i+1]);
         distance_2 += abs(a[i+2] - b[i+2]);
@@ -72,7 +73,7 @@ inline double ManhattanDistance_4Unrolled(
     }
 
     // scalar clean-up
-    for (; i < n; i++) {
+    for (; i < m; i++) {
         distance_0 += abs(a[i] - b[i]);
     }
 
@@ -90,21 +91,38 @@ inline double ManhattanDistance_4Unrolled(
 inline double ManhattanDistance_Vectorized(
     const double* a, const double* b, size_t n) {
 
-     const __m256d _fabs_pd= _mm256_set1_pd(-0.); // 1<<63 for MSB: sign(double)
-    __m256d a_val, b_val, diff_vec, dist_accum = _mm256_setzero_pd();
-    size_t i;
+    const __m256d _fabs_pd= _mm256_set1_pd(-0.); // 1<<63 for MSB: sign(double)
+    __m256d a_val_0, a_val_1, b_val_0, b_val_1, diff_vec_0, diff_vec_1,
+        dist_accum_0 = _mm256_setzero_pd(), dist_accum_1 = _mm256_setzero_pd();
 
-    for(i = 0; i < n - 3; i += 4) {
-        a_val = _mm256_loadu_pd(&a[i]);
-        b_val = _mm256_loadu_pd(&b[i]);
-        diff_vec = _mm256_sub_pd(a_val, b_val);
-        diff_vec = _mm256_andnot_pd(_fabs_pd, diff_vec);
-        dist_accum = _mm256_add_pd(dist_accum, diff_vec);
+    long int i = 0;
+    long int m = (long int)n;
+    for(; i < m - 7; i += 8) {
+        a_val_0 = _mm256_loadu_pd(&a[i  ]);
+        a_val_1 = _mm256_loadu_pd(&a[i+4]);
+        b_val_0 = _mm256_loadu_pd(&b[i  ]);
+        b_val_1 = _mm256_loadu_pd(&b[i+4]);
+        diff_vec_0 = _mm256_sub_pd(a_val_0, b_val_0);
+        diff_vec_1 = _mm256_sub_pd(a_val_1, b_val_1);
+        diff_vec_0 = _mm256_andnot_pd(_fabs_pd, diff_vec_0);
+        diff_vec_1 = _mm256_andnot_pd(_fabs_pd, diff_vec_1);
+        dist_accum_0 = _mm256_add_pd(dist_accum_0, diff_vec_0);
+        dist_accum_1 = _mm256_add_pd(dist_accum_1, diff_vec_1);
     }
 
-    double distance = _mm256_reduce_sum_pd(dist_accum);
+    dist_accum_0 = _mm256_add_pd(dist_accum_0, dist_accum_1);
 
-    for (; i < n; i++) {
+    for(; i < m - 3; i += 4) {
+        a_val_0 = _mm256_loadu_pd(&a[i]);
+        b_val_0 = _mm256_loadu_pd(&b[i]);
+        diff_vec_0 = _mm256_sub_pd(a_val_0, b_val_0);
+        diff_vec_0 = _mm256_andnot_pd(_fabs_pd, diff_vec_0);
+        dist_accum_0 = _mm256_add_pd(dist_accum_0, diff_vec_0);
+    }
+
+    double distance = _mm256_reduce_sum_pd(dist_accum_0);
+
+    for (; i < m; i++) {
         distance += abs(a[i] - b[i]);
     }
 
