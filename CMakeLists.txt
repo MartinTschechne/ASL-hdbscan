@@ -15,6 +15,7 @@ include_directories(
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+
 set(
     HDB_SOURCE_FILES
     src/hdbscan/outlier_score.cpp
@@ -58,6 +59,7 @@ add_executable(
     tests/hdbscan/cluster.cpp
     tests/hdbscan/HDBSCAN_star.cpp
     tests/hdbscan/runner.cpp
+    tests/common/vector_reductions.cpp
     tests/common/list.cpp
     tests/common/vector.cpp
     tests/common/bitset.cpp
@@ -76,7 +78,7 @@ target_link_libraries(
 )
 set_target_properties(
     unit_tests
-    PROPERTIES COMPILE_FLAGS "-O3"
+    PROPERTIES COMPILE_FLAGS "-O3 -march=native"
 )
 
 function(build_hdbscan exec_name compiler_flags output_directory)
@@ -102,7 +104,7 @@ function(build_hdbscan exec_name compiler_flags output_directory)
     set_target_properties(
         ${exec_name}
         ${exec_name}_lib
-        PROPERTIES COMPILE_FLAGS ${compiler_flags})
+        PROPERTIES COMPILE_FLAGS "${compiler_flags} -march=native")
 endfunction()
 
 function(build_hdbscan_benchmarking compiler_flags)
@@ -119,6 +121,11 @@ enable_testing()
 add_executable(
     distance_benchmark
     distance_benchmark/main.cpp
+)
+
+set_target_properties(
+    distance_benchmark
+    PROPERTIES COMPILE_FLAGS "-O3 -march=native"
 )
 
 # add_subdirectory(src)
