@@ -9,13 +9,13 @@
 // void CalculateCoreDistances(const std::vector<std::vector<double>>& data_set, size_t k,
 //     DistanceCalculator distance_function, std::vector<double>& result) {
 
-//     CalculateCoreDistancesSymmetry(data_set, k, distance_function, result); 
+//     CalculateCoreDistancesSymmetry(data_set, k, distance_function, result);
 // }
 // #else // No Optimization
 // void CalculateCoreDistances(const std::vector<std::vector<double>>& data_set, size_t k,
 //     DistanceCalculator distance_function, std::vector<double>& result) {
 
-//     CalculateCoreDistancesNoOptimization(data_set, k, distance_function, result); 
+//     CalculateCoreDistancesNoOptimization(data_set, k, distance_function, result);
 // }
 // #endif
 
@@ -96,14 +96,18 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
     }
 
     // initialize distance matrix with DOUBLE_MAX
-    std::vector<std::vector<double>> distance_matrix(num_points, std::vector<double>(num_points, DOUBLE_MAX));
+    double* distance_matrix = (double*)malloc(num_points*num_points*sizeof(double));
+    for (size_t i = 0; i < num_points*num_points; ++i) {
+        distance_matrix[i] = DOUBLE_MAX;
+    }
+
     double d;
     // populate distance matrix
     for (size_t point = 0; point < num_points; point++) {
         for (size_t neighbor = point + 1; neighbor < num_points; neighbor++) {
             d = distance_function(data_set[point], data_set[neighbor], num_dimensions);
-            distance_matrix[point][neighbor] = d;
-            distance_matrix[neighbor][point] = d;
+            distance_matrix[point*num_points + neighbor] = d;
+            distance_matrix[neighbor*num_points + point] = d;
         }
     }
 
@@ -118,7 +122,7 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
 
             //Check at which position in the nearest distances the current distance would fit:
             size_t neighbor_index = num_neighbors;
-            while(neighbor_index >= 1 && distance_matrix[point][neighbor] < knn_distances[neighbor_index-1]) {
+            while(neighbor_index >= 1 && distance_matrix[point*num_points + neighbor] < knn_distances[neighbor_index-1]) {
                 neighbor_index--;
             }
 
@@ -127,11 +131,14 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
                 for(size_t shift_index = num_neighbors - 1; shift_index > neighbor_index; shift_index--) {
                     knn_distances[shift_index] = knn_distances[shift_index - 1];
                 }
-                knn_distances[neighbor_index] = distance_matrix[point][neighbor];
+                knn_distances[neighbor_index] = distance_matrix[point*num_points + neighbor];
             }
         }
         result[point] = knn_distances[num_neighbors-1];
     }
+
+    free(distance_matrix);
     free(knn_distances);
+
     return result;
 }
