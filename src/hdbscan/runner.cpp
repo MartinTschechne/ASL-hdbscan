@@ -120,7 +120,6 @@ void HDBSCANRunner(RunnerConfig config) {
     cycles = stop_tsc(start);
     benchmark_runner << "find_clusters," << cycles << "\n";
 
-
     vector* outlier_scores = vector_create();
 
     start = start_tsc();

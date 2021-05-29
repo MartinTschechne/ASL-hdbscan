@@ -1,5 +1,6 @@
 #include <hdbscan/_C_undirected_graph.h>
 #include <cstdlib>
+#include <cstdio>
 
 UndirectedGraph_C* UDG_Create(size_t num_vertices, size_t* vertices_A,
     size_t* vertices_B, double* edge_weights, size_t edge_weights_length) {
@@ -27,7 +28,7 @@ UndirectedGraph_C* UDG_Create(size_t num_vertices, size_t* vertices_A,
         udg->edge_weights_[i] = edge_weights[i];
         udg->vertices_A_[i] = vertices_A[i];
         udg->vertices_B_[i] = vertices_B[i];
-       
+
         size_t* vertex_one = (size_t*)malloc(sizeof(size_t));
         *vertex_one = vertices_A[i];
         size_t* vertex_two = (size_t*)malloc(sizeof(size_t));
@@ -117,7 +118,7 @@ static long int UDG_SelectPivotIndex(
             return start_index + (end_index - start_index) / 2;
         else if (last >= first)
             return end_index;
-        else 
+        else
             return start_index;
     }
     else {
@@ -152,7 +153,7 @@ static void UDG_SwapEdges(
     UndirectedGraph_C* udg, long int index_one, long int index_two) {
     if (index_one == index_two)
         return;
-    
+
     size_t temp_vertex_A = udg->vertices_A_[index_one];
     size_t temp_vertex_B = udg->vertices_B_[index_one];
     double temp_edge_distance = udg->edge_weights_[index_one];

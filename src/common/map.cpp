@@ -105,13 +105,39 @@ size_t Map_insert(Map* m, size_t key, void* value) {
         if (!OS_contains(m->keys, key)) {
             pos = OS_insert(m->keys, key);
             vector_insert(m->values, pos, 1, value);
-            m->size++; 
+            m->size++;
+        }
+    }
+    return pos;
+}
+
+size_t Map_insert_AVX(Map* m, size_t key, void* value) {
+    size_t pos = UNDEFINED_VALUE;
+    if (m) {
+        if (!OS_contains(m->keys, key)) {
+            pos = OS_insert_AVX(m->keys, key);
+            vector_insert_AVX(m->values, pos, 1, value);
+            m->size++;
         }
     }
     return pos;
 }
 
 size_t Map_erase(Map* m, size_t key) {
+    size_t next_index = UNDEFINED_VALUE;
+    if (m) {
+        size_t pos = OS_find(m->keys, key);
+        next_index = pos;
+        if (pos != OS_end(m->keys)) {
+            OS_erase_AVX(m->keys, key);
+            vector_erase_AVX(m->values, pos);
+            m->size--;
+        }
+    }
+    return next_index;
+}
+
+size_t Map_erase_AVX(Map* m, size_t key) {
     size_t next_index = UNDEFINED_VALUE;
     if (m) {
         size_t pos = OS_find(m->keys, key);
@@ -124,6 +150,8 @@ size_t Map_erase(Map* m, size_t key) {
     }
     return next_index;
 }
+
+
 
 size_t Map_find(const Map* m, size_t key) {
     return OS_find(m->keys, key);

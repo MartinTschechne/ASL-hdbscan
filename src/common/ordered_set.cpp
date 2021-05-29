@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
-
+#include <immintrin.h>
 
 OrderedSet* OS_create() {
     OrderedSet* os = (OrderedSet*)malloc(sizeof(*os));
@@ -106,10 +106,55 @@ size_t OS_insert(OrderedSet* os, size_t key) {
     return pos;
 }
 
-size_t OS_erase(OrderedSet* os, size_t key) {
-    size_t pos = 0;
-    size_t next_index = pos;
+size_t OS_insert_AVX(OrderedSet* os, size_t key) {
+    size_t pos = UNDEFINED_VALUE;
     if (os) {
+        if (OS_size(os) > 0) {
+            pos = OS_bisect_right(os, key, 0, OS_end(os));
+            if (pos == 0 || os->elements[pos-1] != key) {
+                if (OS_size(os) == os->capacity) {
+                    OS_resize(os, 2 * os->capacity);
+                }
+                size_t i = OS_size(os);
+#ifdef __AVX__
+                __m256i el_vec_0, el_vec_1;
+                for (; i >= pos + 8; i -= 8) {
+                    el_vec_0 = _mm256_loadu_si256(
+                        (const __m256i*)&os->elements[i-8]);
+                    el_vec_1 = _mm256_loadu_si256(
+                        (const __m256i*)&os->elements[i-4]);
+                    _mm256_storeu_si256(
+                        (__m256i*)&os->elements[i-7], el_vec_0);
+                    _mm256_storeu_si256(
+                        (__m256i*)&os->elements[i-3], el_vec_1);
+                }
+                for (; i >= pos + 4; i -= 4) {
+                    el_vec_0 = _mm256_loadu_si256(
+                        (const __m256i*)&os->elements[i-4]);
+                    _mm256_storeu_si256(
+                        (__m256i*)&os->elements[i-3], el_vec_0);
+                }
+#endif
+                for (; i > pos; i--) {
+                    os->elements[i] = os->elements[i-1];
+                    }
+                os->elements[pos] = key;
+                os->size++;
+            }
+        }
+        else {
+            pos = 0;
+            os->elements[pos] = key;
+            os->size = 1;
+        }
+    }
+    return pos;
+}
+
+size_t OS_erase(OrderedSet* os, size_t key) {
+    size_t next_index = UNDEFINED_VALUE;
+    if (os) {
+        size_t pos = 0;
         if (OS_size(os) > 0) {
             pos = OS_bisect_right(os, key, 0, OS_end(os)) - 1;
         }
@@ -125,9 +170,52 @@ size_t OS_erase(OrderedSet* os, size_t key) {
             }
         }
     }
-
     return next_index;
 }
+
+size_t OS_erase_AVX(OrderedSet* os, size_t key) {
+    size_t next_index = UNDEFINED_VALUE;
+    if (os) {
+        long int pos = 0;
+        const long int size = (long int)OS_size(os);
+        if (size > 0) {
+            pos = (long int)OS_bisect_right(os, key, 0, OS_end(os)) - 1;
+        }
+        next_index = (size_t)pos;
+        if (os->elements[pos] == key) {
+#ifdef __AVX__
+            __m256i el_vec_0, el_vec_1;
+            for (; pos < size - 8; pos += 8) {
+                el_vec_0 = _mm256_loadu_si256(
+                    (const __m256i*)&os->elements[pos+1]);
+                el_vec_1 = _mm256_loadu_si256(
+                    (const __m256i*)&os->elements[pos+5]);
+                _mm256_storeu_si256(
+                    (__m256i*)&os->elements[pos], el_vec_0);
+                _mm256_storeu_si256(
+                    (__m256i*)&os->elements[pos+4], el_vec_1);
+            }
+            for (; pos < size - 4; pos += 4) {
+                el_vec_0 = _mm256_loadu_si256(
+                    (const __m256i*)&os->elements[pos+1]);
+                _mm256_storeu_si256(
+                    (__m256i*)&os->elements[pos], el_vec_0);
+            }
+#endif
+            for (; pos < size - 1; pos++) {
+                os->elements[pos] = os->elements[pos+1];
+            }
+            os->size--;
+            if (0 < OS_size(os) &&
+                (OS_size(os) == (size_t)(0.25 * os->capacity))) {
+                OS_resize(os, (size_t)(0.5 * os->capacity));
+            }
+        }
+    }
+    return next_index;
+}
+
+
 
 size_t OS_find(const OrderedSet* os, size_t key) {
     return OS_find_btw(os, key, 0, OS_end(os));
@@ -162,7 +250,7 @@ static size_t OS_bisect_right(
     const OrderedSet* os, size_t key, size_t lo, size_t hi) {
     size_t mid;
     while (lo < hi) {
-        mid = (lo + hi) / 2;
+        mid = (lo + hi) >> 1;
         if (key < OS_get(os, mid)) {
             hi = mid;
         }
