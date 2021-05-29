@@ -9,8 +9,8 @@ TEST(ordered_set, ordered_OS_create_empty_free) {
     OrderedSet* os = OS_create();
 
     ASSERT_EQ(OS_size(os), 0);
-    
-    OS_free(os);    
+
+    OS_free(os);
 }
 
 TEST(ordered_set, ordered_set_resize) {
@@ -32,8 +32,79 @@ TEST(ordered_set, ordered_set_resize) {
     num_samples *= 4;
     OS_resize(os, num_samples);
     ASSERT_EQ(os->capacity, num_samples);
-    
-    OS_free(os);    
+
+    OS_free(os);
+}
+
+TEST(ordered_set, ordered_OS_insert_AVX) {
+    OrderedSet* os = OS_create();
+    OS_insert(os, 1);
+    OS_insert(os, 2);
+    OS_insert(os, 3);
+    OS_insert(os, 4);
+    OS_insert(os, 5);
+    OS_insert(os, 6);
+    OS_insert(os, 7);
+    OS_insert(os, 8);
+    OS_insert(os, 10);
+
+    OS_insert_AVX(os, 0);
+    ASSERT_EQ(os->size, 10);
+    ASSERT_EQ(OS_get(os, 0), 0);
+
+    OS_insert_AVX(os, 9);
+    ASSERT_EQ(os->size, 11);
+    ASSERT_EQ(OS_get(os, 9), 9);
+
+    OS_insert_AVX(os, 11);
+    ASSERT_EQ(os->size, 12);
+    ASSERT_EQ(OS_get(os, OS_end(os)-1), 11);
+
+    OS_free(os);
+
+}
+
+TEST(ordered_set, ordered_OS_erase_AVX) {
+    OrderedSet* os = OS_create();
+    OS_insert(os, 1);
+    OS_insert(os, 2);
+    OS_insert(os, 3);
+    OS_insert(os, 4);
+    OS_insert(os, 5);
+    OS_insert(os, 6);
+    OS_insert(os, 7);
+    OS_insert(os, 8);
+    OS_insert(os, 9);
+    OS_insert(os, 10);
+    OS_insert(os, 11);
+
+    OS_erase_AVX(os, 1);
+    ASSERT_EQ(os->size, 10);
+    ASSERT_EQ(OS_get(os, 0), 2);
+
+    OS_erase_AVX(os, 3);
+    ASSERT_EQ(os->size, 9);
+    ASSERT_EQ(OS_get(os, 1), 4);
+
+    OS_erase_AVX(os, 11);
+    ASSERT_EQ(os->size, 8);
+    ASSERT_EQ(OS_get(os, OS_end(os)-1), 10);
+
+    OS_clear(os);
+    OS_insert(os, 1);
+    OS_insert(os, 2);
+    OS_insert(os, 3);
+    OS_insert(os, 4);
+    OS_insert(os, 5);
+    OS_insert(os, 6);
+    OS_insert(os, 7);
+    OS_insert(os, 8);
+    OS_insert(os, 9);
+    OS_erase_AVX(os, 1);
+    OS_erase_AVX(os, 2);
+    ASSERT_EQ(os->size, 7);
+
+    OS_free(os);
 }
 
 TEST(ordered_set, ordered_OS_insert_size_contains) {
@@ -169,7 +240,7 @@ TEST(ordered_set, OS_next_get_resize) {
         count++;
     }
     ASSERT_EQ(std_set.size() - count, OS_size(os));
-    
+
     std_set.clear();
     num_samples *= 4;
     for (int i = 0; i < num_samples; i++) {
@@ -195,7 +266,7 @@ TEST(ordered_set, OS_next_get_resize) {
         count++;
     }
     ASSERT_EQ(std_set.size() - count, OS_size(os));
-   
+
     std_set.clear();
     num_samples *= 4;
     for (int i = 0; i < num_samples; i++) {
@@ -256,14 +327,14 @@ TEST(ordered_set, ordered_OS_prev_get_resize) {
 
     ASSERT_EQ(std_set.size(), OS_size(os));
 
-    
+
     size_t count{0};
     for (const size_t& sample : std_set) {
         OS_erase(os, sample);
         count++;
     }
     ASSERT_EQ(std_set.size() - count, OS_size(os));
-    
+
     OS_free(os);
 }
 
