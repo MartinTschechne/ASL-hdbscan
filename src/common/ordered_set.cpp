@@ -246,7 +246,7 @@ bool OS_contains(const OrderedSet* os, size_t key) {
     return contains;
 }
 
-static size_t OS_bisect_right(
+size_t OS_bisect_right(
     const OrderedSet* os, size_t key, size_t lo, size_t hi) {
     size_t mid;
     while (lo < hi) {

@@ -177,8 +177,7 @@ bool OS_contains(const OrderedSet* os, size_t value);
  * @param hi Index past end of search range for insertion index
  * @return size_t
  */
-static size_t OS_bisect_right(
-    const OrderedSet* set, size_t key, size_t lo, size_t hi);
+size_t OS_bisect_right(const OrderedSet* set, size_t key, size_t lo, size_t hi);
 
 /**
  * @brief Resizes the ordered set to capacity
