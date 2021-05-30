@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cstdio>
 #include <immintrin.h>
+#include <common/vector_reductions.h>
 
 OrderedSet* OS_create() {
     OrderedSet* os = (OrderedSet*)malloc(sizeof(*os));
@@ -227,15 +228,15 @@ size_t OS_find_btw(const OrderedSet* os, size_t key, size_t lo, size_t hi) {
     size_t idx = UNDEFINED_VALUE;
     if (os) {
         size_t pos;
-        // if ((hi - lo) <= LINEAR_BINARY_SEARCH_XOVER) {
-        //     pos = OS_linear_right(os, key, lo, hi);
-        // }
-        // else {
+        if ((hi - lo) <= LINEAR_BINARY_SEARCH_XOVER) {
+            pos = OS_linear_right(os, key, lo, hi);
+        }
+        else {
             pos = OS_bisect_right(os, key, lo, hi);
-            if (pos > 0) {
-                pos--;
-            }
-        // }
+        }
+        if (pos > 0) {
+            pos--;
+        }
         if (os->elements[pos] == key) {
             idx = pos;
         }
@@ -255,9 +256,9 @@ size_t OS_find_btw_AVX(const OrderedSet* os, size_t key, size_t lo, size_t hi) {
         }
         else {
             pos = OS_bisect_right_AVX(os, key, lo, hi);
-            if (pos > 0) {
-                pos--;
-            }
+        }
+        if (pos > 0) {
+            pos--;
         }
         if (os->elements[pos] == key) {
             idx = pos;
@@ -317,30 +318,57 @@ size_t OS_bisect_right_AVX(
 
 size_t OS_linear_right(
     const OrderedSet* os, size_t key, size_t lo, size_t hi) {
-    size_t mid;
-    while (lo < hi) {
-        mid = (lo + hi) >> 1;
-        if (key < OS_get(os, mid)) {
-            hi = mid;
-        }
-        else {
-            lo = mid + 1;
-        }
+    size_t i = lo;
+    for (; i < hi; i++) {
+        lo += (key >= os->elements[i]);
     }
     return lo;
+    // const size_t tmp = os->elements[hi];
+    // os->elements[hi] = __SIZE_MAX__;
+    // size_t i = lo;
+    // while (true) {
+    //     if (os->elements[i] > key) {
+    //         os->elements[hi] = tmp;
+    //         return i;
+    //     }
+    //     i++;
+    // }
 }
 
 size_t OS_linear_right_AVX(
     const OrderedSet* os, size_t key, size_t lo, size_t hi) {
-    size_t mid;
-    while (lo < hi) {
-        mid = (lo + hi) >> 1;
-        if (key < OS_get(os, mid)) {
-            hi = mid;
+    size_t i = lo;
+#ifdef __AVX2__
+    if ((hi - lo) > 11) {
+        const __m256i key_vec = _mm256_set1_epi64x((long long int)key);
+        __m256i el_vec_0, el_vec_1, cmp_0, cmp_1,
+            cmp_accum_0 = _mm256_setzero_si256(),
+            cmp_accum_1 = _mm256_setzero_si256();
+        for (; i < hi - 7; i += 8) {
+            el_vec_0 = _mm256_loadu_si256(
+                (const __m256i*)&os->elements[i]);
+            el_vec_1 = _mm256_loadu_si256(
+                (const __m256i*)&os->elements[i+4]);
+            cmp_0 = _mm256_or_si256(_mm256_cmpgt_epi64(key_vec, el_vec_0),
+                _mm256_cmpeq_epi64(key_vec, el_vec_0));
+            cmp_1 = _mm256_or_si256(_mm256_cmpgt_epi64(key_vec, el_vec_1),
+                _mm256_cmpeq_epi64(key_vec, el_vec_1));
+            cmp_accum_0 = _mm256_add_epi64(cmp_accum_0, cmp_0);
+            cmp_accum_1 = _mm256_add_epi64(cmp_accum_1, cmp_1);
         }
-        else {
-            lo = mid + 1;
+        cmp_accum_0 = _mm256_add_epi64(cmp_accum_0, cmp_accum_1);
+        for (; i < hi - 3; i += 4) {
+            el_vec_0 = _mm256_loadu_si256(
+                (const __m256i*)&os->elements[i]);
+            cmp_0 = _mm256_or_si256(_mm256_cmpgt_epi64(key_vec, el_vec_0),
+                _mm256_cmpeq_epi64(key_vec, el_vec_0));
+            cmp_accum_0 = _mm256_add_epi64(cmp_accum_0, cmp_0);
         }
+        lo = -_mm256_reduce_sum_epi64(cmp_accum_0);
+    }
+#endif
+    for (; i < hi; i++) {
+        lo += (key >= os->elements[i]);
     }
     return lo;
 }
