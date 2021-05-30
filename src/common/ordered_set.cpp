@@ -215,18 +215,49 @@ size_t OS_erase_AVX(OrderedSet* os, size_t key) {
     return next_index;
 }
 
-
-
 size_t OS_find(const OrderedSet* os, size_t key) {
     return OS_find_btw(os, key, 0, OS_end(os));
+}
+
+size_t OS_find_AVX(const OrderedSet* os, size_t key) {
+    return OS_find_btw_AVX(os, key, 0, OS_end(os));
 }
 
 size_t OS_find_btw(const OrderedSet* os, size_t key, size_t lo, size_t hi) {
     size_t idx = UNDEFINED_VALUE;
     if (os) {
-        size_t pos = OS_bisect_right(os, key, lo, hi);
-        if (pos > 0) {
-            pos--;
+        size_t pos;
+        // if ((hi - lo) <= LINEAR_BINARY_SEARCH_XOVER) {
+        //     pos = OS_linear_right(os, key, lo, hi);
+        // }
+        // else {
+            pos = OS_bisect_right(os, key, lo, hi);
+            if (pos > 0) {
+                pos--;
+            }
+        // }
+        if (os->elements[pos] == key) {
+            idx = pos;
+        }
+        else {
+            idx = OS_end(os);
+        }
+    }
+    return idx;
+}
+
+size_t OS_find_btw_AVX(const OrderedSet* os, size_t key, size_t lo, size_t hi) {
+    size_t idx = UNDEFINED_VALUE;
+    if (os) {
+        size_t pos;
+        if ((hi - lo) <= LINEAR_BINARY_SEARCH_XOVER) {
+            pos = OS_linear_right_AVX(os, key, lo, hi);
+        }
+        else {
+            pos = OS_bisect_right_AVX(os, key, lo, hi);
+            if (pos > 0) {
+                pos--;
+            }
         }
         if (os->elements[pos] == key) {
             idx = pos;
@@ -246,7 +277,60 @@ bool OS_contains(const OrderedSet* os, size_t key) {
     return contains;
 }
 
+bool OS_contains_AVX(const OrderedSet* os, size_t key) {
+    bool contains = false;
+    if (os && OS_size(os) > 0) {
+        contains = (OS_find_AVX(os, key) != OS_end(os));
+    }
+    return contains;
+}
+
 size_t OS_bisect_right(
+    const OrderedSet* os, size_t key, size_t lo, size_t hi) {
+    size_t mid;
+    while (lo < hi) {
+        mid = (lo + hi) >> 1;
+        if (key < OS_get(os, mid)) {
+            hi = mid;
+        }
+        else {
+            lo = mid + 1;
+        }
+    }
+    return lo;
+}
+
+size_t OS_bisect_right_AVX(
+    const OrderedSet* os, size_t key, size_t lo, size_t hi) {
+    size_t mid;
+    while (lo < hi) {
+        mid = (lo + hi) >> 1;
+        if (key < OS_get(os, mid)) {
+            hi = mid;
+        }
+        else {
+            lo = mid + 1;
+        }
+    }
+    return lo;
+}
+
+size_t OS_linear_right(
+    const OrderedSet* os, size_t key, size_t lo, size_t hi) {
+    size_t mid;
+    while (lo < hi) {
+        mid = (lo + hi) >> 1;
+        if (key < OS_get(os, mid)) {
+            hi = mid;
+        }
+        else {
+            lo = mid + 1;
+        }
+    }
+    return lo;
+}
+
+size_t OS_linear_right_AVX(
     const OrderedSet* os, size_t key, size_t lo, size_t hi) {
     size_t mid;
     while (lo < hi) {
