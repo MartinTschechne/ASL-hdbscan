@@ -215,8 +215,6 @@ size_t OS_erase_AVX(OrderedSet* os, size_t key) {
     return next_index;
 }
 
-
-
 size_t OS_find(const OrderedSet* os, size_t key) {
     return OS_find_btw(os, key, 0, OS_end(os));
 }
