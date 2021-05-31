@@ -20,7 +20,7 @@
 // #endif
 
 CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& optimization_level) {
-    if(optimization_level != "symmetry") {
+    if(optimization_level == "no_optimization") {
         return CalculateCoreDistancesNoOptimization;
     } else {
         return CalculateCoreDistancesSymmetry;
