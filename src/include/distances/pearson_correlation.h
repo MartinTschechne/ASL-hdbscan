@@ -315,6 +315,7 @@ inline double PearsonCorrelation_4UnrolledOnepass(
 }
 
 
+#ifdef __AVX2__
 /**
  * @brief SIMD-vectorized version of Pearson correlation distance
  *
@@ -378,4 +379,68 @@ inline double PearsonCorrelation_Vectorized(
     return (1.0 - (cov / sqrt(std_a * std_b)));
 }
 
+
+/**
+ * @brief SIMD-vectorized (with FMAs) version of Pearson correlation distance
+ *
+ * @param a Vector of length >= n
+ * @param b Vector of length >= n
+ * @param n Size of the vectors
+ * @return Person correlation
+ */
+inline double PearsonCorrelation_FMA(
+    const double* a, const double* b, size_t n) {
+
+    __m256d a_val, b_val, a_accum = _mm256_setzero_pd(),
+        b_accum = _mm256_setzero_pd();
+
+    long int i = 0;
+    long int m = (long int)n;
+    for (; i < m - 3; i += 4) {
+        a_val = _mm256_loadu_pd(&a[i]);
+        b_val = _mm256_loadu_pd(&b[i]);
+        a_accum = _mm256_add_pd(a_accum, a_val);
+        b_accum = _mm256_add_pd(b_accum, b_val);
+    }
+
+    double mean_a = _mm256_reduce_sum_pd(a_val);
+    double mean_b = _mm256_reduce_sum_pd(b_val);
+
+    for (; i < m; i++) {
+        mean_a += a[i];
+        mean_b += b[i];
+    }
+
+    mean_a /= n;
+    mean_b /= n;
+
+    const __m256d mean_a_vec = _mm256_set1_pd(mean_a);
+    const __m256d mean_b_vec = _mm256_set1_pd(mean_b);
+
+    __m256d a_diff, b_diff, cov_accum = _mm256_setzero_pd(),
+        std_a_accum = _mm256_setzero_pd(), std_b_accum = _mm256_setzero_pd();
+
+    for (i = 0; i < m - 3; i += 4) {
+        a_val = _mm256_loadu_pd(&a[i]);
+        a_diff = _mm256_sub_pd(a_val, mean_a_vec);
+        b_val = _mm256_loadu_pd(&b[i]);
+        b_diff = _mm256_sub_pd(b_val, mean_b_vec);
+        cov_accum = _mm256_fmadd_pd(a_diff, b_diff, cov_accum);
+        std_a_accum = _mm256_fmadd_pd(a_diff, a_diff, std_a_accum);
+        std_b_accum = _mm256_fmadd_pd(b_diff, b_diff, std_b_accum);
+    }
+
+    double cov = _mm256_reduce_sum_pd(cov_accum);
+    double std_a = _mm256_reduce_sum_pd(std_a_accum);
+    double std_b = _mm256_reduce_sum_pd(std_b_accum);
+
+    for (; i < m; i++) {
+        cov += ((a[i] - mean_a) * (b[i] - mean_b));
+        std_a += ((a[i] - mean_a) * (a[i] - mean_a));
+        std_b += ((b[i] - mean_b) * (b[i] - mean_b));
+    }
+
+    return (1.0 - (cov / sqrt(std_a * std_b)));
+}
+#endif //__AVX2__
 #endif

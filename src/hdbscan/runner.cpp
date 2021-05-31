@@ -23,6 +23,8 @@ DEFINE_int32(min_cl_size, 8, "Minimum cluster size");
 DEFINE_bool(compact, true, "Whether or not to compact the output");
 DEFINE_string(dist_function, "euclidean", "Which metric to use. One of [euclidean, cosine, manhattan, pearson, supremum]");
 DEFINE_string(optimization_level, "no_optimization", "Which optimization level to use. One of [no_optimization, symmetry, unroll2, unroll4, vectorise]");
+DEFINE_string(compiler_flags, "O0", "Which compiler flags are used. One of [O0, O3]");
+
 
 RunnerConfig RunnerConfigFromFlags() {
     return {
@@ -39,7 +41,8 @@ RunnerConfig RunnerConfigFromFlags() {
         static_cast<size_t>(FLAGS_min_cl_size),
         FLAGS_compact,
         FLAGS_dist_function,
-        FLAGS_optimization_level
+        FLAGS_optimization_level,
+        FLAGS_compiler_flags
     };
 }
 
@@ -56,12 +59,14 @@ DistanceCalculator GetDistanceCalculator(const std::string& func_name, const std
         if(func_name == "manhattan") return ManhattanDistance_4Unrolled;
         if(func_name == "pearson") return PearsonCorrelation_4Unrolled;
         if(func_name == "supremum") return SupremumDistance_4Unrolled;
+#ifdef __AVX2__
     } else if (opt_level == "vectorise") {
         if(func_name == "euclidean") return EuclideanDistance_Vectorized;
         if(func_name == "cosine") return CosineSimilarity_Vectorized;
         if(func_name == "manhattan") return ManhattanDistance_Vectorized;
         if(func_name == "pearson") return PearsonCorrelation_Vectorized;
         if(func_name == "supremum") return SupremumDistance_Vectorized;
+#endif //__AVX2__
     } else {
         if(func_name == "euclidean") return EuclideanDistance;
         if(func_name == "cosine") return CosineSimilarity;
@@ -90,6 +95,15 @@ void HDBSCANRunner(RunnerConfig config) {
     if(config.constraints != "") {
         constraints = ReadInConstraints(config.constraints);
     }
+
+    std::ofstream benchmark_total;
+    benchmark_total.open("measurements_totals.txt", std::ios_base::app);
+    // benchmark_total << "Data Points,Data Dimension,Distance Function,Optimization Flags,Compiler Flags,Total Cycles\n";
+    benchmark_total << num_points << "," << num_dimensions << ","
+                    << config.dist_function << "," << config.optimization_level
+                    << "," << config.compiler_flags << ",";
+    long int total_start = start_tsc();
+
 
     std::ofstream benchmark_runner;
     benchmark_runner.open("measurements_runner.txt");
@@ -148,8 +162,13 @@ void HDBSCANRunner(RunnerConfig config) {
     cycles = stop_tsc(start);
     benchmark_runner << "calculate_outliers," << cycles << "\n";
 
+    benchmark_runner.close();
+
+    long int total_cycles = stop_tsc(total_start);
+    benchmark_total << cycles << "\n";
+    benchmark_total.close();
+
     free(point_last_clusters);
     free(point_noise_levels);
     free(core_distances);
-    benchmark_runner.close();
 }

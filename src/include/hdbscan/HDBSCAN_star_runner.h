@@ -21,32 +21,33 @@ struct RunnerConfig {
     std::string visualization_file;
     std::string partition_file;
     std::string outlier_score_file;
-    size_t num_neighbors; 
+    size_t num_neighbors;
     size_t min_cl_size;
     bool compact;
     std::string dist_function;
     std::string optimization_level;
+    std::string compiler_flags;
 };
 
 /**
  * @brief Create a RunnerConfig from gflags
- * 
- * @return RunnerConfig 
+ *
+ * @return RunnerConfig
  */
 RunnerConfig RunnerConfigFromFlags();
 
 /**
  * @brief Get the Distance Calculator object, throws error if the function is not implemented
- * 
- * @param func_name 
- * @return DistanceCalculator 
+ *
+ * @param func_name
+ * @return DistanceCalculator
  */
 DistanceCalculator GetDistanceCalculator(const std::string& func_name);
 
 /**
  * @brief Runs the clustering algorithm
- * 
- * @param config 
+ *
+ * @param config
  */
 void HDBSCANRunner(RunnerConfig config);
 
