@@ -4,7 +4,7 @@
 #include <cstdio>
 
 Map* Map_create() {
-    Map* m = (Map*)malloc(sizeof(*m));
+    Map* m = (Map*)aligned_alloc(32, sizeof(*m));
     m->size = 0;
     m->capacity = MAP_DEFAULT_CAPACITY;
     m->keys = OS_create();

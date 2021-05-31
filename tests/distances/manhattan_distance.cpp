@@ -84,4 +84,3 @@ TEST(distances, manhattan1_vectorized) {
     double sim2 = ManhattanDistance_Vectorized(b, a, 5);
     ASSERT_NEAR(sim2, sim, 0.0001);
 }
-

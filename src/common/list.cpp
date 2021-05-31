@@ -3,7 +3,7 @@
 
 
 list* list_create() {
-    list* new_list = (list*)malloc(sizeof(list));
+    list* new_list = (list*)aligned_alloc(32, sizeof(list));
     new_list->head = nullptr;
     new_list->tail = nullptr;
     return new_list;
@@ -25,7 +25,7 @@ void list_free(list* l) {
 }
 
 node* node_create(size_t value) {
-    node* new_node = (node*)malloc(sizeof(node));
+    node* new_node = (node*)aligned_alloc(32, sizeof(node));
     new_node->prev = nullptr;
     new_node->next = nullptr;
     new_node->element = value;
@@ -38,7 +38,7 @@ void node_free(node* n) {
         n->next = nullptr;
         n->element = 0;
         free(n);
-    }    
+    }
 }
 
 void list_clear(list* l) {

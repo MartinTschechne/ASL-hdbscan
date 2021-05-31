@@ -6,10 +6,11 @@
 #include <common/vector_reductions.h>
 
 OrderedSet* OS_create() {
-    OrderedSet* os = (OrderedSet*)malloc(sizeof(*os));
+    OrderedSet* os = (OrderedSet*)aligned_alloc(32, sizeof(*os));
     os->capacity = ORDERED_SET_DEFAULT_CAPACITY;
     os->size = 0;
-    os->elements = (size_t*)malloc(os->capacity * sizeof(*os->elements));
+    os->elements = (size_t*)aligned_alloc(
+        32, os->capacity * sizeof(*os->elements));
     return os;
 }
 

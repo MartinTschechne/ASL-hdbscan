@@ -7,15 +7,16 @@ void vector_init(vector* vec) {
     if (vec) {
         vec->capacity = VECTOR_DEFAULT_CAPACITY;
         vec->size = 0;
-        vec->elements = (void**)malloc(vec->capacity * sizeof(void*));
+        vec->elements = (void**)aligned_alloc(
+            32, vec->capacity * sizeof(void*));
     }
 }
 
 vector* vector_create() {
-    vector* v = (vector*)malloc(sizeof(*v));
+    vector* v = (vector*)aligned_alloc(32, sizeof(*v));
     v->capacity = VECTOR_DEFAULT_CAPACITY;
     v->size = 0;
-    v->elements = (void**)malloc(v->capacity * sizeof(*v->elements));
+    v->elements = (void**)aligned_alloc(32, v->capacity * sizeof(*v->elements));
     return v;
 }
 
