@@ -425,8 +425,9 @@ TEST(ordered_set, linear_search_linear_right) {
 }
 
 TEST(ordered_set, linear_search_linear_right_AVX) {
-    size_t values[] = {13, 5, 29, 11, 15, 3, 1, 8, 18, 21, 23, 25, 27};
-    size_t n = 13;
+    size_t values[] = {
+        13, 5, 29, 11, 15, 3, 1, 8, 18, 21, 23, 25, 27, 29, 31, 33};
+    size_t n = 16;
 
     OrderedSet* s = OS_create();
     for (size_t i = 0; i < n; i++) {
@@ -440,7 +441,7 @@ TEST(ordered_set, linear_search_linear_right_AVX) {
 
     }
     ASSERT_EQ(OS_linear_right_AVX(s, 0, 0, n), OS_linear_right(s, 0, 0, n));
-    ASSERT_EQ(OS_linear_right_AVX(s, 29, 0, n), OS_linear_right(s, 29, 0, n));
+    ASSERT_EQ(OS_linear_right_AVX(s, 35, 0, n), OS_linear_right(s, 35, 0, n));
 
     OS_free(s);
 }

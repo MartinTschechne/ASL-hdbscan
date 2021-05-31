@@ -303,17 +303,7 @@ size_t OS_bisect_right(
 
 size_t OS_bisect_right_AVX(
     const OrderedSet* os, size_t key, size_t lo, size_t hi) {
-    size_t mid;
-    while (lo < hi) {
-        mid = (lo + hi) >> 1;
-        if (key < OS_get(os, mid)) {
-            hi = mid;
-        }
-        else {
-            lo = mid + 1;
-        }
-    }
-    return lo;
+    return OS_bisect_right(os, key, lo, hi);
 }
 
 size_t OS_linear_right(
@@ -323,27 +313,44 @@ size_t OS_linear_right(
         lo += (key >= os->elements[i]);
     }
     return lo;
-    // const size_t tmp = os->elements[hi];
-    // os->elements[hi] = __SIZE_MAX__;
-    // size_t i = lo;
-    // while (true) {
-    //     if (os->elements[i] > key) {
-    //         os->elements[hi] = tmp;
-    //         return i;
-    //     }
-    //     i++;
-    // }
 }
 
 size_t OS_linear_right_AVX(
     const OrderedSet* os, size_t key, size_t lo, size_t hi) {
     size_t i = lo;
 #ifdef __AVX2__
-    if ((hi - lo) > 11) {
+    if ((hi - lo) > 15) {
         const __m256i key_vec = _mm256_set1_epi64x((long long int)key);
-        __m256i el_vec_0, el_vec_1, cmp_0, cmp_1,
+        __m256i el_vec_0, el_vec_1, el_vec_2, el_vec_3,
+            cmp_0, cmp_1, cmp_2, cmp_3,
             cmp_accum_0 = _mm256_setzero_si256(),
-            cmp_accum_1 = _mm256_setzero_si256();
+            cmp_accum_1 = _mm256_setzero_si256(),
+            cmp_accum_2 = _mm256_setzero_si256(),
+            cmp_accum_3 = _mm256_setzero_si256();
+        for (; i < hi - 15; i += 16) {
+            el_vec_0 = _mm256_loadu_si256(
+                (const __m256i*)&os->elements[i]);
+            el_vec_1 = _mm256_loadu_si256(
+                (const __m256i*)&os->elements[i+4]);
+            el_vec_2 = _mm256_loadu_si256(
+                (const __m256i*)&os->elements[i+8]);
+            el_vec_3 = _mm256_loadu_si256(
+                (const __m256i*)&os->elements[i+12]);
+            cmp_0 = _mm256_or_si256(_mm256_cmpgt_epi64(key_vec, el_vec_0),
+                _mm256_cmpeq_epi64(key_vec, el_vec_0));
+            cmp_1 = _mm256_or_si256(_mm256_cmpgt_epi64(key_vec, el_vec_1),
+                _mm256_cmpeq_epi64(key_vec, el_vec_1));
+            cmp_2 = _mm256_or_si256(_mm256_cmpgt_epi64(key_vec, el_vec_2),
+                _mm256_cmpeq_epi64(key_vec, el_vec_2));
+            cmp_3 = _mm256_or_si256(_mm256_cmpgt_epi64(key_vec, el_vec_3),
+                _mm256_cmpeq_epi64(key_vec, el_vec_3));
+            cmp_accum_0 = _mm256_add_epi64(cmp_accum_0, cmp_0);
+            cmp_accum_1 = _mm256_add_epi64(cmp_accum_1, cmp_1);
+            cmp_accum_2 = _mm256_add_epi64(cmp_accum_2, cmp_2);
+            cmp_accum_3 = _mm256_add_epi64(cmp_accum_3, cmp_3);
+        }
+        cmp_accum_0 = _mm256_add_epi64(cmp_accum_0, cmp_accum_1);
+        cmp_accum_1 = _mm256_add_epi64(cmp_accum_2, cmp_accum_3);
         for (; i < hi - 7; i += 8) {
             el_vec_0 = _mm256_loadu_si256(
                 (const __m256i*)&os->elements[i]);
