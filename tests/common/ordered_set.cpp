@@ -370,4 +370,78 @@ TEST(ordered_set, iterate_and_erase) {
     }
 
     ASSERT_EQ(count, n);
+    OS_free(s);
+}
+
+TEST(ordered_set, binary_search_bisect_right) {
+    size_t values[] = {13, 5, 29, 11, 15, 3, 1, 8, 18, 21, 23, 25, 27};
+    size_t n = 13;
+
+    OrderedSet* s = OS_create();
+    for(size_t i = 0; i < n; ++i) {
+        OS_insert(s, values[i]);
+    }
+
+    ASSERT_EQ(OS_bisect_right(s, 2, 0, n), 1);
+    ASSERT_EQ(OS_bisect_right(s, 0, 0, n), 0);
+    ASSERT_EQ(OS_bisect_right(s, 29, 0, n), n);
+    ASSERT_EQ(OS_bisect_right(s, 27, 0, n), 12);
+
+    OS_free(s);
+}
+
+TEST(ordered_set, binary_search_bisect_right_AVX) {
+    size_t values[] = {13, 5, 29, 11, 15, 3, 1, 8, 18, 21, 23, 25, 27};
+    size_t n = 13;
+
+    OrderedSet* s = OS_create();
+    for (size_t i = 0; i < n; i++) {
+        OS_insert(s, values[i]);
+    }
+
+    ASSERT_EQ(OS_bisect_right_AVX(s, 2, 0, n), 1);
+    ASSERT_EQ(OS_bisect_right_AVX(s, 0, 0, n), 0);
+    ASSERT_EQ(OS_bisect_right_AVX(s, 29, 0, n), n);
+    ASSERT_EQ(OS_bisect_right_AVX(s, 27, 0, n), 12);
+
+    OS_free(s);
+}
+
+TEST(ordered_set, linear_search_linear_right) {
+    size_t values[] = {13, 5, 29, 11, 15, 3, 1, 8, 18, 21, 23, 25, 27};
+    size_t n = 13;
+
+    OrderedSet* s = OS_create();
+    for(size_t i = 0; i < n; ++i) {
+        OS_insert(s, values[i]);
+    }
+
+    ASSERT_EQ(OS_linear_right(s, 2, 0, n), 1);
+    ASSERT_EQ(OS_linear_right(s, 0, 0, n), 0);
+    ASSERT_EQ(OS_linear_right(s, 29, 0, n), n);
+    ASSERT_EQ(OS_linear_right(s, 27, 0, n), 12);
+
+    OS_free(s);
+}
+
+TEST(ordered_set, linear_search_linear_right_AVX) {
+    size_t values[] = {
+        13, 5, 29, 11, 15, 3, 1, 8, 18, 21, 23, 25, 27, 29, 31, 33};
+    size_t n = 16;
+
+    OrderedSet* s = OS_create();
+    for (size_t i = 0; i < n; i++) {
+        OS_insert(s, values[i]);
+    }
+
+    for (size_t i = 0; i < 13; i++){
+         ASSERT_EQ(
+             OS_linear_right_AVX(s, values[i], 0, n),
+             OS_linear_right(s, values[i], 0, n));
+
+    }
+    ASSERT_EQ(OS_linear_right_AVX(s, 0, 0, n), OS_linear_right(s, 0, 0, n));
+    ASSERT_EQ(OS_linear_right_AVX(s, 35, 0, n), OS_linear_right(s, 35, 0, n));
+
+    OS_free(s);
 }

@@ -5,13 +5,13 @@
 
 Cluster* CreateCluster(size_t label, Cluster* parent, double birth_level, size_t num_points) {
     Cluster* new_cluster = (Cluster*)malloc(sizeof(Cluster));
-    new_cluster->label = label; 
-    new_cluster->birth_level = birth_level; 
-    new_cluster->death_level = 0.0; 
-    new_cluster->num_points = num_points; 
-    new_cluster->file_offset = 0; 
-    new_cluster->stability = 0.0; 
-    new_cluster->propagated_stability = 0.0; 
+    new_cluster->label = label;
+    new_cluster->birth_level = birth_level;
+    new_cluster->death_level = 0.0;
+    new_cluster->num_points = num_points;
+    new_cluster->file_offset = 0;
+    new_cluster->stability = 0.0;
+    new_cluster->propagated_stability = 0.0;
     new_cluster->propagated_lowest_child_death_level = DBL_MAX;
     new_cluster->num_constraints_satisfied = 0;
     new_cluster->propagated_num_constraints_satisfied = 0;
@@ -67,7 +67,7 @@ void Propagate(Cluster* cluster) {
         cluster->parent->propagated_stability += cluster->propagated_stability;
         for(size_t i = 0; i < cluster->propagated_descendants->size; ++i) {
             vector_push_back(cluster->parent->propagated_descendants, vector_get(cluster->propagated_descendants, i));
-        } // insert all 
+        } // insert all
     } else if(cluster->num_constraints_satisfied == cluster->propagated_num_constraints_satisfied) {
         //Chose the parent over descendants if there is a tie in stability:
         if(cluster->stability >= cluster->propagated_stability) {
@@ -79,7 +79,7 @@ void Propagate(Cluster* cluster) {
             cluster->parent->propagated_stability += cluster->propagated_stability;
             for(size_t i = 0; i < cluster->propagated_descendants->size; ++i) {
                 vector_push_back(cluster->parent->propagated_descendants, vector_get(cluster->propagated_descendants, i));
-            } // insert all 
+            } // insert all
         }
     }
 }

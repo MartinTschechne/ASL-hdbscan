@@ -1,10 +1,9 @@
 #ifndef TEAM33_ORDERED_SET_H
 #define TEAM33_ORDERED_SET_H
 
-#define ORDERED_SET_DEFAULT_CAPACITY 1024
-// #define ORDERED_SET_MAX_USAGE_RATIO 1.0
-// #define ORDERED_SET_MIN_USAGE_RATIO 0.25
 #define UNDEFINED_VALUE -1
+#define ORDERED_SET_DEFAULT_CAPACITY 1024 // ATTN NO LOWER THAN 16 FOR AVX
+#define LINEAR_BINARY_SEARCH_XOVER 96 // ATTN NO LOWER THAN 16 FOR AVX
 
 #include <cstddef>
 
@@ -148,6 +147,15 @@ size_t OS_erase_AVX(OrderedSet* os, size_t key);
 size_t OS_find(const OrderedSet* os, size_t key);
 
 /**
+ * @brief Using AVX: Finds a key in an ordered set
+ *
+ * @param os Set to find key in
+ * @param key Key to find in set
+ * @return size_t Iterator-imitating index of element in set if found
+ */
+size_t OS_find_AVX(const OrderedSet* os, size_t key);
+
+/**
  * @brief Finds a key in an ordered set in a given index range
  *
  * @param os Set to find key in
@@ -157,6 +165,17 @@ size_t OS_find(const OrderedSet* os, size_t key);
  * @return size_t Iterator-imitating index of element in set if found
  */
 size_t OS_find_btw(const OrderedSet* os, size_t key, size_t lo, size_t hi);
+
+/**
+ * @brief Using AVX: Finds a key in an ordered set in a given index range
+ *
+ * @param os Set to find key in
+ * @param key Key to find in set
+ * @param lo Low end of search range index
+ * @param hi Post high end of search range index
+ * @return size_t Iterator-imitating index of element in set if found
+ */
+size_t OS_find_btw_AVX(const OrderedSet* os, size_t key, size_t lo, size_t hi);
 
 /**
  * @brief  Checks if a key is member of an ordered set
@@ -169,7 +188,18 @@ size_t OS_find_btw(const OrderedSet* os, size_t key, size_t lo, size_t hi);
 bool OS_contains(const OrderedSet* os, size_t value);
 
 /**
+ * @brief  Using AVX: Checks if a key is member of an ordered set
+ *
+ * @param os Set to check if key is member of
+ * @param key Key to check set for
+ * @return true If the key is contained in set s
+ * @return false Otherwise
+ */
+bool OS_contains_AVX(const OrderedSet* os, size_t value);
+
+/**
  * @brief Returns the index where to insert key into ordered set
+ * using binary search
  *
  * @param set Set to obtain insertion index for key of
  * @param key Key to insert
@@ -177,7 +207,44 @@ bool OS_contains(const OrderedSet* os, size_t value);
  * @param hi Index past end of search range for insertion index
  * @return size_t
  */
-static size_t OS_bisect_right(
+size_t OS_bisect_right(const OrderedSet* set, size_t key, size_t lo, size_t hi);
+
+/**
+ * @brief Using AVX: Returns the index where to insert key into ordered set
+ * using binary search
+ *
+ * @param set Set to obtain insertion index for key of
+ * @param key Key to insert
+ * @param lo Index of start of search range for insertion index
+ * @param hi Index past end of search range for insertion index
+ * @return size_t
+ */
+size_t OS_bisect_right_AVX(
+    const OrderedSet* set, size_t key, size_t lo, size_t hi);
+
+/**
+ * @brief Returns the index where to insert key into ordered set
+ * using linear search
+ *
+ * @param set Set to obtain insertion index for key of
+ * @param key Key to insert
+ * @param lo Index of start of search range for insertion index
+ * @param hi Index past end of search range for insertion index
+ * @return size_t
+ */
+size_t OS_linear_right(const OrderedSet* set, size_t key, size_t lo, size_t hi);
+
+/**
+ * @brief Using AVX: Returns the index where to insert key into ordered set
+ * using linear search
+ *
+ * @param set Set to obtain insertion index for key of
+ * @param key Key to insert
+ * @param lo Index of start of search range for insertion index
+ * @param hi Index past end of search range for insertion index
+ * @return size_t
+ */
+size_t OS_linear_right_AVX(
     const OrderedSet* set, size_t key, size_t lo, size_t hi);
 
 /**
