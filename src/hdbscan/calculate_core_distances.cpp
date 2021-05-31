@@ -20,17 +20,13 @@
 // #endif
 
 CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& optimization_level) {
-    if(optimization_level == "symmetry") {
+    if(optimization_level != "symmetry") {
+        return CalculateCoreDistancesNoOptimization;
+    } else {
         return CalculateCoreDistancesSymmetry;
     }
 
-    if(optimization_level != "no_optimization") {
-        std::cout << "\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
-        std::cout << "Optimization " << optimization_level << " not supported for CalculcateCoreDistances. Fallback to unoptimized version\n\n";
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n" << std::endl;
-    }
-
-    return CalculateCoreDistancesNoOptimization;
+    throw std::invalid_argument("Optimization level not supported");
 }
 
 double* CalculateCoreDistancesNoOptimization(const double* const * const data_set, size_t k,

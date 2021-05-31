@@ -22,7 +22,7 @@ DEFINE_int32(num_neighbors, 8, "Nearest neighbors");
 DEFINE_int32(min_cl_size, 8, "Minimum cluster size");
 DEFINE_bool(compact, true, "Whether or not to compact the output");
 DEFINE_string(dist_function, "euclidean", "Which metric to use. One of [euclidean, cosine, manhattan, pearson, supremum]");
-DEFINE_string(optimization_level, "no_optimization", "Which optimization level to use. One of [no_optimization, symmetry, unroll, vectorise]");
+DEFINE_string(optimization_level, "no_optimization", "Which optimization level to use. One of [no_optimization, symmetry, unroll2, unroll4, vectorise]");
 
 RunnerConfig RunnerConfigFromFlags() {
     return {
@@ -43,18 +43,38 @@ RunnerConfig RunnerConfigFromFlags() {
     };
 }
 
-DistanceCalculator GetDistanceCalculator(const std::string& func_name) {
-    if(func_name == "euclidean") return EuclideanDistance;
-    if(func_name == "cosine") return CosineSimilarity;
-    if(func_name == "manhattan") return ManhattanDistance;
-    if(func_name == "pearson") return PearsonCorrelation;
-    if(func_name == "supremum") return SupremumDistance;
+DistanceCalculator GetDistanceCalculator(const std::string& func_name, const std::string& opt_level) {
+    if (opt_level == "unroll2") {
+        if(func_name == "euclidean") return EuclideanDistanceUnrolled;
+        if(func_name == "cosine") return CosineSimilarityUnrolled;
+        if(func_name == "manhattan") return ManhattanDistanceUnrolled;
+        if(func_name == "pearson") return PearsonCorrelationUnrolled;
+        if(func_name == "supremum") return SupremumDistanceUnrolled;
+    } else if (opt_level == "unroll4") {
+        if(func_name == "euclidean") return EuclideanDistance_4Unrolled;
+        if(func_name == "cosine") return CosineSimilarity_4Unrolled;
+        if(func_name == "manhattan") return ManhattanDistance_4Unrolled;
+        if(func_name == "pearson") return PearsonCorrelation_4Unrolled;
+        if(func_name == "supremum") return SupremumDistance_4Unrolled;
+    } else if (opt_level == "vectorise") {
+        if(func_name == "euclidean") return EuclideanDistance_Vectorized;
+        if(func_name == "cosine") return CosineSimilarity_Vectorized;
+        if(func_name == "manhattan") return ManhattanDistance_Vectorized;
+        if(func_name == "pearson") return PearsonCorrelation_Vectorized;
+        if(func_name == "supremum") return SupremumDistance_Vectorized;
+    } else {
+        if(func_name == "euclidean") return EuclideanDistance;
+        if(func_name == "cosine") return CosineSimilarity;
+        if(func_name == "manhattan") return ManhattanDistance;
+        if(func_name == "pearson") return PearsonCorrelation;
+        if(func_name == "supremum") return SupremumDistance;
+    }
 
     throw std::invalid_argument("Distance function not supported");
 }
 
 void HDBSCANRunner(RunnerConfig config) {
-    DistanceCalculator dist_fun = GetDistanceCalculator(config.dist_function);
+    DistanceCalculator dist_fun = GetDistanceCalculator(config.dist_function, config.optimization_level);
     assert(config.hierarchy_file != "");
     assert(config.tree_file != "");
     assert(config.partition_file != "");
