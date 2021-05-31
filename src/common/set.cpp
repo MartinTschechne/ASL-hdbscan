@@ -6,10 +6,10 @@
 // bitset - required for set:
 
 bitset* bitset_create(size_t num_bits) {
-    bitset* b = (bitset*)malloc(sizeof(*b));
+    bitset* b = (bitset*)aligned_alloc(32, sizeof(*b));
     b->num_bits = num_bits;
     b->num_words = (size_t)(num_bits / bitword_size) + 1;
-    b->words = (bitword_t*)malloc(b->num_words * sizeof(*b->words));
+    b->words = (bitword_t*)aligned_alloc(32, b->num_words * sizeof(*b->words));
     bitset_clear_all(b);
     return b;
 }
@@ -42,7 +42,7 @@ void bitset_resize(bitset* b, size_t capacity) {
         bitset_clear(b, i);
     }
     b->num_bits = capacity;
-    b->num_words = (size_t)(capacity / bitword_size) + 1; 
+    b->num_words = (size_t)(capacity / bitword_size) + 1;
 }
 
 static inline size_t bit_idx(size_t bit) {
@@ -56,10 +56,10 @@ static inline size_t bit_offset(size_t bit) {
 // set:
 
 set* set_create() {
-    set* s = (set*)malloc(sizeof(*s));
+    set* s = (set*)aligned_alloc(32, sizeof(*s));
     s->capacity = SET_DEFAULT_CAPACITY;
     s->size = 0;
-    s->elements = (size_t*)malloc(s->capacity * sizeof(size_t));
+    s->elements = (size_t*)aligned_alloc(32, s->capacity * sizeof(size_t));
     s->bit_elements = bitset_create(s->capacity);
     return s;
 }
@@ -185,7 +185,7 @@ void set_erase(set* s, size_t key) {
 size_t set_find(const set* s, size_t key) {
     size_t idx = UNDEFINED_VALUE;
     if (s && s->size > 0) {
-        idx = key % s->capacity; 
+        idx = key % s->capacity;
         if (!bitset_get(s->bit_elements, idx)) {
             idx = set_next_busy_idx(s, idx);
         }
