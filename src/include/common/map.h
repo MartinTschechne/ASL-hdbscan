@@ -8,7 +8,7 @@
 #include <common/ordered_set.h>
 #include <common/vector.h>
 
-typedef struct Map {
+typedef struct alignas(32) Map {
     size_t size;
     size_t capacity;
     OrderedSet* keys;

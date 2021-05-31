@@ -3,13 +3,13 @@
 
 #include <string>
 
-struct Constraint {
+struct alignas(32) Constraint {
     inline static std::string MUST_LINK_TAG = "ml";
     inline static std::string CANNOT_LINK_TAG = "cl";
 
     /**
      * @brief COntraint types
-     * 
+     *
      */
     enum CONSTRAINT_TYPE {
         MUST_LINK,

@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-typedef struct OrderedSet {
+typedef struct alignas(32) OrderedSet {
     size_t capacity;
     size_t size;
     size_t* elements;

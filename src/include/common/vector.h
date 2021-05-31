@@ -5,7 +5,7 @@
 
 #include <cstddef>
 
-typedef struct Vector {
+typedef struct alignas(32) Vector {
     size_t capacity;
     size_t size;
     void** elements;
