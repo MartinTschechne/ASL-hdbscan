@@ -80,6 +80,8 @@ inline double ManhattanDistance_4Unrolled(
     return distance_0 + distance_1 + distance_2 + distance_3;
 }
 
+
+#ifdef __AVX2__
 /**
  * @brief SIMD-vectorized version of function ManhattanDistance.
  *
@@ -92,25 +94,41 @@ inline double ManhattanDistance_Vectorized(
     const double* a, const double* b, size_t n) {
 
     const __m256d _fabs_pd= _mm256_set1_pd(-0.); // 1<<63 for MSB: sign(double)
-    __m256d a_val_0, a_val_1, b_val_0, b_val_1, diff_vec_0, diff_vec_1,
-        dist_accum_0 = _mm256_setzero_pd(), dist_accum_1 = _mm256_setzero_pd();
+    __m256d a_val_0, a_val_1, a_val_2, a_val_3, b_val_0, b_val_1,
+        b_val_2, b_val_3, diff_vec_0, diff_vec_1, diff_vec_2, diff_vec_3;
+    __m256d dist_accum_0 = _mm256_setzero_pd(),
+        dist_accum_1 = _mm256_setzero_pd(),
+        dist_accum_2 = _mm256_setzero_pd(),
+        dist_accum_3 = _mm256_setzero_pd();
 
     long int i = 0;
     long int m = (long int)n;
-    for(; i < m - 7; i += 8) {
-        a_val_0 = _mm256_loadu_pd(&a[i  ]);
+    for(; i < m - 15; i += 16) {
+        a_val_0 = _mm256_loadu_pd(&a[i]);
         a_val_1 = _mm256_loadu_pd(&a[i+4]);
-        b_val_0 = _mm256_loadu_pd(&b[i  ]);
+        a_val_2 = _mm256_loadu_pd(&a[i+8]);
+        a_val_3 = _mm256_loadu_pd(&a[i+12]);
+        b_val_0 = _mm256_loadu_pd(&b[i]);
         b_val_1 = _mm256_loadu_pd(&b[i+4]);
+        b_val_2 = _mm256_loadu_pd(&b[i+8]);
+        b_val_3 = _mm256_loadu_pd(&b[i+12]);
         diff_vec_0 = _mm256_sub_pd(a_val_0, b_val_0);
         diff_vec_1 = _mm256_sub_pd(a_val_1, b_val_1);
+        diff_vec_2 = _mm256_sub_pd(a_val_2, b_val_2);
+        diff_vec_3 = _mm256_sub_pd(a_val_3, b_val_3);
         diff_vec_0 = _mm256_andnot_pd(_fabs_pd, diff_vec_0);
         diff_vec_1 = _mm256_andnot_pd(_fabs_pd, diff_vec_1);
+        diff_vec_2 = _mm256_andnot_pd(_fabs_pd, diff_vec_2);
+        diff_vec_3 = _mm256_andnot_pd(_fabs_pd, diff_vec_3);
         dist_accum_0 = _mm256_add_pd(dist_accum_0, diff_vec_0);
         dist_accum_1 = _mm256_add_pd(dist_accum_1, diff_vec_1);
+        dist_accum_2 = _mm256_add_pd(dist_accum_2, diff_vec_2);
+        dist_accum_3 = _mm256_add_pd(dist_accum_3, diff_vec_3);
     }
 
     dist_accum_0 = _mm256_add_pd(dist_accum_0, dist_accum_1);
+    dist_accum_2 = _mm256_add_pd(dist_accum_2, dist_accum_3);
+    dist_accum_0 = _mm256_add_pd(dist_accum_0, dist_accum_2);
 
     for(; i < m - 3; i += 4) {
         a_val_0 = _mm256_loadu_pd(&a[i]);
@@ -128,5 +146,5 @@ inline double ManhattanDistance_Vectorized(
 
     return distance;
 }
-
+#endif //__AVX2__
 #endif

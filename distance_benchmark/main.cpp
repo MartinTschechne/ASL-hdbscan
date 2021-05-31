@@ -30,52 +30,62 @@ void fill_data(double* data, const size_t num_points, const size_t dim) {
 func_array* get_distance_functions(std::string f_name) {
     if (f_name == "euclidean") {
         static func_array ds[] = {
-                                    {EuclideanDistance, "Baseline"},
-                                    {EuclideanDistanceUnrolled, "2-fold Unrolled"},
-                                    {EuclideanDistance_4Unrolled,
-                                    "4-fold Unrolled"},
-                                    {EuclideanDistance_Vectorized,
-                                    "AVX Vectorized"}
-                                };
+                {EuclideanDistance, "Baseline"},
+                {EuclideanDistanceUnrolled, "2-fold Unrolled"},
+                {EuclideanDistance_4Unrolled,
+                "4-fold Unrolled"},
+            #ifdef __AVX2__
+                {EuclideanDistance_Vectorized,
+                "AVX Vectorized"}
+            #endif //__AVX2__
+        };
         return ds;
     } else if (f_name == "cosine") {
         static func_array ds[] = {
-                                    {CosineSimilarity, "Baseline"},
-                                    {CosineSimilarityUnrolled, "2-fold Unrolled"},
-                                    {CosineSimilarity_4Unrolled,
-                                    "4-fold Unrolled"},
-                                    {CosineSimilarity_Vectorized,
-                                    "AVX Vectorized"}
-                                };
+                {CosineSimilarity, "Baseline"},
+                {CosineSimilarityUnrolled, "2-fold Unrolled"},
+                {CosineSimilarity_4Unrolled,
+                "4-fold Unrolled"},
+            #ifdef __AVX2__
+                {CosineSimilarity_Vectorized,
+                "AVX Vectorized"}
+            #endif //__AVX2__
+        };
         return ds;
     } else if (f_name == "manhattan") {
         static func_array ds[] = {
-                                    {ManhattanDistance, "Baseline"},
-                                    {ManhattanDistanceUnrolled, "2-fold Unrolled"},
-                                    {ManhattanDistanceUnrolled,
-                                     "4-fold Unrolled"},
-                                    {ManhattanDistanceUnrolled,
-                                    "AVX Vectorized"}
-                                };
+                {ManhattanDistance, "Baseline"},
+                {ManhattanDistanceUnrolled, "2-fold Unrolled"},
+                {ManhattanDistanceUnrolled,
+                 "4-fold Unrolled"},
+            #ifdef __AVX2__
+                {ManhattanDistanceUnrolled,
+                "AVX Vectorized"}
+            #endif //__AVX2__
+        };
         return ds;
     } else if (f_name == "pearson") {
         static func_array ds[] = {
-                                    {PearsonCorrelation, "Baseline"},
-                                    {PearsonCorrelationUnrolled, "2-fold Unrolled"},
-                                    {PearsonCorrelation_4Unrolled, "4-fold Unrolled"},
-                                    // {PearsonCorrelation_Onepass, "Single Pass"
-                                    // },
-                                    // {PearsonCorrelation_4UnrolledOnepass, "Single Pass 4-fold Unrolled"},
-                                    {PearsonCorrelation_Vectorized, "AVX Vectorized"}
-                                };
+                {PearsonCorrelation, "Baseline"},
+                {PearsonCorrelationUnrolled, "2-fold Unrolled"},
+                {PearsonCorrelation_4Unrolled, "4-fold Unrolled"},
+                // {PearsonCorrelation_Onepass, "Single Pass"
+                // },
+                // {PearsonCorrelation_4UnrolledOnepass, "Single Pass 4-fold Unrolled"},
+            #ifdef __AVX2__
+                {PearsonCorrelation_Vectorized, "AVX Vectorized"}
+            #endif //__AVX2__
+        };
         return ds;
     } else if (f_name == "supremum") {
         static func_array ds[] = {
-                                    {SupremumDistance, "Baseline"},
-                                    {SupremumDistanceUnrolled, "2-fold Unrolled"},
-                                    {SupremumDistance_4Unrolled, "4-fold Unrolled"},
-                                    {SupremumDistance_Vectorized, "AVX Vectorized"}
-                                };
+                {SupremumDistance, "Baseline"},
+                {SupremumDistanceUnrolled, "2-fold Unrolled"},
+                {SupremumDistance_4Unrolled, "4-fold Unrolled"},
+            #ifdef __AVX2__
+                {SupremumDistance_Vectorized, "AVX Vectorized"}
+            #endif //__AVX2__
+        };
         return ds;
     } else {
         printf("Function name not found.\n");

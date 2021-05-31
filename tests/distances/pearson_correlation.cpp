@@ -107,6 +107,7 @@ TEST(distances, pearson_in_between_4unrolledonepass) {
     ASSERT_NEAR(sim2, sim, 0.0001);
 }
 
+#ifdef __AVX2__
 TEST(distances, pearson_max_positive_vectorized) {
     double a[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
     double b[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
@@ -127,3 +128,4 @@ TEST(distances, pearson_in_between_vectorized) {
     double sim2 = PearsonCorrelation_Vectorized(b, a, 5);
     ASSERT_NEAR(sim2, sim, 0.0001);
 }
+#endif //__AVX2__
