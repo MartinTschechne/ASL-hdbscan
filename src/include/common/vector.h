@@ -78,14 +78,24 @@ void vector_set(vector* vec, size_t pos, const void* value);
 void vector_clear(vector* vec);
 
 /**
- * @brief Check if a vector contains a given element
+ * @brief Check if a vector contains a given element (pointer)
  *
- * @param vec Vector to check for element
- * @param value Element to check for
- * @return true If vector vec contains element value
+ * @param vec Vector to check for element (pointer)
+ * @param value Element (pointer) to check for
+ * @return true If vector vec contains element (pointer)
  * @return false Otherwise
  */
 bool vector_contains(const vector* vec, const void* value);
+
+/**
+ * @brief Using AVX: Check if a vector contains a given element (pointer)
+ *
+ * @param vec Vector to check for element (pointer)
+ * @param value Element (pointer) to check for
+ * @return true If vector vec contains element (pointer)
+ * @return false Otherwise
+ */
+bool vector_contains_AVX(const vector* vec, const void* value);
 
 /**
  * @brief Inserts count copies of given element at the specified position in

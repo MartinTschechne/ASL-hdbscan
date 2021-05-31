@@ -75,6 +75,44 @@ bool vector_contains(const vector* vec, const void* value) {
     return false;
 }
 
+bool vector_contains_AVX(const vector* vec, const void* value) {
+    size_t i = 0;
+#ifdef __AVX2__
+    if (vec->size > 11) {
+        const __m256i value_vec = _mm256_set1_epi64x((long long int)value);
+        __m256i el_vec_0, el_vec_1, cmp_vec_0, cmp_vec_1;
+        for (; i < vec->size - 7; i += 8) {
+            el_vec_0 = _mm256_loadu_si256(
+                (const __m256i*)&vec->elements[i]);
+            el_vec_1 = _mm256_loadu_si256(
+                (const __m256i*)&vec->elements[i+4]);
+            cmp_vec_0 = _mm256_cmpeq_epi64(value_vec, el_vec_0);
+            cmp_vec_1 = _mm256_cmpeq_epi64(value_vec, el_vec_1);
+            if (0 != _mm256_movemask_epi8(cmp_vec_0)) {
+                return true;
+            }
+            if (0 != _mm256_movemask_epi8(cmp_vec_1)) {
+                return true;
+            }
+        }
+        for (; i < vec->size - 3; i += 4) {
+            el_vec_0 = _mm256_loadu_si256(
+                (const __m256i*)&vec->elements[i]);
+            cmp_vec_0 = _mm256_cmpeq_epi64(value_vec, el_vec_0);
+            if (0 != _mm256_movemask_epi8(cmp_vec_0)) {
+                return true;
+            }
+        }
+    }
+#endif
+    for (; i < vec->size; i++) {
+        if (vec->elements[i] == value) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void vector_insert(vector* vec, size_t pos, size_t count, const void* value) {
     if (vec) {
         if (0 <= pos && pos <= vec->size) {

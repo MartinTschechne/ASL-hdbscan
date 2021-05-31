@@ -146,6 +146,8 @@ TEST(vector, primitive_types) {
     for (size_t i = 0; i < vector_size(&v); i++) {
         ASSERT_EQ(*(double*)vector_get(&v, i), b[i]);
     }
+
+    vector_free(&v);
 }
 
 TEST(vector, insert_AVX) {
@@ -190,4 +192,34 @@ TEST(vector, erase_AVX) {
     ASSERT_EQ(*(int*)vector_get(v, 0), a[2]);
 
     vector_free(v);
+}
+
+TEST(vector, contains) {
+    vector* v = vector_create();
+
+    const int a[] = {5, 4, 3, 9, 8, 7};
+    for (int i = 0; i < 6; i++) {
+        vector_push_back(v, &a[i]);
+    }
+
+    for (size_t i = 0; i < 6; i++) {
+        ASSERT_TRUE(vector_contains(v, (void*)&a[i]));
+    }
+    ASSERT_FALSE(vector_contains(v, nullptr));
+}
+
+TEST(vector, contains_AVX) {
+    vector* v = vector_create();
+
+    const int a[] = {5, 4, 3, 9, 8, 7, 11, 12, 13, 14, 15, 16, 17};
+    const int b[] = {5, 4, 3, 9, 8, 7, 11, 12, 13, 14, 15, 16, 17};
+    for (int i = 0; i < 13; i++) {
+        vector_push_back(v, &a[i]);
+    }
+
+    for (size_t i = 0; i < 13; i++) {
+        ASSERT_TRUE(vector_contains_AVX(v, (void*)&a[i]));
+        ASSERT_FALSE(vector_contains_AVX(v, (void*)&b[i]));
+    }
+    ASSERT_FALSE(vector_contains(v, nullptr));
 }
