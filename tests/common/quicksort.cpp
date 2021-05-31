@@ -13,7 +13,7 @@ TEST(QuickSort, basics) {
 
     const size_t num_samples{2048};
 
-    double* array_1 = (double*)malloc(num_samples * sizeof(*array_1));    
+    double* array_1 = (double*)malloc(num_samples * sizeof(*array_1));
     std::array<double, num_samples> array_2;
 
     double sample;

@@ -25,7 +25,10 @@ build:
 test:
   stage: test
   script:
-    - cd build
-    - ./unit_tests
+    - ./build/unit_tests --gtest_output="xml:report.xml"
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
   dependencies:
     - build
