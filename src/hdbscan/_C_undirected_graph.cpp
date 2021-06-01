@@ -42,6 +42,33 @@ UndirectedGraph_C* UDG_Create(size_t num_vertices, size_t* vertices_A,
     return udg;
 }
 
+UndirectedGraph_C* UDG_Create_Fast(size_t num_vertices, size_t* vertices_A,
+    size_t* vertices_B, double* edge_weights, size_t edge_weights_length) {
+    UndirectedGraph_C* udg = (UndirectedGraph_C*)malloc(sizeof(*udg));
+    udg->num_vertices_ = num_vertices;
+    udg->edge_weights_length_ = edge_weights_length;
+    udg->vertices_A_ = vertices_A;
+    udg->vertices_B_ = vertices_B;
+    udg->edge_weights_ = edge_weights;
+    udg->edges_ = vector_create(num_vertices);
+    for(size_t i = 0; i < num_vertices; ++i) {
+       vector_push_back(udg->edges_, (void*)vector_create(10));
+    }
+
+    for (int i = 0; i < udg->edge_weights_length_; i++) {       
+        size_t* vertex_one = (size_t*)malloc(sizeof(size_t));
+        *vertex_one = vertices_A[i];
+        size_t* vertex_two = (size_t*)malloc(sizeof(size_t));
+        *vertex_two = vertices_B[i];
+
+        vector_push_back((vector*)udg->edges_->elements[*vertex_one], (void*)vertex_two);
+        if(*vertex_one != *vertex_two) {
+            vector_push_back((vector*)udg->edges_->elements[*vertex_two], (void*)vertex_one);
+        }
+    }
+    return udg;
+}
+
 void UDG_Free(UndirectedGraph_C* udg) {
     free(udg->vertices_A_);
     free(udg->vertices_B_);

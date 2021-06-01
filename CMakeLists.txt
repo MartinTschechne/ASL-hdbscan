@@ -128,5 +128,29 @@ set_target_properties(
     PROPERTIES COMPILE_FLAGS "-O3 -march=native"
 )
 
+add_library(
+    hdb_lib_mst_benchmarking
+    ${HDB_SOURCE_FILES}
+)
+set_target_properties(
+    hdb_lib_mst_benchmarking
+    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native"
+)
+
+add_executable(
+    mst_benchmark
+    src/benchmark_mst.cpp
+)
+target_link_libraries(
+    mst_benchmark
+    gflags_nothreads_static
+    hdb_lib_mst_benchmarking
+    stdc++fs
+)
+set_target_properties(
+    mst_benchmark
+    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native"
+)
+
 # add_subdirectory(src)
 # add_subdirectory(tests)

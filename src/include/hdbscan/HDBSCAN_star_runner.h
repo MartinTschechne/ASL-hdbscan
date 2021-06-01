@@ -26,6 +26,7 @@ struct RunnerConfig {
     bool compact;
     std::string dist_function;
     std::string optimization_level;
+    std::string mst_optimization_level;
     std::string compiler_flags;
 };
 
@@ -35,6 +36,23 @@ struct RunnerConfig {
  * @return RunnerConfig
  */
 RunnerConfig RunnerConfigFromFlags();
+RunnerConfig CreateRunnerConfig(
+    size_t num_points,
+    size_t num_dimensions,
+    const std::string& points_file,
+    const std::string& constraints, 
+    const std::string& hierarchy_file, 
+    const std::string& tree_file, 
+    const std::string& vis_file,
+    const std::string& part_file, 
+    const std::string& outlier_score_file,
+    size_t num_neighbors,
+    size_t min_cluster_size,
+    bool compact,
+    const std::string& dist_function,
+    const std::string& optimization_level,
+    const std::string& mst_optimization_level
+);
 
 /**
  * @brief Get the Distance Calculator object, throws error if the function is not implemented
@@ -42,7 +60,7 @@ RunnerConfig RunnerConfigFromFlags();
  * @param func_name
  * @return DistanceCalculator
  */
-DistanceCalculator GetDistanceCalculator(const std::string& func_name);
+DistanceCalculator GetDistanceCalculator(const std::string& func_name, const std::string& opt_level);
 
 /**
  * @brief Runs the clustering algorithm

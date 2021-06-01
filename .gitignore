@@ -2,6 +2,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/c++,c,valgrind,linux,macos,windows,emacs,vim,visualstudio,visualstudiocode,clion,python,latex,jupyternotebooks
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,c,valgrind,linux,macos,windows,emacs,vim,visualstudio,visualstudiocode,clion,python,latex,jupyternotebooks
 
+mst_timings
+
 # Doxygen
 html/
 latex

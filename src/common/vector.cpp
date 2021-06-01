@@ -20,6 +20,14 @@ vector* vector_create() {
     return v;
 }
 
+vector* vector_create(size_t num_elements) {
+    vector* v = (vector*)malloc(sizeof(*v));
+    v->capacity = num_elements;
+    v->size = 0;
+    v->elements = (void**)malloc(v->capacity * sizeof(*v->elements));
+    return v;
+}
+
 void vector_free(vector* vec) {
     if (vec) {
         vec->capacity = 0;
