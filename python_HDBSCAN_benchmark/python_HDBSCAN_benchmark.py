@@ -40,7 +40,7 @@ def python_benchmark(data, labels, metric):
     y_pred = clusterer.fit_predict(X)
     toc = time.perf_counter()
 
-    rand_score = adjusted_rand_score(y_pred, y_true)
+    rand_score = adjusted_rand_score(y_true, y_pred)
     time_ms = (toc - tic) * 1e3
 
     print('Rand Index: {0:.2f}'.format(rand_score))
