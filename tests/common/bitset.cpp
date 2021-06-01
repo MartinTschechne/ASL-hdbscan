@@ -20,3 +20,24 @@ TEST(BitSet, basics) {
         }
     }
 }
+
+TEST(BitSet, masking) {
+    size_t size = 20;
+    BitSet_t bitset = CreateBitset(size, false);
+
+    SetBit(bitset, 4, true);
+    SetBit(bitset, 9, true);
+    SetBit(bitset, 13, true);
+    SetBit(bitset, 17, true);
+    SetBit(bitset, 11, true);
+    SetBit(bitset, 8, true);
+
+    for(size_t i = 0; i < size-3; i += 4) {
+        uint8_t mask = GetMask(bitset, i);
+        for(size_t j = 0; j < 4; ++j) {
+            bool flag = GetBit(bitset, i+j);
+            bool mflag = mask & (1 << j);
+            ASSERT_EQ(flag, mflag) << i << ", " << j << ": Mask is " << (int)mask << " Bitwise and with " << (1 << j) << " yields " << mflag << " and should be " << flag;
+        }
+    }
+}

@@ -9,11 +9,11 @@
 typedef u_int8_t* BitSet_t;
 
 inline BitSet_t CreateBitset(size_t size) {
-    return (BitSet_t)calloc(size / 8 + 1, sizeof(u_int8_t));
+    return (BitSet_t)calloc(size / 8 + 2, sizeof(u_int8_t));
 }
 
 inline BitSet_t CreateBitset(size_t size, bool value) {
-    BitSet_t bitset = (BitSet_t)calloc(size / 8 + 1, sizeof(u_int8_t));
+    BitSet_t bitset = (BitSet_t)calloc(size / 8 + 2, sizeof(u_int8_t));
     u_int8_t default_value = value ? 0xff : 0; 
     for(size_t i = 0; i < size / 8 + 1; ++i) {
         bitset[i] = default_value;
@@ -28,6 +28,17 @@ inline void SetBit(BitSet_t bitset, size_t index, bool value) {
 
 inline bool GetBit(BitSet_t bitset, size_t index) {
     return bitset[index / BITS_PER_SLOT] & (1 << (index % BITS_PER_SLOT));
+}
+
+inline uint8_t GetMask(BitSet_t bitset, size_t index) {
+    if(index % 8 == 0) {
+        return bitset[index / BITS_PER_SLOT];
+    }
+    if(index % 8 == 4) {
+        return bitset[index / BITS_PER_SLOT] >> 4;
+    }
+    printf("\n\n\n\n\nILLEGAL STATE\n\n\n\n");
+    return 0;
 }
 
 inline void PrintBitset(BitSet_t bitset, size_t size) {

@@ -49,7 +49,11 @@ int CompareTo(const OutlierScore& a, const OutlierScore& b);
 int CompareOutlierScores(const void* a, const void* b);
 
 typedef double*(*CalculateCoreDistances_t)(const double* const * const, size_t,
-    DistanceCalculator, const size_t, const size_t);
+    DistanceCalculator, const size_t, const size_t, double**& distance_matrix);
+
+typedef UndirectedGraph_C*(*ConstructMST_t)(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
 /**
  * @brief Reads in the input data set from the file given, assuming the
@@ -95,7 +99,7 @@ CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& op
  * @return A vector of core distances
  */
 double* CalculateCoreDistancesNoOptimization(const double* const * const data_set, size_t k,
-    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions);
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
 
     /**
  * @brief  Symmetry optimized version of CalculateCoreDistances.
@@ -109,8 +113,9 @@ double* CalculateCoreDistancesNoOptimization(const double* const * const data_se
  * @return A vector of core distances
  */
 double* CalculateCoreDistancesSymmetry(const double* const * const data_set, size_t k,
-    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions);
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
 
+ConstructMST_t GetConstructMSTFunction(const std::string& optimization_level);
 /**
  * @brief Constructs the minimum spanning tree of mutual reachability
  * distances for the data set, given the core distances for each point.
@@ -126,7 +131,47 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
  */
 UndirectedGraph_C* ConstructMST(const double* const * const data_set,
     const double* core_distances, bool self_edges,
-    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension);
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
+
+UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* const * const data_set,
+    const double* core_distances, bool self_edges,
+    DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
 /**
  * @brief Computes the hierarchy and cluster tree from the minimum spanning

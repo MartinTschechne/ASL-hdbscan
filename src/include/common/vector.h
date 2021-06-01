@@ -28,6 +28,13 @@ void vector_init(vector* vec);
 vector* vector_create();
 
 /**
+ * @brief Allocates memory for payload and initializes a vector with custom capacity at an existing vector pointer
+ * 
+ * @return Initialized vector
+ */
+vector* vector_create(size_t num_elements);
+
+/**
  * @brief Releases memory previously allocated for vector payload
  *
  * @param vec Vector to free memory from

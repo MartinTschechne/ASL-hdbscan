@@ -30,7 +30,8 @@ TEST(HDBSCAN_Star, core_distances) {
     size_t dim = 2;
     auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
 
-    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, 3, EuclideanDistance, num_pts, dim);
+    double** d = nullptr;
+    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, 3, EuclideanDistance, num_pts, dim, d);
     ASSERT_DOUBLE_EQ(core_distances[0], 0.2049413436136352);
 
     FreeDataset(data_set, num_pts);
@@ -43,8 +44,9 @@ TEST(HDBSCAN_Star, core_distances_symmetry) {
     size_t dim = 2;
     auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
 
-    double* core_distances_symmetry = CalculateCoreDistancesSymmetry(data_set, 3, EuclideanDistance, num_pts, dim);
-    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, 3, EuclideanDistance, num_pts, dim);
+    double** d = nullptr;
+    double* core_distances_symmetry = CalculateCoreDistancesSymmetry(data_set, 3, EuclideanDistance, num_pts, dim, d);
+    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, 3, EuclideanDistance, num_pts, dim, d);
 
     ASSERT_DOUBLE_EQ(core_distances_symmetry[0], 0.2049413436136352);
 
@@ -75,8 +77,10 @@ TEST(HDBSCAN_Star, create_tree) {
 
     auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
 
-    double* core_distances = CalculateCoreDistancesNoOptimization(data_set, min_pts, EuclideanDistance, num_pts, dim);
-    UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, EuclideanDistance, num_pts, dim);
+    double** distance_matrix;
+    CalculateCoreDistances_t calculate_core_distances_f = GetCalculateCoreDistancesFunction("no_optimization");
+    double* core_distances = calculate_core_distances_f(data_set, 8, EuclideanDistance, num_pts, dim, distance_matrix);
+    UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, EuclideanDistance, num_pts, dim, distance_matrix);
     UDG_QuicksortByEdgeWeight(mst);
 
     double* point_noise_levels = new double[num_pts];

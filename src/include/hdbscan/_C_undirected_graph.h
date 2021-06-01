@@ -37,6 +37,24 @@ UndirectedGraph_C* UDG_Create(size_t num_vertices, size_t* vertices_A,
     size_t* vertices_B, double* edge_weights, size_t edge_weights_length);
 
 /**
+ * @brief Constructs a new UndirectedGraph in an optimized way, including creating an edge list
+ * for each vertex from the vertex arrays.  For an index i, vertices_A[i]
+ * and vertices_B[i] share an edge with weight edge_weights[i].
+ * 
+ * @param num_vertices The number of vertices in the graph (indexed 0 to 
+ * num_vertices-1)
+ * @param vertices_A A vector of vertices corresponding to the array of 
+ * edges
+ * @param vertices_B A vector of vertices corresponding to the array of 
+ * edges
+ * @param edge_weights A vector of edges corresponding to the arrays of 
+ * vertices
+ * @param edge_weights_length The number of edges contained in edge_weights
+ */
+UndirectedGraph_C* UDG_Create_Fast(size_t num_vertices, size_t* vertices_A,
+    size_t* vertices_B, double* edge_weights, size_t edge_weights_length);
+
+/**
  * @brief Destructs UndirectedGraph
  *
  * @param udg Undirected graph to destruct

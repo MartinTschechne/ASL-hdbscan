@@ -22,6 +22,7 @@ DEFINE_int32(num_neighbors, 8, "Nearest neighbors");
 DEFINE_int32(min_cl_size, 8, "Minimum cluster size");
 DEFINE_bool(compact, true, "Whether or not to compact the output");
 DEFINE_string(dist_function, "euclidean", "Which metric to use. One of [euclidean, cosine, manhattan, pearson, supremum]");
+DEFINE_string(mst_optimization_level, "no_optimization", "Which optimization to use for ConstructMST. CAUTION: xxx_nocalc only work when the CoreDistance function also returns the distance matrix! One of [no_optimization, bitset_unroll, bitset_nocalc, bitset_unroll_nocalc, bitset_nocalc_avx, bitset_nocalc_avx_unroll_2, bitset_nocalc_avx_unroll_4, nobitset_unroll, nobitset_unroll_nocalc, nobitset_nocalc_avx256, nobitset_nocalc_avx512]");
 DEFINE_string(optimization_level, "no_optimization", "Which optimization level to use. One of [no_optimization, symmetry, unroll2, unroll4, vectorise]");
 DEFINE_string(compiler_flags, "O0", "Which compiler flags are used. One of [O0, O3]");
 
@@ -42,7 +43,46 @@ RunnerConfig RunnerConfigFromFlags() {
         FLAGS_compact,
         FLAGS_dist_function,
         FLAGS_optimization_level,
+        FLAGS_mst_optimization_level,
         FLAGS_compiler_flags
+    };
+}
+
+RunnerConfig CreateRunnerConfig(
+    size_t num_points,
+    size_t num_dimensions,
+    const std::string& points_file,
+    const std::string& constraints, 
+    const std::string& hierarchy_file, 
+    const std::string& tree_file, 
+    const std::string& vis_file,
+    const std::string& part_file, 
+    const std::string& outlier_score_file,
+    size_t num_neighbors,
+    size_t min_cluster_size,
+    bool compact,
+    const std::string& dist_function,
+    const std::string& optimization_level,
+    const std::string& mst_optimization_level,
+    const std::string& compiler_flags
+) {
+    return {
+        num_points,
+        num_dimensions,
+        points_file,
+        constraints,
+        hierarchy_file,
+        tree_file,
+        vis_file,
+        part_file,
+        outlier_score_file,
+        num_neighbors,
+        min_cluster_size,
+        compact,
+        dist_function,
+        optimization_level,
+        mst_optimization_level,
+        compiler_flags
     };
 }
 
@@ -114,16 +154,21 @@ void HDBSCANRunner(RunnerConfig config) {
     benchmark_runner << "Region,Cycles" << '\n';
 
     long int start = start_tsc();
+    double** distance_matrix = nullptr;
     CalculateCoreDistances_t calculate_core_distances_f = GetCalculateCoreDistancesFunction(config.optimization_level);
-    double* core_distances = calculate_core_distances_f(data_set, config.num_neighbors, dist_fun, num_points, num_dimensions);
+    double* core_distances = calculate_core_distances_f(data_set, config.num_neighbors, dist_fun, num_points, num_dimensions, distance_matrix);
     long int cycles = stop_tsc(start);
     benchmark_runner << "calculate_distances," << cycles << "\n";
 
     start = start_tsc();
-    UndirectedGraph_C* mst = ConstructMST(data_set, core_distances, true, dist_fun, num_points, num_dimensions);
-    UDG_QuicksortByEdgeWeight(mst);
+    ConstructMST_t construct_mst_f = GetConstructMSTFunction(config.mst_optimization_level);
+    UndirectedGraph_C* mst = construct_mst_f(data_set, core_distances, true, dist_fun, num_points, num_dimensions, distance_matrix);
     cycles = stop_tsc(start);
     benchmark_runner << "construct_mst," << cycles << "\n";
+    start = start_tsc();
+    UDG_QuicksortByEdgeWeight(mst);
+    cycles = stop_tsc(start);
+    benchmark_runner << "mst_quicksort," << cycles << "\n";
 
     FreeDataset(data_set, num_points);
 

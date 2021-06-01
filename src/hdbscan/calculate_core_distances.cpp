@@ -1,4 +1,5 @@
 #include <hdbscan/HDBSCAN_star.h>
+#include <common/memory.h>
 
 // Example how we could select the function on compile time using flags
 // cmake -D CMAKE_CXX_FLAGS="-DOPTIMIZATION_SYMMETRY" ..
@@ -30,11 +31,11 @@ CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& op
 }
 
 double* CalculateCoreDistancesNoOptimization(const double* const * const data_set, size_t k,
-    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions) {
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix) {
 
     size_t num_neighbors = k - 1;
     const double DOUBLE_MAX = std::numeric_limits<double>::max();
-    double* result = (double*)malloc(num_points*sizeof(double));
+    double* result = CreateAlignedDouble1D(num_points);
 
     if(k == 1) {
         for(size_t point = 0; point < num_points; ++point) {
@@ -78,11 +79,11 @@ double* CalculateCoreDistancesNoOptimization(const double* const * const data_se
 }
 
 double* CalculateCoreDistancesSymmetry(const double* const * const data_set, size_t k,
-    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions) {
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix) {
 
     size_t num_neighbors = k - 1;
     const double DOUBLE_MAX = std::numeric_limits<double>::max();
-    double* result = (double*)malloc(num_points*sizeof(double));
+    double* result = CreateAlignedDouble1D(num_points);
 
     if(k == 1) {
         for(size_t point = 0; point < num_points; ++point) {
@@ -92,18 +93,15 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
     }
 
     // initialize distance matrix with DOUBLE_MAX
-    double* distance_matrix = (double*)malloc(num_points*num_points*sizeof(double));
-    for (size_t i = 0; i < num_points*num_points; ++i) {
-        distance_matrix[i] = DOUBLE_MAX;
-    }
-
+    distance_matrix = CreateAlignedDouble2D(num_points, num_points);
     double d;
     // populate distance matrix
     for (size_t point = 0; point < num_points; point++) {
+        distance_matrix[point][point] = DOUBLE_MAX;
         for (size_t neighbor = point + 1; neighbor < num_points; neighbor++) {
             d = distance_function(data_set[point], data_set[neighbor], num_dimensions);
-            distance_matrix[point*num_points + neighbor] = d;
-            distance_matrix[neighbor*num_points + point] = d;
+            distance_matrix[point][neighbor] = d;
+            distance_matrix[neighbor][point] = d;
         }
     }
 
@@ -118,7 +116,7 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
 
             //Check at which position in the nearest distances the current distance would fit:
             size_t neighbor_index = num_neighbors;
-            while(neighbor_index >= 1 && distance_matrix[point*num_points + neighbor] < knn_distances[neighbor_index-1]) {
+            while(neighbor_index >= 1 && distance_matrix[point][neighbor] < knn_distances[neighbor_index-1]) {
                 neighbor_index--;
             }
 
@@ -127,13 +125,12 @@ double* CalculateCoreDistancesSymmetry(const double* const * const data_set, siz
                 for(size_t shift_index = num_neighbors - 1; shift_index > neighbor_index; shift_index--) {
                     knn_distances[shift_index] = knn_distances[shift_index - 1];
                 }
-                knn_distances[neighbor_index] = distance_matrix[point*num_points + neighbor];
+                knn_distances[neighbor_index] = distance_matrix[point][neighbor];
             }
         }
         result[point] = knn_distances[num_neighbors-1];
     }
 
-    free(distance_matrix);
     free(knn_distances);
 
     return result;
