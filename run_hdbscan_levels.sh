@@ -56,7 +56,7 @@ done
 
 
 echo Benchmark Construct MST
-for opt_level in bitset_unroll bitset_nocalc bitset_unroll_nocalc bitset_nocalc_avx bitset_nocalc_avx_unroll_2 bitset_nocalc_avx_unroll_4 nobitset_unroll nobitset_unroll_nocalc nobitset_nocalc_avx256 nobitset_nocalc_avx512
+for opt_level in bitset_unroll bitset_nocalc bitset_unroll_nocalc bitset_nocalc_avx bitset_nocalc_avx_unroll_2 bitset_nocalc_avx_unroll_4
 do
     echo ${opt_level}
     tic=$(date +%s.%N)
