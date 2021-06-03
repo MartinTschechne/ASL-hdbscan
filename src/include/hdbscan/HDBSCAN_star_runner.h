@@ -1,6 +1,9 @@
 #ifndef TEAM33_HDBSCAN_STAR_RUNNER_H
 #define TEAM33_HDBSCAN_STAR_RUNNER_H
 
+#include <iostream>
+#include <fstream>
+
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -40,11 +43,11 @@ RunnerConfig CreateRunnerConfig(
     size_t num_points,
     size_t num_dimensions,
     const std::string& points_file,
-    const std::string& constraints, 
-    const std::string& hierarchy_file, 
-    const std::string& tree_file, 
+    const std::string& constraints,
+    const std::string& hierarchy_file,
+    const std::string& tree_file,
     const std::string& vis_file,
-    const std::string& part_file, 
+    const std::string& part_file,
     const std::string& outlier_score_file,
     size_t num_neighbors,
     size_t min_cluster_size,

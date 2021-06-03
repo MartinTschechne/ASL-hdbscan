@@ -104,7 +104,7 @@ function(build_hdbscan exec_name compiler_flags output_directory)
     set_target_properties(
         ${exec_name}
         ${exec_name}_lib
-        PROPERTIES COMPILE_FLAGS "${compiler_flags} -march=native")
+        PROPERTIES COMPILE_FLAGS "${compiler_flags} -fno-tree-vectorize -march=native")
 endfunction()
 
 function(build_hdbscan_benchmarking compiler_flags)
@@ -125,7 +125,7 @@ add_executable(
 
 set_target_properties(
     distance_benchmark
-    PROPERTIES COMPILE_FLAGS "-O3 -march=native"
+    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native"
 )
 
 add_library(

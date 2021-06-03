@@ -35,7 +35,8 @@ def python_benchmark(data, labels, metric):
     print(
         'HDBSCAN on {0:d} points with {1:d} features, using metric "{2}".'.format( X.shape[0], X.shape[1], metric))
 
-    clusterer = hdbscan.HDBSCAN(metric=metric)
+    # core_dist_n_jobs=1 to disable parallelism
+    clusterer = hdbscan.HDBSCAN(metric=metric,core_dist_n_jobs=1)
     tic = time.perf_counter()
     y_pred = clusterer.fit_predict(X)
     toc = time.perf_counter()
