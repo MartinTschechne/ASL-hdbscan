@@ -32,11 +32,10 @@ func_array* get_distance_functions(std::string f_name) {
         static func_array ds[] = {
                 {EuclideanDistance, "Baseline"},
                 {EuclideanDistanceUnrolled, "2-fold Unrolled"},
-                {EuclideanDistance_4Unrolled,
-                "4-fold Unrolled"},
+                {EuclideanDistance_4Unrolled, "4-fold Unrolled"},
             #ifdef __AVX2__
-                {EuclideanDistance_Vectorized,
-                "AVX Vectorized"}
+                {EuclideanDistance_Vectorized, "AVX Vectorized"},
+                {EuclideanDistance_FMA, "AVX Vectorized FMA"}
             #endif //__AVX2__
         };
         return ds;
@@ -44,11 +43,10 @@ func_array* get_distance_functions(std::string f_name) {
         static func_array ds[] = {
                 {CosineSimilarity, "Baseline"},
                 {CosineSimilarityUnrolled, "2-fold Unrolled"},
-                {CosineSimilarity_4Unrolled,
-                "4-fold Unrolled"},
+                {CosineSimilarity_4Unrolled, "4-fold Unrolled"},
             #ifdef __AVX2__
-                {CosineSimilarity_Vectorized,
-                "AVX Vectorized"}
+                {CosineSimilarity_Vectorized, "AVX Vectorized"},
+                {CosineSimilarity_Vectorized_FMA, "AVX Vectorized FMA"}
             #endif //__AVX2__
         };
         return ds;
@@ -56,11 +54,9 @@ func_array* get_distance_functions(std::string f_name) {
         static func_array ds[] = {
                 {ManhattanDistance, "Baseline"},
                 {ManhattanDistanceUnrolled, "2-fold Unrolled"},
-                {ManhattanDistanceUnrolled,
-                 "4-fold Unrolled"},
+                {ManhattanDistanceUnrolled, "4-fold Unrolled"},
             #ifdef __AVX2__
-                {ManhattanDistanceUnrolled,
-                "AVX Vectorized"}
+                {ManhattanDistance_Vectorized, "AVX Vectorized"}
             #endif //__AVX2__
         };
         return ds;
@@ -73,7 +69,8 @@ func_array* get_distance_functions(std::string f_name) {
                 // },
                 // {PearsonCorrelation_4UnrolledOnepass, "Single Pass 4-fold Unrolled"},
             #ifdef __AVX2__
-                {PearsonCorrelation_Vectorized, "AVX Vectorized"}
+                {PearsonCorrelation_Vectorized, "AVX Vectorized"},
+                {PearsonCorrelation_FMA, "AVX Vectorized FMA"}
             #endif //__AVX2__
         };
         return ds;
@@ -83,7 +80,8 @@ func_array* get_distance_functions(std::string f_name) {
                 {SupremumDistanceUnrolled, "2-fold Unrolled"},
                 {SupremumDistance_4Unrolled, "4-fold Unrolled"},
             #ifdef __AVX2__
-                {SupremumDistance_Vectorized, "AVX Vectorized"}
+                {SupremumDistance_Vectorized, "AVX Vectorized"},
+                {SupremumDistance_4Unrolled_Vectorized, "AVX Vectorized 4-fold Unrolled"}
             #endif //__AVX2__
         };
         return ds;

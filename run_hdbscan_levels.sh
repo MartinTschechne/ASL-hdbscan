@@ -62,7 +62,7 @@ do
     tic=$(date +%s.%N)
     ./build/benchmarking/hdbscan-O${flag} ${default_args} \
         -compiler_flags=O${flag} \
-        -optimization_level=vectorise \
+        -optimization_level=vectorise_fma \
         -mst_optimization_level=${opt_level}
     toc=$(date +%s.%N)
     diff=$(echo "$toc - $tic" | bc)
