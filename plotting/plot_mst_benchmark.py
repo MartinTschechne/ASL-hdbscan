@@ -95,7 +95,7 @@ def plot(result_csv):
     for p in ax.patches:
         ax.annotate(f"{p.get_height():.2E}",(p.get_x()+p.get_width()/2., p.get_height()),ha='center',va='center',xytext=(0, 10),textcoords='offset points')
     plt.ylabel("# Cycles")
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     plt.title(FLAGS.title_bar)
     plt.savefig(os.path.join(output_dir, f"{FLAGS.output_name}_bar.png"))

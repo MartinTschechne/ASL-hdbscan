@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <common/bitset.h>
 #include <common/memory.h>
+#include <common/vector_reductions.h>
 #include <cmath>
 #include <fstream>
 #include <benchmark/tsc_x86.h>
@@ -660,6 +661,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const da
     
     #ifdef __AVX2__
     std::ofstream timing("mst_timings/bitset_nocalc_avx.csv");
+    size_t all_int = 0xffffffffffffffff;
     
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
@@ -667,7 +669,14 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const da
     const size_t SIZE_T_MAX = SIZE_MAX;
 
     //One bit is set (true) for each attached point, or unset (false) for unattached points:
-    BitSet_t attached_points = CreateBitset(n_pts, false);
+    size_t* attached_points = CreateAlignedSizeT1D(n_pts);
+    size_t i = 0;
+    for(; i < n_pts - 3; i += 4) {
+        _mm256_store_si256((__m256i*)(attached_points+i), _mm256_setzero_si256());
+    }
+    for(; i < n_pts; ++i) {
+        attached_points[i] = 0;
+    }
 
     //Each point has a current neighbor point in the tree, and a current nearest distance:
     size_t* nearest_mrd_neighbors = CreateAlignedSizeT1D(n_pts-1 + self_edge_capacity);
@@ -680,14 +689,14 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const da
     //The MST is expanded starting with the last point in the data set:
     size_t current_point = n_pts - 1;
     size_t num_attached_points = 1;
-    SetBit(attached_points, current_point, true);
+    attached_points[current_point] = all_int;
     unsigned long long end = stop_tsc(start);
 
     timing << "Setup," << end << "\n";
 
     start = start_tsc();
-    size_t all_int = 0xffffffffffffffff;
     __m256d dbl_max = _mm256_set1_pd(DBL_MAX);
+    __m256i all_set_mask = _mm256_set1_epi64x(all_int);
     //Continue attaching points to the MST until all points are attached:
     for(num_attached_points = 1; num_attached_points < n_pts; ++num_attached_points) {
         __m256i nearest_mrd_point = _mm256_setzero_si256();
@@ -698,18 +707,12 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const da
         //Iterate through all unattached points, updating distances using the current point:
         size_t neighbor = 0;
         for(; neighbor < n_pts - 4; neighbor += 4) {
-            int mask = GetMask(attached_points, neighbor) & 0xf;
-            if(mask == 15) {
+            __m256i attached_mask = _mm256_load_si256((__m256i*)(attached_points + neighbor));
+            if(vec_equal(attached_mask, all_set_mask)) {
                 continue;
             }
             __m256i possible_indices = _mm256_set_epi64x(neighbor + 3, neighbor + 2, neighbor + 1, neighbor);
             __m256i current_point_mask = _mm256_cmpeq_epi64(current_point_intr, possible_indices);
-            __m256i attached_mask = _mm256_set_epi64x( // AVX512 has much nices ways :(
-                mask & 8 ? all_int : 0, 
-                mask & 4 ? all_int : 0,
-                mask & 2 ? all_int : 0,
-                mask & 1 ? all_int : 0
-            );
             __m256d nearest_mrd = _mm256_load_pd(nearest_mrd_distances + neighbor);
             __m256i nearest_neighbors = _mm256_load_si256(((__m256i *)(nearest_mrd_neighbors + neighbor)));
             __m256d core_distances_neighbor = _mm256_load_pd(core_distances + neighbor);
@@ -744,7 +747,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const da
             if(current_point == neighbor) {
                 continue;
             }
-            if(GetBit(attached_points, neighbor)) { // point already attached
+            if(attached_points[neighbor] == all_int) { // point already attached
                 continue;
             }
 
@@ -785,10 +788,11 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const da
             current_point = nearest_mrd_point_arr[3] > current_point ? nearest_mrd_point_arr[3] : current_point;
         }
         //Attach the closest point found in this iteration to the tree:
-        SetBit(attached_points, current_point, true);
+        attached_points[current_point] = all_int;
     }
     end = stop_tsc(start);
     timing << "MST Compute," << end << "\n"; 
+    free(attached_points);
 
     //Create an array for vertices in the tree that each point attached to:
     size_t* other_vertex_indices = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
@@ -827,9 +831,17 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
     const size_t SIZE_T_MAX = SIZE_MAX;
+    size_t all_int = 0xffffffffffffffff;
 
     //One bit is set (true) for each attached point, or unset (false) for unattached points:
-    BitSet_t attached_points = CreateBitset(n_pts, false);
+    size_t* attached_points = CreateAlignedSizeT1D(n_pts);
+    size_t i = 0;
+    for(; i < n_pts - 3; i += 4) {
+        _mm256_store_si256((__m256i*)(attached_points+i), _mm256_setzero_si256());
+    }
+    for(; i < n_pts; ++i) {
+        attached_points[i] = 0;
+    }
 
     //Each point has a current neighbor point in the tree, and a current nearest distance:
     size_t* nearest_mrd_neighbors = CreateAlignedSizeT1D(n_pts-1 + self_edge_capacity);
@@ -842,14 +854,14 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const
     //The MST is expanded starting with the last point in the data set:
     size_t current_point = n_pts - 1;
     size_t num_attached_points = 1;
-    SetBit(attached_points, current_point, true);
+    attached_points[current_point] = all_int;
     unsigned long long end = stop_tsc(start);
 
     timing << "Setup," << end << "\n";
 
     start = start_tsc();
-    size_t all_int = 0xffffffffffffffff;
     __m256d dbl_max = _mm256_set1_pd(DBL_MAX);
+    __m256i all_set_mask = _mm256_set1_epi64x(all_int);
     //Continue attaching points to the MST until all points are attached:
     for(num_attached_points = 1; num_attached_points < n_pts; ++num_attached_points) {
         __m256i nearest_mrd_point0 = _mm256_setzero_si256();
@@ -864,9 +876,9 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const
         //Iterate through all unattached points, updating distances using the current point:
         size_t neighbor = 0;
         for(; neighbor < n_pts - 8; neighbor += 8) {
-            int mask0 = GetMask(attached_points, neighbor) & 0xf;
-            int mask1 = GetMask(attached_points, neighbor + 4) & 0xf;
-            if(mask0 + mask1 == 30) {
+            __m256i attached_mask0 = _mm256_load_si256((__m256i*)(attached_points + neighbor));
+            __m256i attached_mask1 = _mm256_load_si256((__m256i*)(attached_points + neighbor + 4));
+            if(vec_equal(attached_mask0, all_set_mask) && vec_equal(attached_mask1, all_set_mask)) {
                 continue;
             }
             __m256i possible_indices0 = _mm256_set_epi64x(neighbor + 3, neighbor + 2, neighbor + 1, neighbor);
@@ -874,19 +886,6 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const
 
             __m256i current_point_mask0 = _mm256_cmpeq_epi64(current_point_intr, possible_indices0);
             __m256i current_point_mask1 = _mm256_cmpeq_epi64(current_point_intr, possible_indices1);
-
-            __m256i attached_mask0 = _mm256_set_epi64x( // AVX512 has much nices ways :(
-                mask0 & 8 ? all_int : 0, 
-                mask0 & 4 ? all_int : 0,
-                mask0 & 2 ? all_int : 0,
-                mask0 & 1 ? all_int : 0
-            );
-            __m256i attached_mask1 = _mm256_set_epi64x( // AVX512 has much nices ways :(
-                mask1 & 8 ? all_int : 0, 
-                mask1 & 4 ? all_int : 0,
-                mask1 & 2 ? all_int : 0,
-                mask1 & 1 ? all_int : 0
-            );
             __m256d nearest_mrd0 = _mm256_load_pd(nearest_mrd_distances + neighbor);
             __m256d nearest_mrd1 = _mm256_load_pd(nearest_mrd_distances + neighbor + 4);
 
@@ -953,7 +952,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const
             if(current_point == neighbor) {
                 continue;
             }
-            if(GetBit(attached_points, neighbor)) { // point already attached
+            if(attached_points[neighbor] == all_int) { // point already attached
                 continue;
             }
 
@@ -994,10 +993,11 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const
             current_point = nearest_mrd_point_arr[3] > current_point ? nearest_mrd_point_arr[3] : current_point;
         }
         //Attach the closest point found in this iteration to the tree:
-        SetBit(attached_points, current_point, true);
+        attached_points[current_point] = all_int;
     }
     end = stop_tsc(start);
     timing << "MST Compute," << end << "\n"; 
+    free(attached_points);
 
     //Create an array for vertices in the tree that each point attached to:
     size_t* other_vertex_indices = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
@@ -1038,9 +1038,16 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
     const size_t SIZE_T_MAX = SIZE_MAX;
+    size_t all_int = 0xffffffffffffffff;
 
-    //One bit is set (true) for each attached point, or unset (false) for unattached points:
-    BitSet_t attached_points = CreateBitset(n_pts, false);
+    size_t* attached_points = CreateAlignedSizeT1D(n_pts);
+    size_t i = 0;
+    for(; i < n_pts - 3; i += 4) {
+        _mm256_store_si256((__m256i*)(attached_points+i), _mm256_setzero_si256());
+    }
+    for(; i < n_pts; ++i) {
+        attached_points[i] = 0;
+    }
 
     //Each point has a current neighbor point in the tree, and a current nearest distance:
     size_t* nearest_mrd_neighbors = CreateAlignedSizeT1D(n_pts-1 + self_edge_capacity);
@@ -1053,14 +1060,14 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const
     //The MST is expanded starting with the last point in the data set:
     size_t current_point = n_pts - 1;
     size_t num_attached_points = 1;
-    SetBit(attached_points, current_point, true);
+    attached_points[current_point] = all_int;
     unsigned long long end = stop_tsc(start);
 
     timing << "Setup," << end << "\n";
 
     start = start_tsc();
-    size_t all_int = 0xffffffffffffffff;
     __m256d dbl_max = _mm256_set1_pd(DBL_MAX);
+    __m256i all_set_mask = _mm256_set1_epi64x(all_int);
     //Continue attaching points to the MST until all points are attached:
     for(num_attached_points = 1; num_attached_points < n_pts; ++num_attached_points) {
         __m256i nearest_mrd_point0 = _mm256_setzero_si256();
@@ -1079,12 +1086,12 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const
         //Iterate through all unattached points, updating distances using the current point:
         size_t neighbor = 0;
         for(; neighbor < n_pts - 16; neighbor += 16) {
-            int mask0 = GetMask(attached_points, neighbor) & 0xf;
-            int mask1 = GetMask(attached_points, neighbor + 4) & 0xf;
-            int mask2 = GetMask(attached_points, neighbor + 8) & 0xf;
-            int mask3 = GetMask(attached_points, neighbor + 12) & 0xf;
+            __m256i attached_mask0 = _mm256_load_si256((__m256i*)(attached_points + neighbor));
+            __m256i attached_mask1 = _mm256_load_si256((__m256i*)(attached_points + neighbor + 4));
+            __m256i attached_mask2 = _mm256_load_si256((__m256i*)(attached_points + neighbor + 8));
+            __m256i attached_mask3 = _mm256_load_si256((__m256i*)(attached_points + neighbor + 12));
 
-            if(mask0 + mask1 + mask2 + mask3 == 60) {
+            if(vec_equal(attached_mask0, all_set_mask) && vec_equal(attached_mask1, all_set_mask) && vec_equal(attached_mask2, all_set_mask) && vec_equal(attached_mask3, all_set_mask)) {
                 continue;
             }
 
@@ -1098,30 +1105,6 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const
             __m256i current_point_mask2 = _mm256_cmpeq_epi64(current_point_intr, possible_indices2);
             __m256i current_point_mask3 = _mm256_cmpeq_epi64(current_point_intr, possible_indices3);
 
-            __m256i attached_mask0 = _mm256_set_epi64x( // AVX512 has much nices ways :(
-                mask0 & 8 ? all_int : 0, 
-                mask0 & 4 ? all_int : 0,
-                mask0 & 2 ? all_int : 0,
-                mask0 & 1 ? all_int : 0
-            );
-            __m256i attached_mask1 = _mm256_set_epi64x( // AVX512 has much nices ways :(
-                mask1 & 8 ? all_int : 0, 
-                mask1 & 4 ? all_int : 0,
-                mask1 & 2 ? all_int : 0,
-                mask1 & 1 ? all_int : 0
-            );
-            __m256i attached_mask2 = _mm256_set_epi64x( // AVX512 has much nices ways :(
-                mask2 & 8 ? all_int : 0, 
-                mask2 & 4 ? all_int : 0,
-                mask2 & 2 ? all_int : 0,
-                mask2 & 1 ? all_int : 0
-            );
-            __m256i attached_mask3 = _mm256_set_epi64x( // AVX512 has much nices ways :(
-                mask3 & 8 ? all_int : 0, 
-                mask3 & 4 ? all_int : 0,
-                mask3 & 2 ? all_int : 0,
-                mask3 & 1 ? all_int : 0
-            );
             __m256d nearest_mrd0 = _mm256_load_pd(nearest_mrd_distances + neighbor);
             __m256d nearest_mrd1 = _mm256_load_pd(nearest_mrd_distances + neighbor + 4);
             __m256d nearest_mrd2 = _mm256_load_pd(nearest_mrd_distances + neighbor + 8);
@@ -1315,7 +1298,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const
             if(current_point == neighbor) {
                 continue;
             }
-            if(GetBit(attached_points, neighbor)) { // point already attached
+            if(attached_points[neighbor] == all_int) { // point already attached
                 continue;
             }
 
@@ -1356,10 +1339,11 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const
             current_point = nearest_mrd_point_arr[3] > current_point ? nearest_mrd_point_arr[3] : current_point;
         }
         //Attach the closest point found in this iteration to the tree:
-        SetBit(attached_points, current_point, true);
+        attached_points[current_point] = all_int;
     }
     end = stop_tsc(start);
     timing << "MST Compute," << end << "\n"; 
+    free(attached_points);
 
     //Create an array for vertices in the tree that each point attached to:
     size_t* other_vertex_indices = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
