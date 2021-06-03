@@ -52,11 +52,11 @@ RunnerConfig CreateRunnerConfig(
     size_t num_points,
     size_t num_dimensions,
     const std::string& points_file,
-    const std::string& constraints, 
-    const std::string& hierarchy_file, 
-    const std::string& tree_file, 
+    const std::string& constraints,
+    const std::string& hierarchy_file,
+    const std::string& tree_file,
     const std::string& vis_file,
-    const std::string& part_file, 
+    const std::string& part_file,
     const std::string& outlier_score_file,
     size_t num_neighbors,
     size_t min_cluster_size,
@@ -136,20 +136,14 @@ void HDBSCANRunner(RunnerConfig config) {
         constraints = ReadInConstraints(config.constraints);
     }
 
-    std::ofstream benchmark_total;
-    benchmark_total.open("measurements_totals.txt", std::ios_base::app);
-    // benchmark_total << "Data Points,Data Dimension,Distance Function,Optimization Flags,Compiler Flags,Total Cycles\n";
-    benchmark_total << num_points << "," << num_dimensions << ","
-                    << config.dist_function << "," << config.optimization_level
-                    << "," << config.compiler_flags << ",";
-    long int total_start = start_tsc();
-
-
     std::ofstream benchmark_runner;
     benchmark_runner.open("measurements_runner.txt");
     benchmark_runner << "# Benchmarks from file runner\n";
-    benchmark_runner << "# Optimization flags: " << FLAGS_optimization_level << "\n";
-    benchmark_runner << "# Compiler flags: " << "Unknown" << "\n";
+    benchmark_runner << "# Compiler flags: " << FLAGS_compiler_flags << "\n";
+    benchmark_runner << "# Optimization Level: " << FLAGS_optimization_level << "\n";
+    benchmark_runner << "# MST Optimization Level: " << FLAGS_mst_optimization_level << "\n";
+    benchmark_runner << "# Distance Function: " << FLAGS_dist_function << "\n";
+    benchmark_runner << "# Number of data points: " << FLAGS_num_points << "\n";
     benchmark_runner << "# Dimensions of data set: " << num_dimensions << "\n";
     benchmark_runner << "Region,Cycles" << '\n';
 
@@ -208,10 +202,6 @@ void HDBSCANRunner(RunnerConfig config) {
     benchmark_runner << "calculate_outliers," << cycles << "\n";
 
     benchmark_runner.close();
-
-    long int total_cycles = stop_tsc(total_start);
-    benchmark_total << cycles << "\n";
-    benchmark_total.close();
 
     free(point_last_clusters);
     free(point_noise_levels);

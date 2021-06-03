@@ -8,7 +8,7 @@ do
   echo NAME,NUM_POINTS,DIM,CYC >> ${fname}
   for N in {10..16}
   do
-    for D in 2 4 8 16 32 64 128 256;
+    for D in 2 4 8 16 32 64 128 256 512;
     do
       ./build/distance_benchmark $((2**${N})) ${D} ${d_name} >> ${fname}
     done
