@@ -48,4 +48,10 @@ inline double _mm256_reduce_max_pd(__m256d v) {
     return _mm_cvtsd_f64(lo); // lat 1, cpi 1
 }
 
+inline bool vec_equal(__m256i a, __m256i b) {
+    __m256i pcmp = _mm256_cmpeq_epi32(a, b);  // epi8 is fine too
+    unsigned bitmask = _mm256_movemask_epi8(pcmp);
+    return (bitmask == 0xffffffffU);
+}
+
 #endif
