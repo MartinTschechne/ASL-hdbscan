@@ -1,0 +1,253 @@
+NAME,NUM_POINTS,DIM,CYC
+Baseline,1024,2,9
+2-fold Unrolled,1024,2,10
+4-fold Unrolled,1024,2,10
+AVX Vectorized,1024,2,13
+Baseline,1024,4,12
+2-fold Unrolled,1024,4,14
+4-fold Unrolled,1024,4,14
+AVX Vectorized,1024,4,13
+Baseline,1024,8,18
+2-fold Unrolled,1024,8,19
+4-fold Unrolled,1024,8,19
+AVX Vectorized,1024,8,15
+Baseline,1024,16,28
+2-fold Unrolled,1024,16,28
+4-fold Unrolled,1024,16,28
+AVX Vectorized,1024,16,19
+Baseline,1024,32,64
+2-fold Unrolled,1024,32,44
+4-fold Unrolled,1024,32,44
+AVX Vectorized,1024,32,24
+Baseline,1024,64,134
+2-fold Unrolled,1024,64,85
+4-fold Unrolled,1024,64,85
+AVX Vectorized,1024,64,42
+Baseline,1024,128,342
+2-fold Unrolled,1024,128,177
+4-fold Unrolled,1024,128,177
+AVX Vectorized,1024,128,86
+Baseline,1024,256,726
+2-fold Unrolled,1024,256,388
+4-fold Unrolled,1024,256,389
+AVX Vectorized,1024,256,171
+Baseline,1024,512,1499
+2-fold Unrolled,1024,512,776
+4-fold Unrolled,1024,512,776
+AVX Vectorized,1024,512,343
+Baseline,2048,2,9
+2-fold Unrolled,2048,2,10
+4-fold Unrolled,2048,2,10
+AVX Vectorized,2048,2,13
+Baseline,2048,4,12
+2-fold Unrolled,2048,4,14
+4-fold Unrolled,2048,4,14
+AVX Vectorized,2048,4,13
+Baseline,2048,8,18
+2-fold Unrolled,2048,8,19
+4-fold Unrolled,2048,8,19
+AVX Vectorized,2048,8,15
+Baseline,2048,16,29
+2-fold Unrolled,2048,16,28
+4-fold Unrolled,2048,16,28
+AVX Vectorized,2048,16,19
+Baseline,2048,32,64
+2-fold Unrolled,2048,32,44
+4-fold Unrolled,2048,32,44
+AVX Vectorized,2048,32,24
+Baseline,2048,64,134
+2-fold Unrolled,2048,64,85
+4-fold Unrolled,2048,64,85
+AVX Vectorized,2048,64,44
+Baseline,2048,128,343
+2-fold Unrolled,2048,128,176
+4-fold Unrolled,2048,128,176
+AVX Vectorized,2048,128,88
+Baseline,2048,256,725
+2-fold Unrolled,2048,256,389
+4-fold Unrolled,2048,256,389
+AVX Vectorized,2048,256,172
+Baseline,2048,512,1550
+2-fold Unrolled,2048,512,944
+4-fold Unrolled,2048,512,946
+AVX Vectorized,2048,512,621
+Baseline,4096,2,9
+2-fold Unrolled,4096,2,10
+4-fold Unrolled,4096,2,10
+AVX Vectorized,4096,2,13
+Baseline,4096,4,17
+2-fold Unrolled,4096,4,14
+4-fold Unrolled,4096,4,14
+AVX Vectorized,4096,4,13
+Baseline,4096,8,18
+2-fold Unrolled,4096,8,19
+4-fold Unrolled,4096,8,19
+AVX Vectorized,4096,8,15
+Baseline,4096,16,29
+2-fold Unrolled,4096,16,28
+4-fold Unrolled,4096,16,28
+AVX Vectorized,4096,16,19
+Baseline,4096,32,64
+2-fold Unrolled,4096,32,44
+4-fold Unrolled,4096,32,44
+AVX Vectorized,4096,32,24
+Baseline,4096,64,134
+2-fold Unrolled,4096,64,85
+4-fold Unrolled,4096,64,85
+AVX Vectorized,4096,64,44
+Baseline,4096,128,342
+2-fold Unrolled,4096,128,176
+4-fold Unrolled,4096,128,176
+AVX Vectorized,4096,128,87
+Baseline,4096,256,757
+2-fold Unrolled,4096,256,470
+4-fold Unrolled,4096,256,471
+AVX Vectorized,4096,256,304
+Baseline,4096,512,1614
+2-fold Unrolled,4096,512,1197
+4-fold Unrolled,4096,512,1197
+AVX Vectorized,4096,512,1001
+Baseline,8192,2,9
+2-fold Unrolled,8192,2,10
+4-fold Unrolled,8192,2,10
+AVX Vectorized,8192,2,13
+Baseline,8192,4,17
+2-fold Unrolled,8192,4,14
+4-fold Unrolled,8192,4,14
+AVX Vectorized,8192,4,13
+Baseline,8192,8,18
+2-fold Unrolled,8192,8,19
+4-fold Unrolled,8192,8,19
+AVX Vectorized,8192,8,15
+Baseline,8192,16,29
+2-fold Unrolled,8192,16,28
+4-fold Unrolled,8192,16,28
+AVX Vectorized,8192,16,19
+Baseline,8192,32,64
+2-fold Unrolled,8192,32,44
+4-fold Unrolled,8192,32,44
+AVX Vectorized,8192,32,25
+Baseline,8192,64,134
+2-fold Unrolled,8192,64,85
+4-fold Unrolled,8192,64,85
+AVX Vectorized,8192,64,45
+Baseline,8192,128,362
+2-fold Unrolled,8192,128,230
+4-fold Unrolled,8192,128,230
+AVX Vectorized,8192,128,158
+Baseline,8192,256,787
+2-fold Unrolled,8192,256,599
+4-fold Unrolled,8192,256,598
+AVX Vectorized,8192,256,497
+Baseline,8192,512,1700
+2-fold Unrolled,8192,512,1204
+4-fold Unrolled,8192,512,1197
+AVX Vectorized,8192,512,1021
+Baseline,16384,2,9
+2-fold Unrolled,16384,2,10
+4-fold Unrolled,16384,2,10
+AVX Vectorized,16384,2,13
+Baseline,16384,4,12
+2-fold Unrolled,16384,4,14
+4-fold Unrolled,16384,4,14
+AVX Vectorized,16384,4,13
+Baseline,16384,8,18
+2-fold Unrolled,16384,8,19
+4-fold Unrolled,16384,8,19
+AVX Vectorized,16384,8,15
+Baseline,16384,16,29
+2-fold Unrolled,16384,16,28
+4-fold Unrolled,16384,16,28
+AVX Vectorized,16384,16,19
+Baseline,16384,32,64
+2-fold Unrolled,16384,32,44
+4-fold Unrolled,16384,32,44
+AVX Vectorized,16384,32,25
+Baseline,16384,64,148
+2-fold Unrolled,16384,64,113
+4-fold Unrolled,16384,64,113
+AVX Vectorized,16384,64,82
+Baseline,16384,128,382
+2-fold Unrolled,16384,128,302
+4-fold Unrolled,16384,128,302
+AVX Vectorized,16384,128,251
+Baseline,16384,256,812
+2-fold Unrolled,16384,256,611
+4-fold Unrolled,16384,256,619
+AVX Vectorized,16384,256,512
+Baseline,16384,512,1710
+2-fold Unrolled,16384,512,1239
+4-fold Unrolled,16384,512,1243
+AVX Vectorized,16384,512,1034
+Baseline,32768,2,9
+2-fold Unrolled,32768,2,10
+4-fold Unrolled,32768,2,10
+AVX Vectorized,32768,2,13
+Baseline,32768,4,12
+2-fold Unrolled,32768,4,14
+4-fold Unrolled,32768,4,14
+AVX Vectorized,32768,4,13
+Baseline,32768,8,18
+2-fold Unrolled,32768,8,19
+4-fold Unrolled,32768,8,19
+AVX Vectorized,32768,8,15
+Baseline,32768,16,29
+2-fold Unrolled,32768,16,28
+4-fold Unrolled,32768,16,28
+AVX Vectorized,32768,16,19
+Baseline,32768,32,72
+2-fold Unrolled,32768,32,57
+4-fold Unrolled,32768,32,57
+AVX Vectorized,32768,32,44
+Baseline,32768,64,168
+2-fold Unrolled,32768,64,149
+4-fold Unrolled,32768,64,150
+AVX Vectorized,32768,64,127
+Baseline,32768,128,379
+2-fold Unrolled,32768,128,304
+4-fold Unrolled,32768,128,304
+AVX Vectorized,32768,128,254
+Baseline,32768,256,816
+2-fold Unrolled,32768,256,597
+4-fold Unrolled,32768,256,603
+AVX Vectorized,32768,256,514
+Baseline,32768,512,2127
+2-fold Unrolled,32768,512,1625
+4-fold Unrolled,32768,512,1664
+AVX Vectorized,32768,512,1073
+Baseline,65536,2,9
+2-fold Unrolled,65536,2,10
+4-fold Unrolled,65536,2,10
+AVX Vectorized,65536,2,13
+Baseline,65536,4,12
+2-fold Unrolled,65536,4,14
+4-fold Unrolled,65536,4,14
+AVX Vectorized,65536,4,13
+Baseline,65536,8,18
+2-fold Unrolled,65536,8,19
+4-fold Unrolled,65536,8,19
+AVX Vectorized,65536,8,15
+Baseline,65536,16,33
+2-fold Unrolled,65536,16,32
+4-fold Unrolled,65536,16,32
+AVX Vectorized,65536,16,26
+Baseline,65536,32,83
+2-fold Unrolled,65536,32,75
+4-fold Unrolled,65536,32,75
+AVX Vectorized,65536,32,67
+Baseline,65536,64,168
+2-fold Unrolled,65536,64,150
+4-fold Unrolled,65536,64,150
+AVX Vectorized,65536,64,128
+Baseline,65536,128,395
+2-fold Unrolled,65536,128,307
+4-fold Unrolled,65536,128,310
+AVX Vectorized,65536,128,257
+Baseline,65536,256,1053
+2-fold Unrolled,65536,256,854
+4-fold Unrolled,65536,256,859
+AVX Vectorized,65536,256,534
+Baseline,65536,512,2053
+2-fold Unrolled,65536,512,1545
+4-fold Unrolled,65536,512,1550
+AVX Vectorized,65536,512,1056

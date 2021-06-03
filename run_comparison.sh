@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-data=data/unit_tests/example_high_dim_10000_32.csv
-labels=data/unit_tests/example_high_dim_10000_32_labels.csv
+data=data/large_50000_64.csv
+labels=data/large_50000_64_labels.csv
 ours=build/benchmarking/measurements_runner_bitset_nocalc_avx.txt
 CPU_FREQ=2.8
 

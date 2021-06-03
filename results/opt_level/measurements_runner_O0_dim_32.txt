@@ -1,0 +1,12 @@
+# Benchmarks from file runner
+# Optimization flags: no_optimization
+# Compiler flags: Unknown
+# Dimensions of data set: 32
+Region,Cycles
+calculate_distances,41389083884
+construct_mst,23272159424
+mst_quicksort,12780160
+compute_hierarchy,1870873950
+propagate_tree,14136
+find_clusters,10023412
+calculate_outliers,20497352

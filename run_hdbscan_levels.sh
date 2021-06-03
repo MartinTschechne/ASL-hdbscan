@@ -34,7 +34,7 @@ base_file=${out_file}.txt
 flag=3
 
 echo Benchmark Core Distances
-for opt_level in no_optimization symmetry unroll2 unroll4 vectorise
+for opt_level in no_optimization symmetry unroll2 unroll4 vectorise vectorise_fma
 do
     echo ${opt_level}
     tic=$(date +%s.%N)

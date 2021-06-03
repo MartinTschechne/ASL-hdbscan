@@ -1,0 +1,16 @@
+# Benchmarks from file runner
+# Compiler flags: O3
+# Optimization Level: no_optimization
+# MST Optimization Level: no_optimization
+# Distance Function: euclidean
+# Number of data points: 50000
+# Dimensions of data set: 64
+Region,Cycles
+calculate_distances,465029862062
+construct_mst,341938541802
+mst_quicksort,34608348
+compute_hierarchy,7143017814
+propagate_tree,15504
+find_clusters,36988858
+calculate_outliers,99452118
+total,816251546718
