@@ -11,9 +11,13 @@ TEST(HDBSCAN_Star, IO) {
     size_t num_pts = 3;
     size_t dim = 2;
     auto lines = ReadInDataSet(file_name, ',', num_pts, dim);
+    auto lines_transp = ReadInDataSet(file_name, ',', num_pts, dim, true);
 
-    ASSERT_EQ(lines[0][0], 1.0);
-    ASSERT_EQ(lines[2][1], 90);
+    ASSERT_EQ(lines[0*dim], 1.0);
+    ASSERT_EQ(lines[2*dim+1], 90);
+
+    ASSERT_EQ(lines_transp[0*num_pts + 0], 1.0);
+    ASSERT_EQ(lines_transp[1*num_pts + 2], 90);
 
     auto constraints = ReadInConstraints(file_name_constraints);
     ASSERT_EQ(constraints->size, 10);
@@ -22,6 +26,22 @@ TEST(HDBSCAN_Star, IO) {
     ASSERT_EQ(((Constraint*)constraints->elements[5])->type, Constraint::CONSTRAINT_TYPE::CANNOT_LINK);
 
     FreeDataset(lines, num_pts);
+}
+
+TEST(HDBSCAN_Star, io_transpose) {
+    std::string file_name = "../tests/data/example_data_set.csv";
+    size_t num_pts = 500;
+    size_t dim = 2;
+    auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
+    auto data_set_t = ReadInDataSet(file_name, ',', num_pts, dim, true);
+
+    for(size_t i = 0; i < num_pts; ++i) {
+        for(size_t k = 0; k < dim; ++k) {
+            ASSERT_EQ(data_set[i*dim + k], data_set_t[k*num_pts + i]);
+        }
+    }
+
+    FreeDataset(data_set, num_pts);
 }
 
 TEST(HDBSCAN_Star, core_distances) {
@@ -56,6 +76,34 @@ TEST(HDBSCAN_Star, core_distances_symmetry) {
     FreeDataset(data_set, num_pts);
     delete[] core_distances;
     delete[] core_distances_symmetry;
+}
+
+TEST(HDBSCAN_Star, core_distances_blocked) {
+    std::string file_name = "../tests/data/example_data_set.csv";
+    size_t num_pts = 500;
+    size_t dim = 2;
+    auto data_set = ReadInDataSet(file_name, ',', num_pts, dim);
+    auto data_set_t = ReadInDataSet(file_name, ',', num_pts, dim, true);
+
+    double** d = nullptr;
+    double** d2 = nullptr;
+    double* core_distances_blocked = CalculateCoreDistancesBlocked_Euclidean(data_set, 3, EuclideanDistance, num_pts, dim, d);
+    double* core_distances_blocked_t = CalculateCoreDistancesBlocked_Euclidean_Transpose(data_set_t, 3, EuclideanDistance, num_pts, dim, d);
+    double* core_distances = CalculateCoreDistancesSymmetry(data_set, 3, EuclideanDistance, num_pts, dim, d2);
+
+    ASSERT_DOUBLE_EQ(core_distances_blocked[0], 0.2049413436136352);
+    ASSERT_DOUBLE_EQ(core_distances_blocked_t[0], 0.2049413436136352);
+
+    double sim = SupremumDistance(core_distances, core_distances_blocked, num_pts);
+    ASSERT_NEAR(sim, 0.0, 0.0001);
+
+    sim = SupremumDistance(core_distances, core_distances_blocked_t, num_pts);
+    ASSERT_NEAR(sim, 0.0, 0.0001);
+
+    FreeDataset(data_set, num_pts);
+    FreeDataset(data_set_t, num_pts);
+    delete[] core_distances;
+    delete[] core_distances_blocked;
 }
 
 TEST(HDBSCAN_Star, create_tree) {

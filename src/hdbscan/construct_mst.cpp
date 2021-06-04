@@ -49,7 +49,7 @@ ConstructMST_t GetConstructMSTFunction(const std::string& optimization_level) {
     
 }
 
-UndirectedGraph_C* ConstructMST(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
 
@@ -94,7 +94,7 @@ UndirectedGraph_C* ConstructMST(const double* const * const data_set,
                 continue;
             }
 
-            double distance = distance_function(data_set[current_point], data_set[neighbor], point_dimension);
+            double distance = distance_function(&data_set[current_point*point_dimension], &data_set[neighbor*point_dimension], point_dimension);
             double mutual_reachability_distance = distance;
 
             if(core_distances[current_point] > mutual_reachability_distance) {
@@ -145,7 +145,7 @@ UndirectedGraph_C* ConstructMST(const double* const * const data_set,
     return result;
 }
 
-UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
     
@@ -199,7 +199,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* const * const data
                 continue;
             }
 
-            const double* current_point_ptr = data_set[current_point];
+            const double* current_point_ptr = &data_set[current_point*point_dimension];
             double core_distance = core_distances[current_point];
             double cdn0 = core_distances[neighbor];
             double cdn1 = core_distances[neighbor + 1];
@@ -215,10 +215,10 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* const * const data
             double nmrdn3 = nearest_mrd_neighbors[neighbor + 3];
 
 
-            double mrd0 = flag0 ? 0.0 : distance_function(current_point_ptr, data_set[neighbor], point_dimension);
-            double mrd1 = flag1 ? 0.0 : distance_function(current_point_ptr, data_set[neighbor + 1], point_dimension);
-            double mrd2 = flag2 ? 0.0 : distance_function(current_point_ptr, data_set[neighbor + 2], point_dimension);
-            double mrd3 = flag3 ? 0.0 : distance_function(current_point_ptr, data_set[neighbor + 3], point_dimension);
+            double mrd0 = flag0 ? 0.0 : distance_function(current_point_ptr, &data_set[neighbor * point_dimension], point_dimension);
+            double mrd1 = flag1 ? 0.0 : distance_function(current_point_ptr, &data_set[(neighbor + 1)*point_dimension], point_dimension);
+            double mrd2 = flag2 ? 0.0 : distance_function(current_point_ptr, &data_set[(neighbor + 2)*point_dimension], point_dimension);
+            double mrd3 = flag3 ? 0.0 : distance_function(current_point_ptr, &data_set[(neighbor + 3)*point_dimension], point_dimension);
 
             mrd0 = fmax(mrd0, core_distance);
             mrd0 = fmax(mrd0, cdn0);
@@ -286,7 +286,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* const * const data
                 continue;
             }
 
-            double distance = distance_function(data_set[current_point], data_set[neighbor], point_dimension);
+            double distance = distance_function(&data_set[current_point*point_dimension], &data_set[neighbor*point_dimension], point_dimension);
             double mutual_reachability_distance = distance;
 
             if(core_distances[current_point] > mutual_reachability_distance) {
@@ -352,7 +352,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* const * const data
     return result;
 }
 
-UndirectedGraph_C* ConstructMST_Bitset_NoCalc(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
 
@@ -448,7 +448,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc(const double* const * const data_s
     return result;
 }
 
-UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
     
@@ -502,7 +502,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* const * con
                 continue;
             }
 
-            const double* current_point_ptr = data_set[current_point];
+            const double* current_point_ptr = &data_set[current_point*point_dimension];
             double core_distance = core_distances[current_point];
             double cdn0 = core_distances[neighbor];
             double cdn1 = core_distances[neighbor + 1];
@@ -655,7 +655,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* const * con
     return result;
 }
 
-UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
     
@@ -821,7 +821,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const da
     #endif
 }
 
-UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
     #ifdef __AVX2__
@@ -1027,7 +1027,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const
 }
 
 
-UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
     
@@ -1373,7 +1373,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const
 }
 
 
-UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
     
@@ -1410,19 +1410,19 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* co
     }
 
     for(size_t pt_x = 0; pt_x < n_pts; ++pt_x) {
-        const double* x = data_set[pt_x];
+        const double* x = &data_set[pt_x*point_dimension];
         const double cd_x = core_distances[pt_x];
 
         mrd_matrix[pt_x][pt_x] = DBL_MAX;
         size_t pt_y = pt_x + 1;
         for(; pt_y < n_pts - 3; pt_y += 4) {
-            double d0 = distance_function(x, data_set[pt_y], point_dimension);
+            double d0 = distance_function(x, &data_set[pt_y*point_dimension], point_dimension);
             double cd_y0 = core_distances[pt_y];
-            double d1 = distance_function(x, data_set[pt_y + 1], point_dimension);
+            double d1 = distance_function(x, &data_set[(pt_y + 1)*point_dimension], point_dimension);
             double cd_y1 = core_distances[pt_y + 1];
-            double d2 = distance_function(x, data_set[pt_y + 2], point_dimension);
+            double d2 = distance_function(x, &data_set[(pt_y + 2)*point_dimension], point_dimension);
             double cd_y2 = core_distances[pt_y + 2];
-            double d3 = distance_function(x, data_set[pt_y + 3], point_dimension);
+            double d3 = distance_function(x, &data_set[(pt_y + 3)*point_dimension], point_dimension);
             double cd_y3 = core_distances[pt_y + 3];
 
             double mrd0 = d0;
@@ -1450,7 +1450,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* co
             mrd_matrix[pt_y + 3][pt_x] = mrd3;
         }
         for(; pt_y < n_pts; ++pt_y) {
-            double d0 = distance_function(x, data_set[pt_y], point_dimension);
+            double d0 = distance_function(x, &data_set[pt_y*point_dimension], point_dimension);
             double cd_y0 = core_distances[pt_y];
 
             double mrd = d0;
@@ -1583,7 +1583,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* co
     return result;
 }
 
-UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
     
@@ -1794,7 +1794,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* 
 }
 
 
-UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
     
@@ -1987,7 +1987,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* co
     #endif
 }
 
-UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
 

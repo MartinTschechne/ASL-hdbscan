@@ -108,7 +108,9 @@ function(build_hdbscan exec_name compiler_flags output_directory)
 endfunction()
 
 function(build_hdbscan_benchmarking compiler_flags)
-    build_hdbscan("hdbscan${compiler_flags}" ${compiler_flags} "benchmarking")
+    set(NAME_APPEND "")
+    string(REPLACE " " "_" NAME_APPEND ${compiler_flags})
+    build_hdbscan("hdbscan${NAME_APPEND}" ${compiler_flags} "benchmarking")
 endfunction()
 
 build_hdbscan("hdbscan" "-O3" "")
@@ -149,6 +151,20 @@ target_link_libraries(
 )
 set_target_properties(
     mst_benchmark
+    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native"
+)
+add_executable(
+    cd_benchmark
+    src/benchmark_cd.cpp
+)
+target_link_libraries(
+    cd_benchmark
+    gflags_nothreads_static
+    hdb_lib_mst_benchmarking
+    stdc++fs
+)
+set_target_properties(
+    cd_benchmark
     PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native"
 )
 

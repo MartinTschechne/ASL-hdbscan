@@ -1,10 +1,8 @@
 #include <hdbscan/HDBSCAN_star.h>
+#include <common/memory.h>
 
-double** ReadInDataSet(std::string const& file_name, const char delimiter, const size_t num_points, const size_t point_dimension) {
-    double** result = new double*[num_points];
-    for(size_t i = 0; i < num_points; ++i) {
-        result[i] = new double[point_dimension];
-    }
+double* ReadInDataSet(std::string const& file_name, const char delimiter, const size_t num_points, const size_t point_dimension, bool transpose) {
+    double* result = CreateAlignedDouble1D(num_points * point_dimension);
     std::ifstream file(file_name);
     std::string line;
     size_t line_count = 0;
@@ -16,7 +14,13 @@ double** ReadInDataSet(std::string const& file_name, const char delimiter, const
             std::string value;
             size_t i = 0;
             while(std::getline(stream, value, delimiter)) {
-                result[line_count][i] = std::stod(value);
+                size_t index = 0;
+                if(transpose) {
+                    index = i * num_points + line_count;
+                } else {
+                    index = line_count * point_dimension + i;
+                }
+                result[index] = std::stod(value);
                 ++i;
             }
 
@@ -33,11 +37,7 @@ double** ReadInDataSet(std::string const& file_name, const char delimiter, const
     return result;
 }
 
-void FreeDataset(double** dataset, size_t num_points) {
-    for(size_t i = 0; i < num_points; ++i) {
-        free(dataset[i]);
-    }
-
+void FreeDataset(double* dataset, size_t num_points) {
     free(dataset);
 }
 

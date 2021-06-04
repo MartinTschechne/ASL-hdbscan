@@ -3,17 +3,17 @@
 mkdir -p build/output
 
 ### deafault args
-default_args="-points_file=data/unit_tests/example_high_dim_10000_32.csv
+default_args="-points_file=data/large_50000_64.csv
 -hierarchy_file=build/output/hierarchy.csv \
 -tree_file=build/output/tree.csv \
 -visualization_file=build/output/results.vis \
 -partition_file=build/output/partition.csv \
 -outlier_score_file=build/output/outlier_scores.csv \
 -dist_function=euclidean \
--num_dimension=32 \
--num_points=10000"
+-num_dimension=64 \
+-num_points=50000"
 
-num_dim=32
+num_dim=64
 
 echo Baseline
 flag=0
@@ -34,7 +34,7 @@ base_file=${out_file}.txt
 flag=3
 
 echo Benchmark Core Distances
-for opt_level in no_optimization symmetry unroll2 unroll4 vectorise vectorise_fma
+for opt_level in no_optimization symmetry unroll2 unroll4 vectorise vectorise_fma full
 do
     echo ${opt_level}
     tic=$(date +%s.%N)
@@ -62,7 +62,7 @@ do
     tic=$(date +%s.%N)
     ./build/benchmarking/hdbscan-O${flag} ${default_args} \
         -compiler_flags=O${flag} \
-        -optimization_level=vectorise_fma \
+        -optimization_level=full \
         -mst_optimization_level=${opt_level}
     toc=$(date +%s.%N)
     diff=$(echo "$toc - $tic" | bc)

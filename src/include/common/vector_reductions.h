@@ -3,6 +3,10 @@
 
 #include <immintrin.h>
 
+inline size_t min(size_t a, size_t b) {
+    return a < b ? a : b;
+}
+
 /**
  * @brief Efficient sum reduction of 256-bit double-precision vector
  *
