@@ -23,7 +23,7 @@ DEFINE_int32(min_cl_size, 8, "Minimum cluster size");
 DEFINE_bool(compact, true, "Whether or not to compact the output");
 DEFINE_string(dist_function, "euclidean", "Which metric to use. One of [euclidean, cosine, manhattan, pearson, supremum]");
 DEFINE_string(mst_optimization_level, "no_optimization", "Which optimization to use for ConstructMST. CAUTION: xxx_nocalc only work when the CoreDistance function also returns the distance matrix! One of [no_optimization, bitset_unroll, bitset_nocalc, bitset_unroll_nocalc, bitset_nocalc_avx, bitset_nocalc_avx_unroll_2, bitset_nocalc_avx_unroll_4, nobitset_unroll, nobitset_unroll_nocalc, nobitset_nocalc_avx256, nobitset_nocalc_avx512]");
-DEFINE_string(optimization_level, "no_optimization", "Which optimization level to use. One of [no_optimization, symmetry, unroll2, unroll4, vectorise, vectorise_fma]");
+DEFINE_string(optimization_level, "no_optimization", "Which optimization level to use. One of [no_optimization, symmetry, unroll2, unroll4, vectorise, vectorise_fma, full]");
 DEFINE_string(compiler_flags, "O0", "Which compiler flags are used. One of [O0, O3]");
 
 
@@ -111,6 +111,12 @@ DistanceCalculator GetDistanceCalculator(const std::string& func_name, const std
         if(func_name == "cosine") return CosineSimilarity_Vectorized_FMA;
         if(func_name == "pearson") return PearsonCorrelation_FMA;
 #endif //__AVX2__
+    } else if(opt_level == "full") {
+        if(func_name == "euclidean") return EuclideanDistance_FMA;
+        if(func_name == "cosine") return CosineSimilarity_Vectorized_FMA;
+        if(func_name == "pearson") return PearsonCorrelation_FMA;
+        if(func_name == "manhattan") return ManhattanDistance_Vectorized;
+        if(func_name == "supremum") return SupremumDistance_Vectorized;
     } else {
         if(func_name == "euclidean") return EuclideanDistance;
         if(func_name == "cosine") return CosineSimilarity;
@@ -133,7 +139,7 @@ void HDBSCANRunner(RunnerConfig config) {
 
     size_t num_points = config.num_points;
     size_t num_dimensions = config.num_dimensions;
-    double** data_set = ReadInDataSet(config.points_file, ',', num_points, num_dimensions);
+    double* data_set = ReadInDataSet(config.points_file, ',', num_points, num_dimensions);
 
     Vector* constraints = nullptr;
     if(config.constraints != "") {

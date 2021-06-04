@@ -6,11 +6,11 @@ do
   fname=benchmark_${d_name}.csv
   touch ${fname}
   echo NAME,NUM_POINTS,DIM,CYC >> ${fname}
-  for N in {10..16}
+  for N in 1024 2048 4096 8192 16384 32768 65536;
   do
     for D in 2 4 8 16 32 64 128 256 512;
     do
-      ./build/distance_benchmark $((2**${N})) ${D} ${d_name} >> ${fname}
+      ./build/distance_benchmark ${N} ${D} ${d_name} >> ${fname}
     done
   done
   mv ${fname} build/benchmarking/

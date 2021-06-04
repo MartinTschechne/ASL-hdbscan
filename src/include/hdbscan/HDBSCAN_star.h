@@ -48,10 +48,10 @@ struct OutlierScore {
 int CompareTo(const OutlierScore& a, const OutlierScore& b);
 int CompareOutlierScores(const void* a, const void* b);
 
-typedef double*(*CalculateCoreDistances_t)(const double* const * const, size_t,
+typedef double*(*CalculateCoreDistances_t)(const double*, size_t,
     DistanceCalculator, const size_t, const size_t, double**& distance_matrix);
 
-typedef UndirectedGraph_C*(*ConstructMST_t)(const double* const * const data_set,
+typedef UndirectedGraph_C*(*ConstructMST_t)(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
@@ -67,9 +67,9 @@ typedef UndirectedGraph_C*(*ConstructMST_t)(const double* const * const data_set
  * @return A double[][] where index [i][j] indicates the jth attribute of
  * data point i
  */
-double** ReadInDataSet(std::string const& file_name, const char delimiter, const size_t num_points, const size_t point_dimension);
+double* ReadInDataSet(std::string const& file_name, const char delimiter, const size_t num_points, const size_t point_dimension, bool transpose=false);
 
-void FreeDataset(double** dataset, size_t num_points);
+void FreeDataset(double* dataset, size_t num_points);
 
 /**
  * @brief Reads in constraints from the file given, assuming the delimiter
@@ -85,6 +85,13 @@ void FreeDataset(double** dataset, size_t num_points);
 Vector* ReadInConstraints(
     std::string const& file_name);
 
+inline void FreeDistanceMatrix(double** mat, size_t num_points) {
+    for(size_t i = 0; i < num_points; ++i) {
+        free(mat[i]);
+    }
+    free(mat);
+}
+
 CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& optimization_level);
 /**
  * @brief  Calculates the core distances for each point in the data set,
@@ -98,7 +105,7 @@ CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& op
  * between points
  * @return A vector of core distances
  */
-double* CalculateCoreDistancesNoOptimization(const double* const * const data_set, size_t k,
+double* CalculateCoreDistancesNoOptimization(const double* data_set, size_t k,
     DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
 
     /**
@@ -112,7 +119,16 @@ double* CalculateCoreDistancesNoOptimization(const double* const * const data_se
  * between points
  * @return A vector of core distances
  */
-double* CalculateCoreDistancesSymmetry(const double* const * const data_set, size_t k,
+double* CalculateCoreDistancesSymmetry(const double* data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
+
+double* CalculateCoreDistancesBlocked_Euclidean(const double* data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
+
+double* CalculateCoreDistancesSymmetry_blocked(const double* data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
+
+double* CalculateCoreDistancesBlocked_Euclidean_Transpose(const double* data_set, size_t k,
     DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
 
 ConstructMST_t GetConstructMSTFunction(const std::string& optimization_level);
@@ -129,47 +145,47 @@ ConstructMST_t GetConstructMSTFunction(const std::string& optimization_level);
  * @return An UndirectedGraph containing the MST for the data set using the
  * mutual reachability distances
  */
-UndirectedGraph_C* ConstructMST(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_Bitset_NoCalc(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 
-UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* const * const data_set,
+UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix);
 

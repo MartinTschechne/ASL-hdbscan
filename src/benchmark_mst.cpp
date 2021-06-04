@@ -18,7 +18,7 @@ void RunBenchmarking(RunnerConfig config) {
 
     size_t num_points = config.num_points;
     size_t num_dimensions = config.num_dimensions;
-    double** data_set = ReadInDataSet(config.points_file, ',', num_points, num_dimensions);
+    double* data_set = ReadInDataSet(config.points_file, ',', num_points, num_dimensions);
 
     Vector* constraints = nullptr;
     if(config.constraints != "") {
