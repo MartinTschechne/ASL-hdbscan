@@ -6,11 +6,11 @@
 # Number of data points: 50000
 # Dimensions of data set: 64
 Region,Cycles
-calculate_distances,270818916686
-construct_mst,184910475434
-mst_quicksort,34248108
-compute_hierarchy,7033391652
-propagate_tree,15466
-find_clusters,37307222
-calculate_outliers,98198460
-total,465078388442
+calculate_distances,254838257530
+construct_mst,167822750498
+mst_quicksort,34011786
+compute_hierarchy,6840673664
+propagate_tree,14668
+find_clusters,34697154
+calculate_outliers,89998326
+total,431613065470

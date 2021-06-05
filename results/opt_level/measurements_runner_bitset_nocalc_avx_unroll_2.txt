@@ -1,16 +1,16 @@
 # Benchmarks from file runner
 # Compiler flags: O3
-# Optimization Level: vectorise_fma
+# Optimization Level: full
 # MST Optimization Level: bitset_nocalc_avx_unroll_2
 # Distance Function: euclidean
 # Number of data points: 50000
 # Dimensions of data set: 64
 Region,Cycles
-calculate_distances,265780508276
-construct_mst,7314538946
-mst_quicksort,33239322
-compute_hierarchy,6874787936
-propagate_tree,15238
-find_clusters,35522172
-calculate_outliers,90886880
-total,282011929432
+calculate_distances,75376284834
+construct_mst,7151103720
+mst_quicksort,34309934
+compute_hierarchy,6802866248
+propagate_tree,15200
+find_clusters,36381200
+calculate_outliers,92502108
+total,91482485274
