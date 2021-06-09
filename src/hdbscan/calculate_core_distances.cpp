@@ -28,8 +28,10 @@
 CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& optimization_level) {
     if(optimization_level == "no_optimization") {
         return CalculateCoreDistancesNoOptimization;
+    #ifdef __AVX2__
     } else if(optimization_level == "full") {
         return CalculateCoreDistancesBlocked_Euclidean;
+    #endif //__AVX2__
     } else {
         return CalculateCoreDistancesSymmetry;
         //return CalculateCoreDistancesSymmetry;
@@ -231,6 +233,8 @@ double* CalculateCoreDistancesSymmetry_blocked(const double* data_set, size_t k,
     return result;
 }
 
+
+#ifdef __AVX2__
 double* CalculateCoreDistancesBlocked_Euclidean(const double* data_set, size_t k,
     DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix) {
 
@@ -374,7 +378,7 @@ double* CalculateCoreDistancesBlocked_Euclidean(const double* data_set, size_t k
             }
         }
     }
-    
+
     uint64_t end = stop_tsc(start);
     // timing <<"Distance matrix, " << end << "\n";
 
@@ -412,6 +416,7 @@ double* CalculateCoreDistancesBlocked_Euclidean(const double* data_set, size_t k
 
     return result;
 }
+
 
 // This is just matrix-matrix multiplication
 double* CalculateCoreDistancesBlocked_Euclidean_Transpose(const double* data_set, size_t k,
@@ -488,7 +493,7 @@ double* CalculateCoreDistancesBlocked_Euclidean_Transpose(const double* data_set
             distance_matrix[j][i] = distance_matrix[i][j];
         }
     }
-    
+
     uint64_t end = stop_tsc(start);
     // timing <<"Distance matrix, " << end << "\n";
 
@@ -526,3 +531,4 @@ double* CalculateCoreDistancesBlocked_Euclidean_Transpose(const double* data_set
 
     return result;
 }
+#endif //__AVX2__
