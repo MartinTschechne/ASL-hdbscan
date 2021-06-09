@@ -32,3 +32,5 @@ test:
       junit: report.xml
   dependencies:
     - build
+  only:
+    - master

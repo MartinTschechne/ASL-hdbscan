@@ -110,13 +110,13 @@ DistanceCalculator GetDistanceCalculator(const std::string& func_name, const std
         if(func_name == "euclidean") return EuclideanDistance_FMA;
         if(func_name == "cosine") return CosineSimilarity_Vectorized_FMA;
         if(func_name == "pearson") return PearsonCorrelation_FMA;
-#endif //__AVX2__
     } else if(opt_level == "full") {
         if(func_name == "euclidean") return EuclideanDistance_FMA;
         if(func_name == "cosine") return CosineSimilarity_Vectorized_FMA;
         if(func_name == "pearson") return PearsonCorrelation_FMA;
         if(func_name == "manhattan") return ManhattanDistance_Vectorized;
         if(func_name == "supremum") return SupremumDistance_Vectorized;
+#endif //__AVX2__
     } else {
         if(func_name == "euclidean") return EuclideanDistance;
         if(func_name == "cosine") return CosineSimilarity;

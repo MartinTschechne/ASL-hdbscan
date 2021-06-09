@@ -78,6 +78,7 @@ TEST(HDBSCAN_Star, core_distances_symmetry) {
     delete[] core_distances_symmetry;
 }
 
+#ifdef __AVX2__
 TEST(HDBSCAN_Star, core_distances_blocked) {
     std::string file_name = "../tests/data/example_data_set.csv";
     size_t num_pts = 500;
@@ -105,6 +106,7 @@ TEST(HDBSCAN_Star, core_distances_blocked) {
     delete[] core_distances;
     delete[] core_distances_blocked;
 }
+#endif//__AVX2__
 
 TEST(HDBSCAN_Star, create_tree) {
     std::filesystem::create_directory("test_output");

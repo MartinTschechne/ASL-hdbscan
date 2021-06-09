@@ -48,7 +48,7 @@ void fill_data(double* data, const size_t num_points, const size_t dim) {
 void RunBenchmarking() {
     #ifdef __AVX2__
     size_t num_fun = 5;
-    #else 
+    #else
     size_t num_fun = 3;
     #endif
 
@@ -70,7 +70,7 @@ void RunBenchmarking() {
             for (size_t i = 0; i < num_runs; ++i) {
                 result = CalculateCoreDistancesSymmetry(dataset, 5, core_dist_fun, FLAGS_num_points, FLAGS_num_dims, dist_mat);
                 free(result);
-        
+
             }
             cycles = stop_tsc(start);
 
@@ -90,6 +90,7 @@ void RunBenchmarking() {
         printf("%s,%li,%li,%lu\n", functions[f].fname.c_str(), FLAGS_num_points, FLAGS_num_dims, cycles);
     }
     num_runs = FLAGS_num_runs;
+#ifdef __AVX2__
 #ifdef CALIBRATE
     cycles = 0;
     while(num_runs < (1 << 14)) {
@@ -104,7 +105,7 @@ void RunBenchmarking() {
 
             num_runs *= 2;
         }
-#endif  
+#endif
         cycles = 0;
         for (size_t i = 0; i < FLAGS_num_runs; ++i) {
             start = start_tsc();
@@ -130,7 +131,7 @@ void RunBenchmarking() {
 
             num_runs *= 2;
         }
-#endif  
+#endif
         cycles = 0;
         for (size_t i = 0; i < FLAGS_num_runs; ++i) {
             start = start_tsc();
@@ -140,7 +141,9 @@ void RunBenchmarking() {
         }
         cycles /= (FLAGS_num_runs*FLAGS_num_points);
         printf("%s,%li,%li,%lu\n", "Blocking Optimized", FLAGS_num_points, FLAGS_num_dims, cycles);
+#endif //__AVX2__
 }
+
 
 int main(int argc, char** argv) {
     if (argc == 0) {
