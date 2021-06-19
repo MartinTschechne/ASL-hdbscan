@@ -160,6 +160,11 @@ void HDBSCANRunner(RunnerConfig config) {
 
     LIKWID_MARKER_INIT;
     LIKWID_MARKER_REGISTER("calculate_distances");
+    LIKWID_MARKER_REGISTER("construct_mst");
+    LIKWID_MARKER_REGISTER("compute_hierarchy");
+    LIKWID_MARKER_REGISTER("propagate_tree");
+    LIKWID_MARKER_REGISTER("find_clusters");
+    LIKWID_MARKER_REGISTER("calculate_outliers");
 
     LIKWID_MARKER_START("calculate_distances");
     long int start = start_tsc();
@@ -170,6 +175,7 @@ void HDBSCANRunner(RunnerConfig config) {
     LIKWID_MARKER_STOP("calculate_distances");
     benchmark_runner << "calculate_distances," << cycles << "\n";
 
+    LIKWID_MARKER_START("construct_mst");
     start = start_tsc();
     ConstructMST_t construct_mst_f = GetConstructMSTFunction(config.mst_optimization_level);
     UndirectedGraph_C* mst = construct_mst_f(data_set, core_distances, true, dist_fun, num_points, num_dimensions, distance_matrix);
@@ -178,6 +184,7 @@ void HDBSCANRunner(RunnerConfig config) {
     start = start_tsc();
     UDG_QuicksortByEdgeWeight(mst);
     cycles = stop_tsc(start);
+    LIKWID_MARKER_STOP("construct_mst");
     benchmark_runner << "mst_quicksort," << cycles << "\n";
 
     FreeDataset(data_set, num_points);
@@ -187,37 +194,46 @@ void HDBSCANRunner(RunnerConfig config) {
 
     Vector* clusters = vector_create();
 
+    LIKWID_MARKER_START("compute_hierarchy");
     start = start_tsc();
     ComputeHierarchyAndClusterTree(mst, config.min_cl_size, config.compact,
         constraints, config.hierarchy_file, config.tree_file, ',', point_noise_levels,
         point_last_clusters, config.visualization_file, clusters);
     cycles = stop_tsc(start);
+    LIKWID_MARKER_STOP("compute_hierarchy");
     benchmark_runner << "compute_hierarchy," << cycles << "\n";
 
     UDG_Free(mst);
 
     start = start_tsc();
+    LIKWID_MARKER_START("propagate_tree");
     bool inf_stability = PropagateTree(clusters);
     cycles = stop_tsc(start);
+    LIKWID_MARKER_STOP("propagate_tree");
     benchmark_runner << "propagate_tree," << cycles << "\n";
 
     vector* prominent_clusters = vector_create();
 
     start = start_tsc();
+    LIKWID_MARKER_START("find_clusters");
     FindProminentClusters(clusters, config.hierarchy_file, config.partition_file,
         ',', num_points, inf_stability, prominent_clusters);
     cycles = stop_tsc(start);
+    LIKWID_MARKER_STOP("find_clusters");
     benchmark_runner << "find_clusters," << cycles << "\n";
 
     vector* outlier_scores = vector_create();
 
+    LIKWID_MARKER_START("calculate_outliers");
     start = start_tsc();
     CalculateOutlierScores(clusters, point_noise_levels, num_points, point_last_clusters,
         core_distances, config.outlier_score_file, ',', inf_stability, outlier_scores);
     cycles = stop_tsc(start);
+    LIKWID_MARKER_STOP("calculate_outliers");
     benchmark_runner << "calculate_outliers," << cycles << "\n";
 
     benchmark_runner.close();
+    LIKWID_MARKER_CLOSE;
 
     free(point_last_clusters);
     free(point_noise_levels);
