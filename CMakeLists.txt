@@ -77,10 +77,11 @@ target_link_libraries(
     pthread
     gflags_nothreads_static
     stdc++fs
+    likwid
 )
 set_target_properties(
     unit_tests
-    PROPERTIES COMPILE_FLAGS "-O3 -march=native"
+    PROPERTIES COMPILE_FLAGS "-O3 -march=native -DLIKWID_PERFMON"
 )
 
 function(build_hdbscan exec_name compiler_flags output_directory)
@@ -97,6 +98,7 @@ function(build_hdbscan exec_name compiler_flags output_directory)
         gflags_nothreads_static
         ${exec_name}_lib
         pthread
+        likwid
     )
     set_target_properties(
         ${exec_name}
@@ -106,7 +108,7 @@ function(build_hdbscan exec_name compiler_flags output_directory)
     set_target_properties(
         ${exec_name}
         ${exec_name}_lib
-        PROPERTIES COMPILE_FLAGS "${compiler_flags} -fno-tree-vectorize -march=native")
+        PROPERTIES COMPILE_FLAGS "${compiler_flags} -fno-tree-vectorize -march=native -DLIKWID_PERFMON")
 endfunction()
 
 function(build_hdbscan_benchmarking compiler_flags)
@@ -129,7 +131,7 @@ add_executable(
 
 set_target_properties(
     distance_benchmark
-    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native"
+    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native -DLIKWID_PERFMON"
 )
 
 add_library(
@@ -138,7 +140,7 @@ add_library(
 )
 set_target_properties(
     hdb_lib_mst_benchmarking
-    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native"
+    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native -DLIKWID_PERFMON"
 )
 
 add_executable(
@@ -150,10 +152,11 @@ target_link_libraries(
     gflags_nothreads_static
     hdb_lib_mst_benchmarking
     stdc++fs
+    likwid
 )
 set_target_properties(
     mst_benchmark
-    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native"
+    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native -DLIKWID_PERFMON"
 )
 add_executable(
     cd_benchmark
@@ -164,10 +167,11 @@ target_link_libraries(
     gflags_nothreads_static
     hdb_lib_mst_benchmarking
     stdc++fs
+    likwid
 )
 set_target_properties(
     cd_benchmark
-    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native"
+    PROPERTIES COMPILE_FLAGS "-O3 -fno-tree-vectorize -march=native -DLIKWID_PERFMON"
 )
 
 # add_subdirectory(src)
