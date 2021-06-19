@@ -5,11 +5,13 @@ set(CMAKE_CXX_STANDARD 20)
 
 include(cmake/GetGTest.cmake)
 include(cmake/GetGFlags.cmake)
+include(cmake/GetLikwid.cmake)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/src/include
     ${gflags_BINARY_DIR}/include
+    ${likwid_BINARY_DIR}/include
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
