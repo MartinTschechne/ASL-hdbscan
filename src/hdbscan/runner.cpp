@@ -1,6 +1,7 @@
 #include <hdbscan/HDBSCAN_star_runner.h>
 #include <hdbscan/HDBSCAN_star.h>
 #include <gflags/gflags.h>
+#include <likwid.h>
 #include <stdexcept>
 #include <cassert>
 #include <iostream>
@@ -157,11 +158,16 @@ void HDBSCANRunner(RunnerConfig config) {
     benchmark_runner << "# Dimensions of data set: " << num_dimensions << "\n";
     benchmark_runner << "Region,Cycles" << '\n';
 
+    LIKWID_MARKER_INIT;
+    LIKWID_MARKER_REGISTER("calculate_distances");
+
+    LIKWID_MARKER_START("calculate_distances");
     long int start = start_tsc();
     double** distance_matrix = nullptr;
     CalculateCoreDistances_t calculate_core_distances_f = GetCalculateCoreDistancesFunction(config.optimization_level);
     double* core_distances = calculate_core_distances_f(data_set, config.num_neighbors, dist_fun, num_points, num_dimensions, distance_matrix);
     long int cycles = stop_tsc(start);
+    LIKWID_MARKER_STOP("calculate_distances");
     benchmark_runner << "calculate_distances," << cycles << "\n";
 
     start = start_tsc();
