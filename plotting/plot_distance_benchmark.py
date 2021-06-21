@@ -37,7 +37,7 @@ def main():
     for i, on in enumerate(opt_names):
         opt_df = measurements_df[measurements_df.NAME==on]
         opt_df = opt_df.pivot("NUM_POINTS","DIM","CYC")
-        sns.heatmap(opt_df,ax=axes[i][0],annot=True,fmt="d",linewidth=.5)
+        sns.heatmap(opt_df,ax=axes[i][0],annot=True,fmt=".1f",linewidth=.5)
         axes[i][0].set_title(f"{on} Cycles per point")
         speedup = base_df/opt_df
         sns.heatmap(speedup,ax=axes[i][1],annot=True,fmt=".2f",linewidth=.5)
