@@ -1,379 +1,433 @@
 NAME,NUM_POINTS,DIM,CYC
-Baseline,1024,2,12220
-2-fold Unrolled,1024,2,11603
-4-fold Unrolled,1024,2,12570
-AVX Vectorized,1024,2,12822
-AVX Vectorized FMA,1024,2,12897
-Symmetry+Blocking,1024,2,15406
-Blocking Optimized,1024,2,10823
-Baseline,1024,4,13154
-2-fold Unrolled,1024,4,12923
-4-fold Unrolled,1024,4,13361
-AVX Vectorized,1024,4,12722
-AVX Vectorized FMA,1024,4,12598
-Symmetry+Blocking,1024,4,14638
-Blocking Optimized,1024,4,9747
-Baseline,1024,8,17334
-2-fold Unrolled,1024,8,16068
-4-fold Unrolled,1024,8,15506
-AVX Vectorized,1024,8,14103
-AVX Vectorized FMA,1024,8,13596
-Symmetry+Blocking,1024,8,16731
-Blocking Optimized,1024,8,10345
-Baseline,1024,16,26190
-2-fold Unrolled,1024,16,21695
-4-fold Unrolled,1024,16,20408
-AVX Vectorized,1024,16,15756
-AVX Vectorized FMA,1024,16,15922
-Symmetry+Blocking,1024,16,18035
-Blocking Optimized,1024,16,11509
-Baseline,1024,32,48580
-2-fold Unrolled,1024,32,36137
-4-fold Unrolled,1024,32,29794
-AVX Vectorized,1024,32,19136
-AVX Vectorized FMA,1024,32,19456
-Symmetry+Blocking,1024,32,20688
-Blocking Optimized,1024,32,13774
-Baseline,1024,64,86744
-2-fold Unrolled,1024,64,70761
-4-fold Unrolled,1024,64,51254
-AVX Vectorized,1024,64,26782
-AVX Vectorized FMA,1024,64,27400
-Symmetry+Blocking,1024,64,27256
-Blocking Optimized,1024,64,15841
-Baseline,1024,128,192860
-2-fold Unrolled,1024,128,144293
-4-fold Unrolled,1024,128,92765
-AVX Vectorized,1024,128,41070
-AVX Vectorized FMA,1024,128,41694
-Symmetry+Blocking,1024,128,38051
-Blocking Optimized,1024,128,23652
-Baseline,1024,256,397512
-2-fold Unrolled,1024,256,336610
-4-fold Unrolled,1024,256,185364
-AVX Vectorized,1024,256,69376
-AVX Vectorized FMA,1024,256,69817
-Symmetry+Blocking,1024,256,67846
-Blocking Optimized,1024,256,39918
-Baseline,1024,512,853475
-2-fold Unrolled,1024,512,686381
-4-fold Unrolled,1024,512,367305
-AVX Vectorized,1024,512,125511
-AVX Vectorized FMA,1024,512,125095
-Symmetry+Blocking,1024,512,118390
-Blocking Optimized,1024,512,127130
-Baseline,2048,2,26539
-2-fold Unrolled,2048,2,25824
-4-fold Unrolled,2048,2,26840
-AVX Vectorized,2048,2,28232
-AVX Vectorized FMA,2048,2,27120
-Symmetry+Blocking,2048,2,33269
-Blocking Optimized,2048,2,28290
-Baseline,2048,4,31273
-2-fold Unrolled,2048,4,29599
-4-fold Unrolled,2048,4,29981
-AVX Vectorized,2048,4,30629
-AVX Vectorized FMA,2048,4,30856
-Symmetry+Blocking,2048,4,37317
-Blocking Optimized,2048,4,25402
-Baseline,2048,8,36078
-2-fold Unrolled,2048,8,33709
-4-fold Unrolled,2048,8,33367
-AVX Vectorized,2048,8,29822
-AVX Vectorized FMA,2048,8,29826
-Symmetry+Blocking,2048,8,35068
-Blocking Optimized,2048,8,26921
-Baseline,2048,16,54157
-2-fold Unrolled,2048,16,45104
-4-fold Unrolled,2048,16,43571
-AVX Vectorized,2048,16,33745
-AVX Vectorized FMA,2048,16,34176
-Symmetry+Blocking,2048,16,39601
-Blocking Optimized,2048,16,36466
-Baseline,2048,32,100475
-2-fold Unrolled,2048,32,73991
-4-fold Unrolled,2048,32,64041
-AVX Vectorized,2048,32,43378
-AVX Vectorized FMA,2048,32,41656
-Symmetry+Blocking,2048,32,48971
-Blocking Optimized,2048,32,41338
-Baseline,2048,64,180434
-2-fold Unrolled,2048,64,146567
-4-fold Unrolled,2048,64,111515
-AVX Vectorized,2048,64,61555
-AVX Vectorized FMA,2048,64,60844
-Symmetry+Blocking,2048,64,65929
-Blocking Optimized,2048,64,47287
-Baseline,2048,128,387732
-2-fold Unrolled,2048,128,289323
-4-fold Unrolled,2048,128,191461
-AVX Vectorized,2048,128,94110
-AVX Vectorized FMA,2048,128,89443
-Symmetry+Blocking,2048,128,89325
-Blocking Optimized,2048,128,56863
-Baseline,2048,256,796326
-2-fold Unrolled,2048,256,635528
-4-fold Unrolled,2048,256,363135
-AVX Vectorized,2048,256,157524
-AVX Vectorized FMA,2048,256,148841
-Symmetry+Blocking,2048,256,142889
-Blocking Optimized,2048,256,84560
-Baseline,2048,512,1621837
-2-fold Unrolled,2048,512,1324134
-4-fold Unrolled,2048,512,718767
-AVX Vectorized,2048,512,275275
-AVX Vectorized FMA,2048,512,256974
-Symmetry+Blocking,2048,512,236433
-Blocking Optimized,2048,512,246025
-Baseline,4096,2,57559
-2-fold Unrolled,4096,2,56118
-4-fold Unrolled,4096,2,56858
-AVX Vectorized,4096,2,60616
-AVX Vectorized FMA,4096,2,61571
-Symmetry+Blocking,4096,2,63450
-Blocking Optimized,4096,2,54414
-Baseline,4096,4,64567
-2-fold Unrolled,4096,4,60783
-4-fold Unrolled,4096,4,62661
-AVX Vectorized,4096,4,65037
-AVX Vectorized FMA,4096,4,62280
-Symmetry+Blocking,4096,4,67035
-Blocking Optimized,4096,4,49977
-Baseline,4096,8,74763
-2-fold Unrolled,4096,8,70447
-4-fold Unrolled,4096,8,70144
-AVX Vectorized,4096,8,62718
-AVX Vectorized FMA,4096,8,61849
-Symmetry+Blocking,4096,8,68310
-Blocking Optimized,4096,8,54135
-Baseline,4096,16,115895
-2-fold Unrolled,4096,16,95996
-4-fold Unrolled,4096,16,94748
-AVX Vectorized,4096,16,73979
-AVX Vectorized FMA,4096,16,74713
-Symmetry+Blocking,4096,16,81717
-Blocking Optimized,4096,16,74656
-Baseline,4096,32,209977
-2-fold Unrolled,4096,32,150056
-4-fold Unrolled,4096,32,139080
-AVX Vectorized,4096,32,91851
-AVX Vectorized FMA,4096,32,89711
-Symmetry+Blocking,4096,32,95649
-Blocking Optimized,4096,32,82522
-Baseline,4096,64,356329
-2-fold Unrolled,4096,64,290144
-4-fold Unrolled,4096,64,240301
-AVX Vectorized,4096,64,127554
-AVX Vectorized FMA,4096,64,123663
-Symmetry+Blocking,4096,64,128451
-Blocking Optimized,4096,64,92370
-Baseline,4096,128,787358
-2-fold Unrolled,4096,128,582583
-4-fold Unrolled,4096,128,392641
-AVX Vectorized,4096,128,190392
-AVX Vectorized FMA,4096,128,180059
-Symmetry+Blocking,4096,128,178078
-Blocking Optimized,4096,128,111879
-Baseline,4096,256,1609589
-2-fold Unrolled,4096,256,1291867
-4-fold Unrolled,4096,256,740182
-AVX Vectorized,4096,256,338046
-AVX Vectorized FMA,4096,256,322286
-Symmetry+Blocking,4096,256,273295
-Blocking Optimized,4096,256,165263
-Baseline,4096,512,3444053
-2-fold Unrolled,4096,512,2816274
-4-fold Unrolled,4096,512,1563035
-AVX Vectorized,4096,512,754690
-AVX Vectorized FMA,4096,512,736118
-Symmetry+Blocking,4096,512,494229
-Blocking Optimized,4096,512,499795
-Baseline,8192,2,154833
-2-fold Unrolled,8192,2,145858
-4-fold Unrolled,8192,2,153478
-AVX Vectorized,8192,2,158041
-AVX Vectorized FMA,8192,2,155016
-Symmetry+Blocking,8192,2,131394
-Blocking Optimized,8192,2,111425
-Baseline,8192,4,154091
-2-fold Unrolled,8192,4,153222
-4-fold Unrolled,8192,4,161148
-AVX Vectorized,8192,4,153833
-AVX Vectorized FMA,8192,4,151431
-Symmetry+Blocking,8192,4,135783
-Blocking Optimized,8192,4,102289
-Baseline,8192,8,191307
-2-fold Unrolled,8192,8,171145
-4-fold Unrolled,8192,8,176136
-AVX Vectorized,8192,8,165714
-AVX Vectorized FMA,8192,8,159795
-Symmetry+Blocking,8192,8,147009
-Blocking Optimized,8192,8,112895
-Baseline,8192,16,251596
-2-fold Unrolled,8192,16,212281
-4-fold Unrolled,8192,16,219588
-AVX Vectorized,8192,16,173698
-AVX Vectorized FMA,8192,16,178425
-Symmetry+Blocking,8192,16,161114
-Blocking Optimized,8192,16,150214
-Baseline,8192,32,445480
-2-fold Unrolled,8192,32,316592
-4-fold Unrolled,8192,32,307411
-AVX Vectorized,8192,32,211662
-AVX Vectorized FMA,8192,32,210159
-Symmetry+Blocking,8192,32,196483
-Blocking Optimized,8192,32,168988
-Baseline,8192,64,729021
-2-fold Unrolled,8192,64,609526
-4-fold Unrolled,8192,64,512938
-AVX Vectorized,8192,64,284337
-AVX Vectorized FMA,8192,64,276708
-Symmetry+Blocking,8192,64,263463
-Blocking Optimized,8192,64,188494
-Baseline,8192,128,1575367
-2-fold Unrolled,8192,128,1172736
-4-fold Unrolled,8192,128,828533
-AVX Vectorized,8192,128,403497
-AVX Vectorized FMA,8192,128,387991
-Symmetry+Blocking,8192,128,356229
-Blocking Optimized,8192,128,223925
-Baseline,8192,256,3426732
-2-fold Unrolled,8192,256,2774217
-4-fold Unrolled,8192,256,1765475
-AVX Vectorized,8192,256,1027915
-AVX Vectorized FMA,8192,256,1025029
-Symmetry+Blocking,8192,256,631498
-Blocking Optimized,8192,256,376886
-Baseline,8192,512,7224900
-2-fold Unrolled,8192,512,5993569
-4-fold Unrolled,8192,512,4014011
-AVX Vectorized,8192,512,2588184
-AVX Vectorized FMA,8192,512,2593637
-Symmetry+Blocking,8192,512,1080783
-Blocking Optimized,8192,512,1092378
-Baseline,16384,2,445517
-2-fold Unrolled,16384,2,447113
-4-fold Unrolled,16384,2,447972
-AVX Vectorized,16384,2,455185
-AVX Vectorized FMA,16384,2,455859
-Symmetry+Blocking,16384,2,326843
-Blocking Optimized,16384,2,265776
-Baseline,16384,4,465095
-2-fold Unrolled,16384,4,464038
-4-fold Unrolled,16384,4,472165
-AVX Vectorized,16384,4,462728
-AVX Vectorized FMA,16384,4,463784
-Symmetry+Blocking,16384,4,338978
-Blocking Optimized,16384,4,287230
-Baseline,16384,8,506487
-2-fold Unrolled,16384,8,488455
-4-fold Unrolled,16384,8,491906
-AVX Vectorized,16384,8,473604
-AVX Vectorized FMA,16384,8,471337
-Symmetry+Blocking,16384,8,334979
-Blocking Optimized,16384,8,300842
-Baseline,16384,16,676035
-2-fold Unrolled,16384,16,591238
-4-fold Unrolled,16384,16,601617
-AVX Vectorized,16384,16,543463
-AVX Vectorized FMA,16384,16,545471
-Symmetry+Blocking,16384,16,379905
-Blocking Optimized,16384,16,331032
-Baseline,16384,32,1279618
-2-fold Unrolled,16384,32,921037
-4-fold Unrolled,16384,32,907299
-AVX Vectorized,16384,32,655081
-AVX Vectorized FMA,16384,32,660164
-Symmetry+Blocking,16384,32,415527
-Blocking Optimized,16384,32,358754
-Baseline,16384,64,1986885
-2-fold Unrolled,16384,64,1763534
-4-fold Unrolled,16384,64,1713824
-AVX Vectorized,16384,64,1008775
-AVX Vectorized FMA,16384,64,1030000
-Symmetry+Blocking,16384,64,556328
-Blocking Optimized,16384,64,426688
-Baseline,16384,128,4210766
-2-fold Unrolled,16384,128,3412015
-4-fold Unrolled,16384,128,2969369
-AVX Vectorized,16384,128,1818972
-AVX Vectorized FMA,16384,128,1791428
-Symmetry+Blocking,16384,128,764188
-Blocking Optimized,16384,128,534809
-Baseline,16384,256,8689408
-2-fold Unrolled,16384,256,7565702
-4-fold Unrolled,16384,256,6009422
-AVX Vectorized,16384,256,4219873
-AVX Vectorized FMA,16384,256,4243007
-Symmetry+Blocking,16384,256,1359536
-Blocking Optimized,16384,256,862042
-Baseline,16384,512,16584380
-2-fold Unrolled,16384,512,14093147
-4-fold Unrolled,16384,512,10007978
-AVX Vectorized,16384,512,7287258
-AVX Vectorized FMA,16384,512,7276907
-Symmetry+Blocking,16384,512,2266545
-Blocking Optimized,16384,512,2233165
-Baseline,32768,2,832316
-2-fold Unrolled,32768,2,838177
-4-fold Unrolled,32768,2,839207
-AVX Vectorized,32768,2,849905
-AVX Vectorized FMA,32768,2,853444
-Symmetry+Blocking,32768,2,654001
-Blocking Optimized,32768,2,529115
-Baseline,32768,4,873015
-2-fold Unrolled,32768,4,875611
-4-fold Unrolled,32768,4,889185
-AVX Vectorized,32768,4,872722
-AVX Vectorized FMA,32768,4,875958
-Symmetry+Blocking,32768,4,689740
-Blocking Optimized,32768,4,578357
-Baseline,32768,8,1001733
-2-fold Unrolled,32768,8,953526
-4-fold Unrolled,32768,8,962691
-AVX Vectorized,32768,8,926234
-AVX Vectorized FMA,32768,8,925584
-Symmetry+Blocking,32768,8,702946
-Blocking Optimized,32768,8,621953
-Baseline,32768,16,1491853
-2-fold Unrolled,32768,16,1236962
-4-fold Unrolled,32768,16,1243197
-AVX Vectorized,32768,16,1059729
-AVX Vectorized FMA,32768,16,1059687
-Symmetry+Blocking,32768,16,758781
-Blocking Optimized,32768,16,654381
-Baseline,32768,32,2663812
-2-fold Unrolled,32768,32,1957522
-4-fold Unrolled,32768,32,1927796
-AVX Vectorized,32768,32,1377266
-AVX Vectorized FMA,32768,32,1406459
-Symmetry+Blocking,32768,32,862737
-Blocking Optimized,32768,32,729813
-Baseline,32768,64,4591911
-2-fold Unrolled,32768,64,4226704
-4-fold Unrolled,32768,64,4150814
-AVX Vectorized,32768,64,2401118
-AVX Vectorized FMA,32768,64,2503056
-Symmetry+Blocking,32768,64,1165165
-Blocking Optimized,32768,64,903284
-Baseline,32768,128,11149501
-2-fold Unrolled,32768,128,9261175
-4-fold Unrolled,32768,128,8689557
-AVX Vectorized,32768,128,5069013
-AVX Vectorized FMA,32768,128,5120361
-Symmetry+Blocking,32768,128,1658456
-Blocking Optimized,32768,128,1230127
-Baseline,32768,256,19300819
-2-fold Unrolled,32768,256,16177615
-4-fold Unrolled,32768,256,13021220
-AVX Vectorized,32768,256,9563546
-AVX Vectorized FMA,32768,256,9575883
-Symmetry+Blocking,32768,256,2610243
-Blocking Optimized,32768,256,1715063
-Baseline,32768,512,33135772
-2-fold Unrolled,32768,512,28552191
-4-fold Unrolled,32768,512,20479516
-AVX Vectorized,32768,512,14718335
-AVX Vectorized FMA,32768,512,14767423
-Symmetry+Blocking,32768,512,4548270
-Blocking Optimized,32768,512,4516023
+Baseline,1024,2,12049
+2-fold Unrolled,1024,2,12004
+4-fold Unrolled,1024,2,13451
+AVX Vectorized,1024,2,12825
+AVX Vectorized FMA,1024,2,12772
+Symmetry+Blocking,1024,2,14739
+Blocking Optimized,1024,2,10743
+Blocking Optimized & Adaptive,1024,2,10938
+Baseline,1024,4,13714
+2-fold Unrolled,1024,4,13482
+4-fold Unrolled,1024,4,13898
+AVX Vectorized,1024,4,13230
+AVX Vectorized FMA,1024,4,13861
+Symmetry+Blocking,1024,4,15036
+Blocking Optimized,1024,4,10080
+Blocking Optimized & Adaptive,1024,4,9756
+Baseline,1024,8,17600
+2-fold Unrolled,1024,8,15516
+4-fold Unrolled,1024,8,15464
+AVX Vectorized,1024,8,14208
+AVX Vectorized FMA,1024,8,15485
+Symmetry+Blocking,1024,8,15579
+Blocking Optimized,1024,8,10079
+Blocking Optimized & Adaptive,1024,8,11035
+Baseline,1024,16,26582
+2-fold Unrolled,1024,16,23022
+4-fold Unrolled,1024,16,21255
+AVX Vectorized,1024,16,17000
+AVX Vectorized FMA,1024,16,15924
+Symmetry+Blocking,1024,16,17018
+Blocking Optimized,1024,16,10818
+Blocking Optimized & Adaptive,1024,16,10375
+Baseline,1024,32,51000
+2-fold Unrolled,1024,32,36317
+4-fold Unrolled,1024,32,30089
+AVX Vectorized,1024,32,19784
+AVX Vectorized FMA,1024,32,21254
+Symmetry+Blocking,1024,32,30504
+Blocking Optimized,1024,32,13095
+Blocking Optimized & Adaptive,1024,32,12900
+Baseline,1024,64,91330
+2-fold Unrolled,1024,64,72088
+4-fold Unrolled,1024,64,52088
+AVX Vectorized,1024,64,27173
+AVX Vectorized FMA,1024,64,26985
+Symmetry+Blocking,1024,64,26868
+Blocking Optimized,1024,64,16858
+Blocking Optimized & Adaptive,1024,64,18815
+Baseline,1024,128,198668
+2-fold Unrolled,1024,128,157402
+4-fold Unrolled,1024,128,102747
+AVX Vectorized,1024,128,44655
+AVX Vectorized FMA,1024,128,42209
+Symmetry+Blocking,1024,128,37962
+Blocking Optimized,1024,128,22079
+Blocking Optimized & Adaptive,1024,128,22608
+Baseline,1024,256,409393
+2-fold Unrolled,1024,256,333043
+4-fold Unrolled,1024,256,191162
+AVX Vectorized,1024,256,74603
+AVX Vectorized FMA,1024,256,73983
+Symmetry+Blocking,1024,256,72578
+Blocking Optimized,1024,256,39708
+Blocking Optimized & Adaptive,1024,256,44236
+Baseline,1024,512,852447
+2-fold Unrolled,1024,512,669720
+4-fold Unrolled,1024,512,377537
+AVX Vectorized,1024,512,129415
+AVX Vectorized FMA,1024,512,131889
+Symmetry+Blocking,1024,512,118854
+Blocking Optimized,1024,512,129110
+Blocking Optimized & Adaptive,1024,512,67724
+Baseline,2048,2,28082
+2-fold Unrolled,2048,2,28060
+4-fold Unrolled,2048,2,31114
+AVX Vectorized,2048,2,29367
+AVX Vectorized FMA,2048,2,30250
+Symmetry+Blocking,2048,2,34908
+Blocking Optimized,2048,2,25240
+Blocking Optimized & Adaptive,2048,2,25308
+Baseline,2048,4,31917
+2-fold Unrolled,2048,4,31030
+4-fold Unrolled,2048,4,32504
+AVX Vectorized,2048,4,31613
+AVX Vectorized FMA,2048,4,31660
+Symmetry+Blocking,2048,4,32764
+Blocking Optimized,2048,4,24898
+Blocking Optimized & Adaptive,2048,4,24091
+Baseline,2048,8,40536
+2-fold Unrolled,2048,8,36673
+4-fold Unrolled,2048,8,36560
+AVX Vectorized,2048,8,33303
+AVX Vectorized FMA,2048,8,33561
+Symmetry+Blocking,2048,8,37212
+Blocking Optimized,2048,8,26084
+Blocking Optimized & Adaptive,2048,8,25881
+Baseline,2048,16,60712
+2-fold Unrolled,2048,16,50327
+4-fold Unrolled,2048,16,46896
+AVX Vectorized,2048,16,38319
+AVX Vectorized FMA,2048,16,38027
+Symmetry+Blocking,2048,16,39907
+Blocking Optimized,2048,16,27481
+Blocking Optimized & Adaptive,2048,16,27909
+Baseline,2048,32,102060
+2-fold Unrolled,2048,32,66610
+4-fold Unrolled,2048,32,59839
+AVX Vectorized,2048,32,39246
+AVX Vectorized FMA,2048,32,38876
+Symmetry+Blocking,2048,32,39297
+Blocking Optimized,2048,32,28199
+Blocking Optimized & Adaptive,2048,32,30541
+Baseline,2048,64,185973
+2-fold Unrolled,2048,64,151946
+4-fold Unrolled,2048,64,114913
+AVX Vectorized,2048,64,56209
+AVX Vectorized FMA,2048,64,55549
+Symmetry+Blocking,2048,64,57967
+Blocking Optimized,2048,64,39770
+Blocking Optimized & Adaptive,2048,64,38758
+Baseline,2048,128,368498
+2-fold Unrolled,2048,128,296526
+4-fold Unrolled,2048,128,186099
+AVX Vectorized,2048,128,87124
+AVX Vectorized FMA,2048,128,90497
+Symmetry+Blocking,2048,128,85168
+Blocking Optimized,2048,128,57595
+Blocking Optimized & Adaptive,2048,128,56790
+Baseline,2048,256,827277
+2-fold Unrolled,2048,256,655535
+4-fold Unrolled,2048,256,372272
+AVX Vectorized,2048,256,152398
+AVX Vectorized FMA,2048,256,142077
+Symmetry+Blocking,2048,256,133441
+Blocking Optimized,2048,256,85043
+Blocking Optimized & Adaptive,2048,256,84099
+Baseline,2048,512,1678916
+2-fold Unrolled,2048,512,1362574
+4-fold Unrolled,2048,512,734257
+AVX Vectorized,2048,512,256944
+AVX Vectorized FMA,2048,512,263949
+Symmetry+Blocking,2048,512,242794
+Blocking Optimized,2048,512,254418
+Blocking Optimized & Adaptive,2048,512,171391
+Baseline,4096,2,72060
+2-fold Unrolled,4096,2,65849
+4-fold Unrolled,4096,2,68374
+AVX Vectorized,4096,2,69328
+AVX Vectorized FMA,4096,2,69013
+Symmetry+Blocking,4096,2,76164
+Blocking Optimized,4096,2,60049
+Blocking Optimized & Adaptive,4096,2,56894
+Baseline,4096,4,71737
+2-fold Unrolled,4096,4,71761
+4-fold Unrolled,4096,4,72690
+AVX Vectorized,4096,4,71166
+AVX Vectorized FMA,4096,4,70437
+Symmetry+Blocking,4096,4,74221
+Blocking Optimized,4096,4,58620
+Blocking Optimized & Adaptive,4096,4,56735
+Baseline,4096,8,88826
+2-fold Unrolled,4096,8,82725
+4-fold Unrolled,4096,8,82547
+AVX Vectorized,4096,8,74979
+AVX Vectorized FMA,4096,8,75709
+Symmetry+Blocking,4096,8,81969
+Blocking Optimized,4096,8,59795
+Blocking Optimized & Adaptive,4096,8,59907
+Baseline,4096,16,127409
+2-fold Unrolled,4096,16,107430
+4-fold Unrolled,4096,16,100919
+AVX Vectorized,4096,16,83819
+AVX Vectorized FMA,4096,16,84605
+Symmetry+Blocking,4096,16,87585
+Blocking Optimized,4096,16,63758
+Blocking Optimized & Adaptive,4096,16,62781
+Baseline,4096,32,221889
+2-fold Unrolled,4096,32,165227
+4-fold Unrolled,4096,32,138094
+AVX Vectorized,4096,32,96462
+AVX Vectorized FMA,4096,32,96888
+Symmetry+Blocking,4096,32,98436
+Blocking Optimized,4096,32,72162
+Blocking Optimized & Adaptive,4096,32,76378
+Baseline,4096,64,376133
+2-fold Unrolled,4096,64,310161
+4-fold Unrolled,4096,64,232174
+AVX Vectorized,4096,64,126923
+AVX Vectorized FMA,4096,64,126462
+Symmetry+Blocking,4096,64,130303
+Blocking Optimized,4096,64,90509
+Blocking Optimized & Adaptive,4096,64,91133
+Baseline,4096,128,794003
+2-fold Unrolled,4096,128,599658
+4-fold Unrolled,4096,128,393827
+AVX Vectorized,4096,128,185386
+AVX Vectorized FMA,4096,128,187151
+Symmetry+Blocking,4096,128,183065
+Blocking Optimized,4096,128,124062
+Blocking Optimized & Adaptive,4096,128,117631
+Baseline,4096,256,1624158
+2-fold Unrolled,4096,256,1306822
+4-fold Unrolled,4096,256,763292
+AVX Vectorized,4096,256,319116
+AVX Vectorized FMA,4096,256,314499
+Symmetry+Blocking,4096,256,281297
+Blocking Optimized,4096,256,193420
+Blocking Optimized & Adaptive,4096,256,181389
+Baseline,4096,512,3428243
+2-fold Unrolled,4096,512,2671916
+4-fold Unrolled,4096,512,1388043
+AVX Vectorized,4096,512,626229
+AVX Vectorized FMA,4096,512,652526
+Symmetry+Blocking,4096,512,465789
+Blocking Optimized,4096,512,502324
+Blocking Optimized & Adaptive,4096,512,348579
+Baseline,8192,2,178279
+2-fold Unrolled,8192,2,168952
+4-fold Unrolled,8192,2,170541
+AVX Vectorized,8192,2,172522
+AVX Vectorized FMA,8192,2,171943
+Symmetry+Blocking,8192,2,186957
+Blocking Optimized,8192,2,153188
+Blocking Optimized & Adaptive,8192,2,148708
+Baseline,8192,4,178146
+2-fold Unrolled,8192,4,176949
+4-fold Unrolled,8192,4,179168
+AVX Vectorized,8192,4,175902
+AVX Vectorized FMA,8192,4,175194
+Symmetry+Blocking,8192,4,181612
+Blocking Optimized,8192,4,149755
+Blocking Optimized & Adaptive,8192,4,147028
+Baseline,8192,8,212407
+2-fold Unrolled,8192,8,200152
+4-fold Unrolled,8192,8,199096
+AVX Vectorized,8192,8,183904
+AVX Vectorized FMA,8192,8,185125
+Symmetry+Blocking,8192,8,197775
+Blocking Optimized,8192,8,154580
+Blocking Optimized & Adaptive,8192,8,158563
+Baseline,8192,16,295049
+2-fold Unrolled,8192,16,245536
+4-fold Unrolled,8192,16,235376
+AVX Vectorized,8192,16,198258
+AVX Vectorized FMA,8192,16,200835
+Symmetry+Blocking,8192,16,207024
+Blocking Optimized,8192,16,154589
+Blocking Optimized & Adaptive,8192,16,151034
+Baseline,8192,32,434423
+2-fold Unrolled,8192,32,324631
+4-fold Unrolled,8192,32,265238
+AVX Vectorized,8192,32,197817
+AVX Vectorized FMA,8192,32,203645
+Symmetry+Blocking,8192,32,204536
+Blocking Optimized,8192,32,157600
+Blocking Optimized & Adaptive,8192,32,178911
+Baseline,8192,64,695390
+2-fold Unrolled,8192,64,578450
+4-fold Unrolled,8192,64,440208
+AVX Vectorized,8192,64,252041
+AVX Vectorized FMA,8192,64,252160
+Symmetry+Blocking,8192,64,262557
+Blocking Optimized,8192,64,191360
+Blocking Optimized & Adaptive,8192,64,203976
+Baseline,8192,128,1580656
+2-fold Unrolled,8192,128,1207309
+4-fold Unrolled,8192,128,790657
+AVX Vectorized,8192,128,387242
+AVX Vectorized FMA,8192,128,408316
+Symmetry+Blocking,8192,128,406182
+Blocking Optimized,8192,128,287662
+Blocking Optimized & Adaptive,8192,128,291590
+Baseline,8192,256,3321700
+2-fold Unrolled,8192,256,2715960
+4-fold Unrolled,8192,256,1625350
+AVX Vectorized,8192,256,808972
+AVX Vectorized FMA,8192,256,795284
+Symmetry+Blocking,8192,256,619515
+Blocking Optimized,8192,256,430190
+Blocking Optimized & Adaptive,8192,256,432727
+Baseline,8192,512,6860294
+2-fold Unrolled,8192,512,5342256
+4-fold Unrolled,8192,512,3507584
+AVX Vectorized,8192,512,2100976
+AVX Vectorized FMA,8192,512,2140310
+Symmetry+Blocking,8192,512,960248
+Blocking Optimized,8192,512,1081087
+Blocking Optimized & Adaptive,8192,512,827063
+Baseline,16384,2,516332
+2-fold Unrolled,16384,2,505414
+4-fold Unrolled,16384,2,517965
+AVX Vectorized,16384,2,531840
+AVX Vectorized FMA,16384,2,532677
+Symmetry+Blocking,16384,2,571302
+Blocking Optimized,16384,2,504623
+Blocking Optimized & Adaptive,16384,2,495403
+Baseline,16384,4,545937
+2-fold Unrolled,16384,4,546594
+4-fold Unrolled,16384,4,552722
+AVX Vectorized,16384,4,541850
+AVX Vectorized FMA,16384,4,533172
+Symmetry+Blocking,16384,4,558504
+Blocking Optimized,16384,4,489841
+Blocking Optimized & Adaptive,16384,4,486198
+Baseline,16384,8,622815
+2-fold Unrolled,16384,8,599604
+4-fold Unrolled,16384,8,596587
+AVX Vectorized,16384,8,569208
+AVX Vectorized FMA,16384,8,556172
+Symmetry+Blocking,16384,8,587562
+Blocking Optimized,16384,8,487317
+Blocking Optimized & Adaptive,16384,8,491039
+Baseline,16384,16,783677
+2-fold Unrolled,16384,16,702194
+4-fold Unrolled,16384,16,676249
+AVX Vectorized,16384,16,604941
+AVX Vectorized FMA,16384,16,605372
+Symmetry+Blocking,16384,16,616765
+Blocking Optimized,16384,16,515430
+Blocking Optimized & Adaptive,16384,16,515128
+Baseline,16384,32,1153552
+2-fold Unrolled,16384,32,932184
+4-fold Unrolled,16384,32,811234
+AVX Vectorized,16384,32,640878
+AVX Vectorized FMA,16384,32,647208
+Symmetry+Blocking,16384,32,654032
+Blocking Optimized,16384,32,537567
+Blocking Optimized & Adaptive,16384,32,557330
+Baseline,16384,64,1734491
+2-fold Unrolled,16384,64,1456291
+4-fold Unrolled,16384,64,1164344
+AVX Vectorized,16384,64,759112
+AVX Vectorized FMA,16384,64,755769
+Symmetry+Blocking,16384,64,781897
+Blocking Optimized,16384,64,614439
+Blocking Optimized & Adaptive,16384,64,617342
+Baseline,16384,128,3505124
+2-fold Unrolled,16384,128,2663459
+4-fold Unrolled,16384,128,1898492
+AVX Vectorized,16384,128,1128520
+AVX Vectorized FMA,16384,128,1134787
+Symmetry+Blocking,16384,128,969543
+Blocking Optimized,16384,128,758283
+Blocking Optimized & Adaptive,16384,128,757437
+Baseline,16384,256,6989002
+2-fold Unrolled,16384,256,5424167
+4-fold Unrolled,16384,256,3783544
+AVX Vectorized,16384,256,2488998
+AVX Vectorized FMA,16384,256,2396983
+Symmetry+Blocking,16384,256,1382034
+Blocking Optimized,16384,256,1026288
+Blocking Optimized & Adaptive,16384,256,1037002
+Baseline,16384,512,13538422
+2-fold Unrolled,16384,512,11461227
+4-fold Unrolled,16384,512,7893769
+AVX Vectorized,16384,512,5089957
+AVX Vectorized FMA,16384,512,5112938
+Symmetry+Blocking,16384,512,2390225
+Blocking Optimized,16384,512,2464677
+Blocking Optimized & Adaptive,16384,512,1995255
+Baseline,32768,2,1128019
+2-fold Unrolled,32768,2,1041018
+4-fold Unrolled,32768,2,1098288
+AVX Vectorized,32768,2,1078883
+AVX Vectorized FMA,32768,2,1100808
+Symmetry+Blocking,32768,2,1181270
+Blocking Optimized,32768,2,1026456
+Blocking Optimized & Adaptive,32768,2,977547
+Baseline,32768,4,1082594
+2-fold Unrolled,32768,4,1078718
+4-fold Unrolled,32768,4,1113406
+AVX Vectorized,32768,4,1094101
+AVX Vectorized FMA,32768,4,1094612
+Symmetry+Blocking,32768,4,1123297
+Blocking Optimized,32768,4,989056
+Blocking Optimized & Adaptive,32768,4,984838
+Baseline,32768,8,1285321
+2-fold Unrolled,32768,8,1239796
+4-fold Unrolled,32768,8,1232587
+AVX Vectorized,32768,8,1173910
+AVX Vectorized FMA,32768,8,1176935
+Symmetry+Blocking,32768,8,1220971
+Blocking Optimized,32768,8,1035741
+Blocking Optimized & Adaptive,32768,8,1027701
+Baseline,32768,16,1591503
+2-fold Unrolled,32768,16,1430555
+4-fold Unrolled,32768,16,1378163
+AVX Vectorized,32768,16,1236414
+AVX Vectorized FMA,32768,16,1239318
+Symmetry+Blocking,32768,16,1261219
+Blocking Optimized,32768,16,1058872
+Blocking Optimized & Adaptive,32768,16,1057443
+Baseline,32768,32,2339867
+2-fold Unrolled,32768,32,1895525
+4-fold Unrolled,32768,32,1677557
+AVX Vectorized,32768,32,1339350
+AVX Vectorized FMA,32768,32,1339715
+Symmetry+Blocking,32768,32,1377740
+Blocking Optimized,32768,32,1121358
+Blocking Optimized & Adaptive,32768,32,1174061
+Baseline,32768,64,3622898
+2-fold Unrolled,32768,64,3118890
+4-fold Unrolled,32768,64,2487068
+AVX Vectorized,32768,64,1739152
+AVX Vectorized FMA,32768,64,1739550
+Symmetry+Blocking,32768,64,1637323
+Blocking Optimized,32768,64,1314955
+Blocking Optimized & Adaptive,32768,64,1298855
+Baseline,32768,128,7309943
+2-fold Unrolled,32768,128,5761904
+4-fold Unrolled,32768,128,4490664
+AVX Vectorized,32768,128,3098983
+AVX Vectorized FMA,32768,128,3084153
+Symmetry+Blocking,32768,128,2093221
+Blocking Optimized,32768,128,1677324
+Blocking Optimized & Adaptive,32768,128,1677190
+Baseline,32768,256,14439240
+2-fold Unrolled,32768,256,11683298
+4-fold Unrolled,32768,256,8454391
+AVX Vectorized,32768,256,5674950
+AVX Vectorized FMA,32768,256,5670373
+Symmetry+Blocking,32768,256,2983575
+Blocking Optimized,32768,256,2251985
+Blocking Optimized & Adaptive,32768,256,2251381
+Baseline,32768,512,28875447
+2-fold Unrolled,32768,512,23554081
+4-fold Unrolled,32768,512,16106632
+AVX Vectorized,32768,512,10792686
+AVX Vectorized FMA,32768,512,11140663
+Symmetry+Blocking,32768,512,4792736
+Blocking Optimized,32768,512,5024674
+Blocking Optimized & Adaptive,32768,512,4008069
