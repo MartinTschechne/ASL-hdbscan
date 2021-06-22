@@ -28,8 +28,10 @@
 CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& optimization_level) {
     if(optimization_level == "no_optimization") {
         return CalculateCoreDistancesNoOptimization;
+    #ifdef __AVX2__
     } else if(optimization_level == "full") {
         return CalculateCoreDistancesBlocked_Euclidean;
+    #endif //__AVX2__
     } else {
         return CalculateCoreDistancesSymmetry;
         //return CalculateCoreDistancesSymmetry;
@@ -53,8 +55,8 @@ double* CalculateCoreDistancesNoOptimization(const double* data_set, size_t k,
         return result;
     }
 
-    uint64_t start = start_tsc();
     double* knn_distances = (double*)malloc(num_neighbors*sizeof(double));
+    uint64_t start = start_tsc();
     for(size_t point = 0; point < num_points; ++point) {
         for(size_t i = 0; i < num_neighbors; ++i) {
             knn_distances[i] = DOUBLE_MAX;
@@ -83,10 +85,10 @@ double* CalculateCoreDistancesNoOptimization(const double* data_set, size_t k,
             }
         }
         result[point] = knn_distances[num_neighbors-1];
-    }
+    }  
     uint64_t end = stop_tsc(start);
-    // timing <<"Find core distance, " << end << "\n";
     free(knn_distances);
+    // timing <<"Find core distance, " << end << "\n";
     return result;
 }
 
@@ -118,42 +120,17 @@ double* CalculateCoreDistancesSymmetry(const double* data_set, size_t k,
         for (size_t neighbor = point + 1; neighbor < num_points; neighbor++) {
             d = distance_function(&data_set[point*num_dimensions], &data_set[neighbor*num_dimensions], num_dimensions);
             distance_matrix[point][neighbor] = d;
-            distance_matrix[neighbor][point] = d;
+            //distance_matrix[neighbor][point] = d;
         }
     }
     uint64_t end = stop_tsc(start);
     // timing <<"Distance matrix, " << end << "\n";
 
     // calculate core distance
-    double* knn_distances = (double*)malloc(num_neighbors*sizeof(double));
     start = start_tsc();
-    for(size_t point = 0; point < num_points; ++point) {
-        for(size_t i = 0; i < num_neighbors; ++i) {
-            knn_distances[i] = DOUBLE_MAX;
-        }
-
-        for(size_t neighbor = 0; neighbor < num_points; ++neighbor) {
-
-            //Check at which position in the nearest distances the current distance would fit:
-            size_t neighbor_index = num_neighbors;
-            while(neighbor_index >= 1 && distance_matrix[point][neighbor] < knn_distances[neighbor_index-1]) {
-                neighbor_index--;
-            }
-
-            //Shift elements in the array to make room for the current distance:
-            if(neighbor_index < num_neighbors) {
-                for(size_t shift_index = num_neighbors - 1; shift_index > neighbor_index; shift_index--) {
-                    knn_distances[shift_index] = knn_distances[shift_index - 1];
-                }
-                knn_distances[neighbor_index] = distance_matrix[point][neighbor];
-            }
-        }
-        result[point] = knn_distances[num_neighbors-1];
-    }
+    CoreDistanceFromDistanceMatrix(num_points, num_dimensions, num_neighbors, distance_matrix, result);
     end = stop_tsc(start);
     // timing <<"Find core distance, " << end << "\n";
-
-    free(knn_distances);
 
     return result;
 }
@@ -189,7 +166,7 @@ double* CalculateCoreDistancesSymmetry_blocked(const double* data_set, size_t k,
                 for(size_t j = jj; j < min(jj + block_size, num_points); ++j) {
                     d = distance_function(&data_set[i*num_dimensions], &data_set[j*num_dimensions], num_dimensions);
                     distance_matrix[i][j] = d;
-                    distance_matrix[j][i] = d;
+                    //distance_matrix[j][i] = d;
                 }
             }
         }
@@ -198,47 +175,41 @@ double* CalculateCoreDistancesSymmetry_blocked(const double* data_set, size_t k,
     // timing <<"Distance matrix, " << end << "\n";
 
     // calculate core distance
-    double* knn_distances = (double*)malloc(num_neighbors*sizeof(double));
     start = start_tsc();
-    for(size_t point = 0; point < num_points; ++point) {
-        for(size_t i = 0; i < num_neighbors; ++i) {
-            knn_distances[i] = DOUBLE_MAX;
-        }
-
-        for(size_t neighbor = 0; neighbor < num_points; ++neighbor) {
-
-            //Check at which position in the nearest distances the current distance would fit:
-            size_t neighbor_index = num_neighbors;
-            while(neighbor_index >= 1 && distance_matrix[point][neighbor] < knn_distances[neighbor_index-1]) {
-                neighbor_index--;
-            }
-
-            //Shift elements in the array to make room for the current distance:
-            if(neighbor_index < num_neighbors) {
-                for(size_t shift_index = num_neighbors - 1; shift_index > neighbor_index; shift_index--) {
-                    knn_distances[shift_index] = knn_distances[shift_index - 1];
-                }
-                knn_distances[neighbor_index] = distance_matrix[point][neighbor];
-            }
-        }
-        result[point] = knn_distances[num_neighbors-1];
-    }
+    CoreDistanceFromDistanceMatrix(num_points, num_dimensions, num_neighbors, distance_matrix, result);
     end = stop_tsc(start);
     // timing <<"Find core distance, " << end << "\n";
-
-    free(knn_distances);
 
     return result;
 }
 
+
+#ifdef __AVX2__
+
+double* CalculateCoreDistancesBlocked_Euclidean_Adaptive(const double* data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix) {
+    
+    size_t block_size = ((size_t)(sqrt((16*16*256/num_dimensions))) / 8) * 8;
+    block_size = block_size < 8 ? 8 : block_size;
+
+    return CalculateCoreDistancesBlocked_Euclidean_With_Size(data_set, k, distance_function, num_points, num_dimensions, distance_matrix, block_size);
+}
+
 double* CalculateCoreDistancesBlocked_Euclidean(const double* data_set, size_t k,
     DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix) {
+    
+    size_t block_size = 16;
+
+    return CalculateCoreDistancesBlocked_Euclidean_With_Size(data_set, k, distance_function, num_points, num_dimensions, distance_matrix, block_size);
+}
+
+double* CalculateCoreDistancesBlocked_Euclidean_With_Size(const double* data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix, size_t block_size) {
 
     size_t num_neighbors = k - 1;
     const double DOUBLE_MAX = std::numeric_limits<double>::max();
     double* result = CreateAlignedDouble1D(num_points);
     // std::ofstream timing("core_distance_blocked.txt");
-    size_t block_size = 16;
 
     if(k == 1) {
         for(size_t point = 0; point < num_points; ++point) {
@@ -315,14 +286,14 @@ double* CalculateCoreDistancesBlocked_Euclidean(const double* data_set, size_t k
                             distances0 = _mm256_fmadd_pd(diff0, diff0, distances0);
                             distances1 = _mm256_fmadd_pd(diff1, diff1, distances1);
                         }
-                        __m256d root0 = _mm256_sqrt_pd(distances0);
-                        __m256d root1 = _mm256_sqrt_pd(distances1);
-                        _mm256_store_pd(distance_matrix[i] + j, root0);
-                        _mm256_store_pd(distance_matrix[i] + j + 4, root1);
+                        // __m256d root0 = _mm256_sqrt_pd(distances0);
+                        // __m256d root1 = _mm256_sqrt_pd(distances1);
+                        _mm256_store_pd(distance_matrix[i] + j, distances0);
+                        _mm256_store_pd(distance_matrix[i] + j + 4, distances1);
                     }
-                    for(size_t j = jj; j < jj+block_size; ++j) {
-                        distance_matrix[j][i] = distance_matrix[i][j];
-                    }
+                    // for(size_t j = jj; j < jj+block_size; ++j) {
+                    //     distance_matrix[j][i] = distance_matrix[i][j];
+                    // }
                 } else {
                     for(size_t j = jj; j < min(jj+block_size,num_points); ++j) {
                         __m256d d0 = _mm256_setzero_pd();
@@ -367,51 +338,26 @@ double* CalculateCoreDistancesBlocked_Euclidean(const double* data_set, size_t k
                             double diff = data_set[i*num_dimensions + k] - data_set[j*num_dimensions + k];
                             distance += diff*diff;
                         }
-                        distance_matrix[i][j] = sqrt(distance);
-                        distance_matrix[j][i] = distance_matrix[i][j];
+                        distance_matrix[i][j] = distance; // sqrt(distance);
+                        //distance_matrix[j][i] = distance_matrix[i][j];
                     }
                 }
             }
         }
     }
-    
+
     uint64_t end = stop_tsc(start);
     // timing <<"Distance matrix, " << end << "\n";
 
     // calculate core distance
-    double* knn_distances = (double*)malloc(num_neighbors*sizeof(double));
     start = start_tsc();
-    for(size_t point = 0; point < num_points; ++point) {
-        distance_matrix[point][point] = DOUBLE_MAX;
-        for(size_t i = 0; i < num_neighbors; ++i) {
-            knn_distances[i] = DOUBLE_MAX;
-        }
-
-        for(size_t neighbor = 0; neighbor < num_points; ++neighbor) {
-
-            //Check at which position in the nearest distances the current distance would fit:
-            size_t neighbor_index = num_neighbors;
-            while(neighbor_index >= 1 && distance_matrix[point][neighbor] < knn_distances[neighbor_index-1]) {
-                neighbor_index--;
-            }
-
-            //Shift elements in the array to make room for the current distance:
-            if(neighbor_index < num_neighbors) {
-                for(size_t shift_index = num_neighbors - 1; shift_index > neighbor_index; shift_index--) {
-                    knn_distances[shift_index] = knn_distances[shift_index - 1];
-                }
-                knn_distances[neighbor_index] = distance_matrix[point][neighbor];
-            }
-        }
-        result[point] = knn_distances[num_neighbors-1];
-    }
+    CoreDistanceFromDistanceMatrix(num_points, num_dimensions, num_neighbors, distance_matrix, result);
     end = stop_tsc(start);
     // timing <<"Find core distance, " << end << "\n";
 
-    free(knn_distances);
-
     return result;
 }
+
 
 // This is just matrix-matrix multiplication
 double* CalculateCoreDistancesBlocked_Euclidean_Transpose(const double* data_set, size_t k,
@@ -485,44 +431,19 @@ double* CalculateCoreDistancesBlocked_Euclidean_Transpose(const double* data_set
     for(size_t i = 0; i < num_points; ++i) {
         for(size_t j = i; j < num_points; ++j) {
             distance_matrix[i][j] = sqrt(distance_matrix[i][j]);
-            distance_matrix[j][i] = distance_matrix[i][j];
+            //distance_matrix[j][i] = distance_matrix[i][j];
         }
     }
-    
+
     uint64_t end = stop_tsc(start);
     // timing <<"Distance matrix, " << end << "\n";
 
     // calculate core distance
-    double* knn_distances = (double*)malloc(num_neighbors*sizeof(double));
     start = start_tsc();
-    for(size_t point = 0; point < num_points; ++point) {
-        distance_matrix[point][point] = DOUBLE_MAX;
-        for(size_t i = 0; i < num_neighbors; ++i) {
-            knn_distances[i] = DOUBLE_MAX;
-        }
-
-        for(size_t neighbor = 0; neighbor < num_points; ++neighbor) {
-
-            //Check at which position in the nearest distances the current distance would fit:
-            size_t neighbor_index = num_neighbors;
-            while(neighbor_index >= 1 && distance_matrix[point][neighbor] < knn_distances[neighbor_index-1]) {
-                neighbor_index--;
-            }
-
-            //Shift elements in the array to make room for the current distance:
-            if(neighbor_index < num_neighbors) {
-                for(size_t shift_index = num_neighbors - 1; shift_index > neighbor_index; shift_index--) {
-                    knn_distances[shift_index] = knn_distances[shift_index - 1];
-                }
-                knn_distances[neighbor_index] = distance_matrix[point][neighbor];
-            }
-        }
-        result[point] = knn_distances[num_neighbors-1];
-    }
+    CoreDistanceFromDistanceMatrix(num_points, num_dimensions, num_neighbors, distance_matrix, result);
     end = stop_tsc(start);
     // timing <<"Find core distance, " << end << "\n";
 
-    free(knn_distances);
-
     return result;
 }
+#endif //__AVX2__

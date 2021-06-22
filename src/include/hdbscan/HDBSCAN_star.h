@@ -17,6 +17,7 @@
 #include <hdbscan/constraint.h>
 #include <hdbscan/_C_undirected_graph.h>
 #include <common/ordered_set.h>
+#include <common/memory.h>
 
 /**
  * Implementation of the HDBSCAN* algorithm, which is broken into several
@@ -93,6 +94,39 @@ inline void FreeDistanceMatrix(double** mat, size_t num_points) {
 }
 
 CalculateCoreDistances_t GetCalculateCoreDistancesFunction(const std::string& optimization_level);
+
+inline void CoreDistanceFromDistanceMatrix(size_t num_points, size_t num_dimensions, size_t num_neighbors, double** distance_matrix, double* result){
+    double* knn_distances = CreateAlignedDouble1D(num_neighbors);
+    for(size_t point = 0; point < num_points; ++point) {
+        distance_matrix[point][point] = __DBL_MAX__;
+        for(size_t i = 0; i < num_neighbors; ++i) {
+            knn_distances[i] = __DBL_MAX__;
+        }
+        for(size_t neighbor = 0; neighbor < num_points; ++neighbor) {
+            if(point > neighbor) {
+                distance_matrix[point][neighbor] = distance_matrix[neighbor][point];
+            }
+
+            double distance = distance_matrix[point][neighbor];
+            //Check at which position in the nearest distances the current distance would fit:
+            size_t neighbor_index = num_neighbors;
+            while(neighbor_index >= 1 && distance < knn_distances[neighbor_index-1]) {
+                neighbor_index--;
+            }
+
+            //Shift elements in the array to make room for the current distance:
+            if(neighbor_index < num_neighbors) {
+                for(size_t shift_index = num_neighbors - 1; shift_index > neighbor_index; shift_index--) {
+                    knn_distances[shift_index] = knn_distances[shift_index - 1];
+                }
+                knn_distances[neighbor_index] = distance;
+            }
+        }
+        result[point] = knn_distances[num_neighbors-1];
+    }
+    free(knn_distances);
+}
+
 /**
  * @brief  Calculates the core distances for each point in the data set,
  * given some value for k.
@@ -123,6 +157,12 @@ double* CalculateCoreDistancesSymmetry(const double* data_set, size_t k,
     DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
 
 double* CalculateCoreDistancesBlocked_Euclidean(const double* data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
+
+double* CalculateCoreDistancesBlocked_Euclidean_With_Size(const double* data_set, size_t k,
+    DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix, size_t block_size);
+
+double* CalculateCoreDistancesBlocked_Euclidean_Adaptive(const double* data_set, size_t k,
     DistanceCalculator distance_function, const size_t num_points, const size_t num_dimensions, double**& distance_matrix);
 
 double* CalculateCoreDistancesSymmetry_blocked(const double* data_set, size_t k,

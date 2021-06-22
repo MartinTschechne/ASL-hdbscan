@@ -13,40 +13,46 @@ ConstructMST_t GetConstructMSTFunction(const std::string& optimization_level) {
     if(optimization_level == "bitset_nocalc") {
         return ConstructMST_Bitset_NoCalc;
     }
-    if(optimization_level == "bitset_unroll") {
+    else if(optimization_level == "bitset_unroll") {
         return ConstructMST_Unrolled_Bitset;
     }
-    if(optimization_level == "bitset_unroll_nocalc") {
+    else if(optimization_level == "bitset_unroll_nocalc") {
         return ConstructMST_Unrolled_Bitset_NoCalc;
     }
-    if(optimization_level == "bitset_nocalc_avx") {
+    #ifdef __AVX2__
+    else if(optimization_level == "bitset_nocalc_avx") {
         return ConstructMST_Bitset_NoCalc_AVX;
     }
-    if(optimization_level == "bitset_nocalc_avx_unroll_2") {
+    else if(optimization_level == "bitset_nocalc_avx_unroll_2") {
         return ConstructMST_Bitset_NoCalc_AVX_Unrolled_2;
     }
-    if(optimization_level == "bitset_nocalc_avx_unroll_4") {
+    else if(optimization_level == "bitset_nocalc_avx_unroll_4") {
         return ConstructMST_Bitset_NoCalc_AVX_Unrolled_4;
     }
-    if(optimization_level == "nobitset_unroll") {
+    #endif //__AVX2__
+    else if(optimization_level == "nobitset_unroll") {
         return ConstructMST_Unrolled_NoBitset_CalcDistances;
     }
-    if(optimization_level == "nobitset_unroll_nocalc") {
+    else if(optimization_level == "nobitset_unroll_nocalc") {
         return ConstructMST_Unrolled_NoBitset_NoCalcDistances;
     }
-    if(optimization_level == "nobitset_nocalc_avx256") {
+    #ifdef __AVX2__
+    else if(optimization_level == "nobitset_nocalc_avx256") {
         return ConstructMST_NoBitset_NoCalcDistances_AVX256;
     }
-    if(optimization_level == "nobitset_nocalc_avx512") {
+    #endif //__AVX2__
+    #ifdef __AVX512__
+    else if(optimization_level == "nobitset_nocalc_avx512") {
         return ConstructMST_NoBitset_NoCalcDistances_AVX512;
     }
-    if(optimization_level != "no_optimization") {
+    #endif //__AVX512__
+    else if(optimization_level != "no_optimization"){
         std::cout << "\n\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
         std::cout << "Optimization " << optimization_level << " not supported for GetConstructMSTFunction. Fallback to unoptimized version\n\n";
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n" << std::endl;
     }
     return ConstructMST;
-    
+
 }
 
 UndirectedGraph_C* ConstructMST(const double* data_set,
@@ -120,7 +126,7 @@ UndirectedGraph_C* ConstructMST(const double* data_set,
         current_point = nearest_mrd_point;
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
 
     //Create an array for vertices in the tree that each point attached to:
     size_t* other_vertex_indices = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
@@ -148,9 +154,9 @@ UndirectedGraph_C* ConstructMST(const double* data_set,
 UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
-    
+
     std::ofstream timing("mst_timings/bitset_unroll.csv");
-    
+
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
@@ -194,7 +200,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* data_set,
             bool flag1 = current_point == (neighbor + 1) || GetBit(attached_points, neighbor + 1);
             bool flag2 = current_point == (neighbor + 2) || GetBit(attached_points, neighbor + 2);
             bool flag3 = current_point == (neighbor + 3) || GetBit(attached_points, neighbor + 3);
-            
+
             if(flag0 && flag1 && flag2 && flag3) {
                 continue;
             }
@@ -276,7 +282,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* data_set,
             if(nmrd3 <= nearest_mrd_distance3) {
                 nearest_mrd_distance3 = nmrd3;
                 nearest_mrd_point3 = neighbor + 3;
-            }            
+            }
         }
         for(; neighbor < n_pts; ++neighbor) {
             if(current_point == neighbor) {
@@ -327,7 +333,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset(const double* data_set,
         SetBit(attached_points, current_point, true);
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
 
     //Create an array for vertices in the tree that each point attached to:
     size_t* other_vertex_indices = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
@@ -423,7 +429,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc(const double* data_set,
         current_point = nearest_mrd_point;
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
 
     //Create an array for vertices in the tree that each point attached to:
     size_t* other_vertex_indices = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
@@ -451,9 +457,9 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc(const double* data_set,
 UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
-    
+
     std::ofstream timing("mst_timings/bitset_nocalc_unroll4.csv");
-    
+
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
@@ -497,7 +503,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* data_set,
             bool flag1 = current_point == (neighbor + 1) || GetBit(attached_points, neighbor + 1);
             bool flag2 = current_point == (neighbor + 2) || GetBit(attached_points, neighbor + 2);
             bool flag3 = current_point == (neighbor + 3) || GetBit(attached_points, neighbor + 3);
-            
+
             if(flag0 && flag1 && flag2 && flag3) {
                 continue;
             }
@@ -579,7 +585,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* data_set,
             if(nmrd3 <= nearest_mrd_distance3) {
                 nearest_mrd_distance3 = nmrd3;
                 nearest_mrd_point3 = neighbor + 3;
-            }            
+            }
         }
         for(; neighbor < n_pts; ++neighbor) {
             if(current_point == neighbor) {
@@ -630,7 +636,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* data_set,
         SetBit(attached_points, current_point, true);
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
 
     //Create an array for vertices in the tree that each point attached to:
     size_t* other_vertex_indices = (size_t*)calloc(n_pts-1 + self_edge_capacity, sizeof(size_t));
@@ -655,14 +661,14 @@ UndirectedGraph_C* ConstructMST_Unrolled_Bitset_NoCalc(const double* data_set,
     return result;
 }
 
+#ifdef __AVX2__
 UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
-    
-    #ifdef __AVX2__
+
     std::ofstream timing("mst_timings/bitset_nocalc_avx.csv");
     size_t all_int = 0xffffffffffffffff;
-    
+
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
@@ -721,12 +727,12 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* data_set,
             mrd = _mm256_max_pd(core_distance_current, mrd);
             mrd = _mm256_max_pd(core_distances_neighbor, mrd);
 
-            mrd = _mm256_blendv_pd(mrd, dbl_max, (__m256d)_mm256_or_si256(attached_mask, current_point_mask));            
+            mrd = _mm256_blendv_pd(mrd, dbl_max, (__m256d)_mm256_or_si256(attached_mask, current_point_mask));
 
             __m256d lt_mask = _mm256_cmp_pd(mrd, nearest_mrd, _CMP_LT_OQ);
             nearest_mrd = _mm256_blendv_pd(nearest_mrd, mrd, lt_mask);
             nearest_neighbors = _mm256_blendv_epi8(nearest_neighbors, current_point_intr, (__m256i)lt_mask);
-            
+
             _mm256_store_pd(nearest_mrd_distances + neighbor, nearest_mrd);
             _mm256_store_si256((__m256i *)(nearest_mrd_neighbors + neighbor), nearest_neighbors);
 
@@ -734,8 +740,8 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* data_set,
             __m256d le_mask = _mm256_cmp_pd(nearest_mrd, nearest_mrd_distance, _CMP_LE_OQ);
             le_mask = _mm256_and_pd(max_mask, le_mask);
 
-            nearest_mrd_distance = _mm256_blendv_pd(nearest_mrd_distance, nearest_mrd, le_mask); 
-            nearest_mrd_point = _mm256_blendv_epi8(nearest_mrd_point, possible_indices, (__m256i)le_mask);     
+            nearest_mrd_distance = _mm256_blendv_pd(nearest_mrd_distance, nearest_mrd, le_mask);
+            nearest_mrd_point = _mm256_blendv_epi8(nearest_mrd_point, possible_indices, (__m256i)le_mask);
         }
         double nearest_mrd_distance_arr[4];
         size_t nearest_mrd_point_arr[4];
@@ -791,7 +797,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* data_set,
         attached_points[current_point] = all_int;
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
     free(attached_points);
 
     //Create an array for vertices in the tree that each point attached to:
@@ -815,18 +821,15 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX(const double* data_set,
     end = stop_tsc(start);
     timing << "Construct graph," << end;
     return result;
-    #else 
-    std::cout << "\n\n!!!!!!!!!!\nAVX2 not defined, fallback to version without avx\n!!!!!!!!!!!" << std::endl;
-    return ConstructMST_Unrolled_Bitset_NoCalc(data_set, core_distances, self_edges, distance_function, n_pts, point_dimension, distance_matrix);
-    #endif
 }
+
 
 UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
-    #ifdef __AVX2__
+
     std::ofstream timing("mst_timings/bitset_nocalc_avx_unroll2.csv");
-    
+
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
@@ -902,8 +905,8 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* data_
             mrd0 = _mm256_max_pd(core_distances_neighbor0, mrd0);
             mrd1 = _mm256_max_pd(core_distances_neighbor1, mrd1);
 
-            mrd0 = _mm256_blendv_pd(mrd0, dbl_max, (__m256d)_mm256_or_si256(attached_mask0, current_point_mask0));   
-            mrd1 = _mm256_blendv_pd(mrd1, dbl_max, (__m256d)_mm256_or_si256(attached_mask1, current_point_mask1));            
+            mrd0 = _mm256_blendv_pd(mrd0, dbl_max, (__m256d)_mm256_or_si256(attached_mask0, current_point_mask0));
+            mrd1 = _mm256_blendv_pd(mrd1, dbl_max, (__m256d)_mm256_or_si256(attached_mask1, current_point_mask1));
 
             __m256d lt_mask0 = _mm256_cmp_pd(mrd0, nearest_mrd0, _CMP_LT_OQ);
             __m256d lt_mask1 = _mm256_cmp_pd(mrd1, nearest_mrd1, _CMP_LT_OQ);
@@ -913,7 +916,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* data_
 
             nearest_neighbors0 = _mm256_blendv_epi8(nearest_neighbors0, current_point_intr, (__m256i)lt_mask0);
             nearest_neighbors1 = _mm256_blendv_epi8(nearest_neighbors1, current_point_intr, (__m256i)lt_mask1);
-            
+
             _mm256_store_pd(nearest_mrd_distances + neighbor, nearest_mrd0);
             _mm256_store_pd(nearest_mrd_distances + neighbor + 4, nearest_mrd1);
             _mm256_store_si256((__m256i *)(nearest_mrd_neighbors + neighbor), nearest_neighbors0);
@@ -928,11 +931,11 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* data_
             le_mask0 = _mm256_and_pd(max_mask0, le_mask0);
             le_mask1 = _mm256_and_pd(max_mask1, le_mask1);
 
-            nearest_mrd_distance0 = _mm256_blendv_pd(nearest_mrd_distance0, nearest_mrd0, le_mask0); 
-            nearest_mrd_distance1 = _mm256_blendv_pd(nearest_mrd_distance1, nearest_mrd1, le_mask1); 
+            nearest_mrd_distance0 = _mm256_blendv_pd(nearest_mrd_distance0, nearest_mrd0, le_mask0);
+            nearest_mrd_distance1 = _mm256_blendv_pd(nearest_mrd_distance1, nearest_mrd1, le_mask1);
 
-            nearest_mrd_point0 = _mm256_blendv_epi8(nearest_mrd_point0, possible_indices0, (__m256i)le_mask0); 
-            nearest_mrd_point1 = _mm256_blendv_epi8(nearest_mrd_point1, possible_indices1, (__m256i)le_mask1);     
+            nearest_mrd_point0 = _mm256_blendv_epi8(nearest_mrd_point0, possible_indices0, (__m256i)le_mask0);
+            nearest_mrd_point1 = _mm256_blendv_epi8(nearest_mrd_point1, possible_indices1, (__m256i)le_mask1);
         }
 
         double nearest_mrd_distance_arr[4];
@@ -996,7 +999,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* data_
         attached_points[current_point] = all_int;
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
     free(attached_points);
 
     //Create an array for vertices in the tree that each point attached to:
@@ -1020,20 +1023,15 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(const double* data_
     end = stop_tsc(start);
     timing << "Construct graph," << end;
     return result;
-    #else 
-    std::cout << "\n\n!!!!!!!!!!\nAVX2 not defined, fallback to version without avx\n!!!!!!!!!!!" << std::endl;
-    return ConstructMST_Unrolled_Bitset_NoCalc(data_set, core_distances, self_edges, distance_function, n_pts, point_dimension, distance_matrix);
-    #endif
 }
 
 
 UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
-    
-    #ifdef __AVX2__    
+
     std::ofstream timing("mst_timings/bitset_nocalc_avx_unroll4.csv");
-    
+
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
@@ -1134,10 +1132,10 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_
             mrd2 = _mm256_max_pd(core_distances_neighbor2, mrd2);
             mrd3 = _mm256_max_pd(core_distances_neighbor3, mrd3);
 
-            mrd0 = _mm256_blendv_pd(mrd0, dbl_max, (__m256d)_mm256_or_si256(attached_mask0, current_point_mask0));   
+            mrd0 = _mm256_blendv_pd(mrd0, dbl_max, (__m256d)_mm256_or_si256(attached_mask0, current_point_mask0));
             mrd1 = _mm256_blendv_pd(mrd1, dbl_max, (__m256d)_mm256_or_si256(attached_mask1, current_point_mask1));
             mrd2 = _mm256_blendv_pd(mrd2, dbl_max, (__m256d)_mm256_or_si256(attached_mask2, current_point_mask2));
-            mrd3 = _mm256_blendv_pd(mrd3, dbl_max, (__m256d)_mm256_or_si256(attached_mask3, current_point_mask3));            
+            mrd3 = _mm256_blendv_pd(mrd3, dbl_max, (__m256d)_mm256_or_si256(attached_mask3, current_point_mask3));
 
             __m256d lt_mask0 = _mm256_cmp_pd(mrd0, nearest_mrd0, _CMP_LT_OQ);
             __m256d lt_mask1 = _mm256_cmp_pd(mrd1, nearest_mrd1, _CMP_LT_OQ);
@@ -1153,7 +1151,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_
             nearest_neighbors1 = _mm256_blendv_epi8(nearest_neighbors1, current_point_intr, (__m256i)lt_mask1);
             nearest_neighbors2 = _mm256_blendv_epi8(nearest_neighbors2, current_point_intr, (__m256i)lt_mask2);
             nearest_neighbors3 = _mm256_blendv_epi8(nearest_neighbors3, current_point_intr, (__m256i)lt_mask3);
-            
+
             _mm256_store_pd(nearest_mrd_distances + neighbor, nearest_mrd0);
             _mm256_store_pd(nearest_mrd_distances + neighbor + 4, nearest_mrd1);
             _mm256_store_pd(nearest_mrd_distances + neighbor + 8, nearest_mrd2);
@@ -1178,15 +1176,15 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_
             le_mask2 = _mm256_and_pd(max_mask2, le_mask2);
             le_mask3 = _mm256_and_pd(max_mask3, le_mask3);
 
-            nearest_mrd_distance0 = _mm256_blendv_pd(nearest_mrd_distance0, nearest_mrd0, le_mask0); 
-            nearest_mrd_distance1 = _mm256_blendv_pd(nearest_mrd_distance1, nearest_mrd1, le_mask1); 
-            nearest_mrd_distance2 = _mm256_blendv_pd(nearest_mrd_distance2, nearest_mrd2, le_mask2); 
-            nearest_mrd_distance3 = _mm256_blendv_pd(nearest_mrd_distance3, nearest_mrd3, le_mask3); 
+            nearest_mrd_distance0 = _mm256_blendv_pd(nearest_mrd_distance0, nearest_mrd0, le_mask0);
+            nearest_mrd_distance1 = _mm256_blendv_pd(nearest_mrd_distance1, nearest_mrd1, le_mask1);
+            nearest_mrd_distance2 = _mm256_blendv_pd(nearest_mrd_distance2, nearest_mrd2, le_mask2);
+            nearest_mrd_distance3 = _mm256_blendv_pd(nearest_mrd_distance3, nearest_mrd3, le_mask3);
 
-            nearest_mrd_point0 = _mm256_blendv_epi8(nearest_mrd_point0, possible_indices0, (__m256i)le_mask0); 
+            nearest_mrd_point0 = _mm256_blendv_epi8(nearest_mrd_point0, possible_indices0, (__m256i)le_mask0);
             nearest_mrd_point1 = _mm256_blendv_epi8(nearest_mrd_point1, possible_indices1, (__m256i)le_mask1);
-            nearest_mrd_point2 = _mm256_blendv_epi8(nearest_mrd_point2, possible_indices2, (__m256i)le_mask2); 
-            nearest_mrd_point3 = _mm256_blendv_epi8(nearest_mrd_point3, possible_indices3, (__m256i)le_mask3);      
+            nearest_mrd_point2 = _mm256_blendv_epi8(nearest_mrd_point2, possible_indices2, (__m256i)le_mask2);
+            nearest_mrd_point3 = _mm256_blendv_epi8(nearest_mrd_point3, possible_indices3, (__m256i)le_mask3);
         }
         double nearest_mrd_distance_arr[4];
         size_t nearest_mrd_point_arr[4];
@@ -1223,13 +1221,13 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_
         //     __m256i current_point_mask1 = _mm256_cmpeq_epi64(current_point_intr, possible_indices1);
 
         //     __m256i attached_mask0 = _mm256_set_epi64x( // AVX512 has much nices ways :(
-        //         mask0 & 8 ? all_int : 0, 
+        //         mask0 & 8 ? all_int : 0,
         //         mask0 & 4 ? all_int : 0,
         //         mask0 & 2 ? all_int : 0,
         //         mask0 & 1 ? all_int : 0
         //     );
         //     __m256i attached_mask1 = _mm256_set_epi64x( // AVX512 has much nices ways :(
-        //         mask1 & 8 ? all_int : 0, 
+        //         mask1 & 8 ? all_int : 0,
         //         mask1 & 4 ? all_int : 0,
         //         mask1 & 2 ? all_int : 0,
         //         mask1 & 1 ? all_int : 0
@@ -1250,8 +1248,8 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_
         //     mrd0 = _mm256_max_pd(core_distances_neighbor0, mrd0);
         //     mrd1 = _mm256_max_pd(core_distances_neighbor1, mrd1);
 
-        //     mrd0 = _mm256_blendv_pd(mrd0, dbl_max, (__m256d)_mm256_or_si256(attached_mask0, current_point_mask0));   
-        //     mrd1 = _mm256_blendv_pd(mrd1, dbl_max, (__m256d)_mm256_or_si256(attached_mask1, current_point_mask1));            
+        //     mrd0 = _mm256_blendv_pd(mrd0, dbl_max, (__m256d)_mm256_or_si256(attached_mask0, current_point_mask0));
+        //     mrd1 = _mm256_blendv_pd(mrd1, dbl_max, (__m256d)_mm256_or_si256(attached_mask1, current_point_mask1));
 
         //     __m256d lt_mask0 = _mm256_cmp_pd(mrd0, nearest_mrd0, _CMP_LT_OQ);
         //     __m256d lt_mask1 = _mm256_cmp_pd(mrd1, nearest_mrd1, _CMP_LT_OQ);
@@ -1261,7 +1259,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_
 
         //     nearest_neighbors0 = _mm256_blendv_epi8(nearest_neighbors0, current_point_intr, (__m256i)lt_mask0);
         //     nearest_neighbors1 = _mm256_blendv_epi8(nearest_neighbors1, current_point_intr, (__m256i)lt_mask1);
-            
+
         //     _mm256_store_pd(nearest_mrd_distances + neighbor, nearest_mrd0);
         //     _mm256_store_pd(nearest_mrd_distances + neighbor + 4, nearest_mrd1);
         //     _mm256_store_si256((__m256i *)(nearest_mrd_neighbors + neighbor), nearest_neighbors0);
@@ -1276,11 +1274,11 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_
         //     le_mask0 = _mm256_and_pd(max_mask0, le_mask0);
         //     le_mask1 = _mm256_and_pd(max_mask1, le_mask1);
 
-        //     nearest_mrd_distance0 = _mm256_blendv_pd(nearest_mrd_distance0, nearest_mrd0, le_mask0); 
-        //     nearest_mrd_distance1 = _mm256_blendv_pd(nearest_mrd_distance1, nearest_mrd1, le_mask1); 
+        //     nearest_mrd_distance0 = _mm256_blendv_pd(nearest_mrd_distance0, nearest_mrd0, le_mask0);
+        //     nearest_mrd_distance1 = _mm256_blendv_pd(nearest_mrd_distance1, nearest_mrd1, le_mask1);
 
-        //     nearest_mrd_point0 = _mm256_blendv_epi8(nearest_mrd_point0, possible_indices0, (__m256i)le_mask0); 
-        //     nearest_mrd_point1 = _mm256_blendv_epi8(nearest_mrd_point1, possible_indices1, (__m256i)le_mask1);     
+        //     nearest_mrd_point0 = _mm256_blendv_epi8(nearest_mrd_point0, possible_indices0, (__m256i)le_mask0);
+        //     nearest_mrd_point1 = _mm256_blendv_epi8(nearest_mrd_point1, possible_indices1, (__m256i)le_mask1);
         // }
 
         __m256d nearest_mrd_distance = _mm256_min_pd(nearest_mrd_distance0, nearest_mrd_distance1);
@@ -1342,7 +1340,7 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_
         attached_points[current_point] = all_int;
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
     free(attached_points);
 
     //Create an array for vertices in the tree that each point attached to:
@@ -1366,19 +1364,16 @@ UndirectedGraph_C* ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(const double* data_
     end = stop_tsc(start);
     timing << "Construct graph," << end;
     return result;
-    #else 
-    std::cout << "\n\n!!!!!!!!!!\nAVX2 not defined, fallback to version without avx\n!!!!!!!!!!!" << std::endl;
-    return ConstructMST_Unrolled_Bitset_NoCalc(data_set, core_distances, self_edges, distance_function, n_pts, point_dimension, distance_matrix);
-    #endif
 }
+#endif //__AVX2__
 
 
 UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
-    
+
     std::ofstream timing("mst_timings/nobitset.csv");
-    
+
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
@@ -1401,9 +1396,9 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* da
     unsigned long long end = stop_tsc(start);
 
     timing << "Setup," << end << "\n";
-    
+
     start = start_tsc();
-    // Calculate MRD 
+    // Calculate MRD
     double** mrd_matrix = (double**)malloc((n_pts)*sizeof(double*));
     for(size_t i = 0; i < n_pts; ++i) {
         mrd_matrix[i] = (double*)malloc(n_pts*sizeof(double));
@@ -1469,7 +1464,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* da
 
     start = start_tsc();
     for(; num_attached_points < n_pts; ++num_attached_points) {
-        // find index of minimal mrd 
+        // find index of minimal mrd
         double* row = mrd_matrix[current_point];
         size_t min_index0 = 0;
         double min_value0 = DBL_MAX;
@@ -1537,7 +1532,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* da
                 min_value3 = nearest_mrd_distances[j] ;
             }
         }
-        
+
         double min_value = fmin(fmin(fmin(min_value0, min_value1), min_value2), min_value3);
         current_point = 0;
         if(min_value0 == min_value) {
@@ -1554,7 +1549,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* da
         }
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
     for(size_t i = 0; i < n_pts; ++i) {
         free(mrd_matrix[i]);
     }
@@ -1586,9 +1581,9 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_CalcDistances(const double* da
 UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
-    
+
     std::ofstream timing("mst_timings/nobitset_nocalc.csv");
-    
+
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
@@ -1611,9 +1606,9 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* 
     unsigned long long end = stop_tsc(start);
 
     timing << "Setup," << end << "\n";
-    
+
     start = start_tsc();
-    // Calculate MRD 
+    // Calculate MRD
     double** mrd_matrix = (double**)malloc((n_pts)*sizeof(double*));
     for(size_t i = 0; i < n_pts; ++i) {
         mrd_matrix[i] = (double*)malloc(n_pts*sizeof(double));
@@ -1679,7 +1674,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* 
 
     start = start_tsc();
     for(; num_attached_points < n_pts; ++num_attached_points) {
-        // find index of minimal mrd 
+        // find index of minimal mrd
         double* row = mrd_matrix[current_point];
         size_t min_index0 = 0;
         double min_value0 = DBL_MAX;
@@ -1747,7 +1742,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* 
                 min_value3 = nearest_mrd_distances[j] ;
             }
         }
-        
+
         double min_value = fmin(fmin(fmin(min_value0, min_value1), min_value2), min_value3);
         current_point = 0;
         if(min_value0 == min_value) {
@@ -1764,7 +1759,7 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* 
         }
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
     for(size_t i = 0; i < n_pts; ++i) {
         free(mrd_matrix[i]);
     }
@@ -1794,13 +1789,13 @@ UndirectedGraph_C* ConstructMST_Unrolled_NoBitset_NoCalcDistances(const double* 
 }
 
 
+#ifdef __AVX2__
 UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
-    
-    #ifdef __AVX2__
+
     std::ofstream timing("mst_timings/nobitset_nocalc_avx.csv");
-    
+
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
@@ -1823,9 +1818,9 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* da
     unsigned long long end = stop_tsc(start);
 
     timing << "Setup," << end << "\n";
-    
+
     start = start_tsc();
-    // Calculate MRD 
+    // Calculate MRD
     double** mrd_matrix = CreateAlignedDouble2D(n_pts, n_pts);
 
     for(size_t pt_x = 0; pt_x < n_pts; ++pt_x) {
@@ -1888,7 +1883,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* da
     __m256d dbl_max = _mm256_set1_pd(DBL_MAX);
     start = start_tsc();
     for(; num_attached_points < n_pts; ++num_attached_points) {
-        // find index of minimal mrd 
+        // find index of minimal mrd
         double* row = mrd_matrix[current_point];
         __m256i_u min_index = _mm256_setzero_si256();
         __m256d min_value = _mm256_set1_pd(DBL_MAX);
@@ -1909,7 +1904,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* da
             __m256d lt_mask = _mm256_cmp_pd(mrd, nearest_mrd, _CMP_LT_OQ);
             nearest_mrd = _mm256_blendv_pd(nearest_mrd, mrd, lt_mask);
             nearest_neighbors = _mm256_blendv_epi8(nearest_neighbors, current_point_intr, (__m256i)lt_mask);
-            
+
             _mm256_store_pd(nearest_mrd_distances + j, nearest_mrd);
             _mm256_store_si256((__m256i *)(nearest_mrd_neighbors + j), nearest_neighbors);
 
@@ -1917,7 +1912,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* da
             __m256d le_mask = _mm256_cmp_pd(nearest_mrd, min_value, _CMP_LE_OQ);
             le_mask = _mm256_and_pd(max_mask, le_mask);
 
-            min_value = _mm256_blendv_pd(min_value, nearest_mrd, le_mask); 
+            min_value = _mm256_blendv_pd(min_value, nearest_mrd, le_mask);
             min_index = _mm256_blendv_epi8(min_index, possible_indices, (__m256i)le_mask);
         }
 
@@ -1937,7 +1932,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* da
                 min_values[3] = nearest_mrd_distances[j] ;
             }
         }
-        
+
         double min_value_final = fmin(fmin(fmin(min_values[0], min_values[1]), min_values[2]), min_values[3]);
         current_point = 0;
         if(min_values[0] == min_value_final) {
@@ -1954,7 +1949,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* da
         }
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
     for(size_t i = 0; i < n_pts; ++i) {
         free(mrd_matrix[i]);
     }
@@ -1981,19 +1976,17 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX256(const double* da
     end = stop_tsc(start);
     timing << "Construct graph," << end;
     return result;
-    #else 
-    std::cout << "\n\n!!!!!!!!!!\nAVX2 not defined, fallback to version without avx\n!!!!!!!!!!!" << std::endl;
-    return ConstructMST_Unrolled_NoBitset_NoCalcDistances(data_set, core_distances, self_edges, distance_function, n_pts, point_dimension, distance_matrix);
-    #endif
 }
+#endif //__AVX2__
 
+
+#ifdef __AVX512__
 UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* data_set,
     const double* core_distances, bool self_edges,
     DistanceCalculator distance_function, size_t n_pts, size_t point_dimension, double** distance_matrix) {
 
-    #ifdef __AVX512__
     std::ofstream timing("mst_timings/nobitset_nocalcdistances_avx512.csv");
-    
+
     unsigned long long start = start_tsc();
     size_t self_edge_capacity = self_edges ? n_pts : 0;
     const double DOUBLE_MAX = DBL_MAX;
@@ -2016,9 +2009,9 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* da
     unsigned long long end = stop_tsc(start);
 
     timing << "Setup," << end << "\n";
-    
+
     start = start_tsc();
-    // Calculate MRD 
+    // Calculate MRD
     double** mrd_matrix = CreateAlignedDouble2D(n_pts, n_pts);
 
     for(size_t pt_x = 0; pt_x < n_pts; ++pt_x) {
@@ -2081,7 +2074,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* da
     __m512d dbl_max = _mm512_set1_pd(DBL_MAX);
     start = start_tsc();
     for(; num_attached_points < n_pts; ++num_attached_points) {
-        // find index of minimal mrd 
+        // find index of minimal mrd
         double* row = mrd_matrix[current_point];
         __m512i_u min_index = _mm512_setzero_si512();
         __m512d min_value = _mm512_set1_pd(DBL_MAX);
@@ -2106,7 +2099,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* da
             __mmask8 lt_mask = _mm512_cmplt_pd_mask(mrd, nearest_mrd);
             nearest_mrd = _mm512_mask_blend_pd(lt_mask, nearest_mrd, mrd);
             nearest_neighbors = _mm512_mask_blend_epi64(lt_mask, nearest_neighbors, current_point_intr);
-            
+
             _mm512_store_pd(nearest_mrd_distances + j, nearest_mrd);
             _mm512_store_si512((__m512i *)(nearest_mrd_neighbors + j), nearest_neighbors);
 
@@ -2114,7 +2107,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* da
             __mmask8 le_mask = _mm512_cmple_pd_mask(nearest_mrd, min_value);
             le_mask = max_mask & le_mask;
 
-            min_value = _mm512_mask_blend_pd(le_mask, min_value, nearest_mrd); 
+            min_value = _mm512_mask_blend_pd(le_mask, min_value, nearest_mrd);
             min_index = _mm512_mask_blend_epi64(le_mask, min_index, possible_indices);
         }
 
@@ -2134,7 +2127,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* da
                 min_values[3] = nearest_mrd_distances[j] ;
             }
         }
-        
+
         double min_value_final = fmin(fmin(fmin(min_values[0], min_values[1]), min_values[2]), min_values[3]);
         current_point = 0;
         if(min_values[0] == min_value_final) {
@@ -2151,7 +2144,7 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* da
         }
     }
     end = stop_tsc(start);
-    timing << "MST Compute," << end << "\n"; 
+    timing << "MST Compute," << end << "\n";
     for(size_t i = 0; i < n_pts; ++i) {
         free(mrd_matrix[i]);
     }
@@ -2178,8 +2171,5 @@ UndirectedGraph_C* ConstructMST_NoBitset_NoCalcDistances_AVX512(const double* da
     end = stop_tsc(start);
     timing << "Construct graph," << end;
     return result;
-    #else
-    std::cout << "\n\n!!!!!!!\n\nAVX512 not available! Running 256 so we don't break things!\n!!!!!!!!!!" << std::endl;
-    return ConstructMST(data_set, core_distances, self_edges, distance_function, n_pts, point_dimension, distance_matrix);
-    #endif
 }
+#endif //__AVX512__

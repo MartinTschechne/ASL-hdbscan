@@ -37,19 +37,24 @@ void RunBenchmarking(RunnerConfig config) {
     UDG_Free(mst);
     mst = ConstructMST_Unrolled_Bitset_NoCalc(data_set, core_distances, true, dist_fun, num_points, num_dimensions, distance_matrix);
     UDG_Free(mst);
+    #ifdef __AVX2__
     mst = ConstructMST_Bitset_NoCalc_AVX(data_set, core_distances, true, dist_fun, num_points, num_dimensions, distance_matrix);
     UDG_Free(mst);
     mst = ConstructMST_Bitset_NoCalc_AVX_Unrolled_2(data_set, core_distances, true, dist_fun, num_points, num_dimensions, distance_matrix);
     UDG_Free(mst);
     mst = ConstructMST_Bitset_NoCalc_AVX_Unrolled_4(data_set, core_distances, true, dist_fun, num_points, num_dimensions, distance_matrix);
     UDG_Free(mst);
+    #endif //__AVX2__
+
     if(!FLAGS_disable_nobitset) {
         mst = ConstructMST_Unrolled_NoBitset_CalcDistances(data_set, core_distances, true, dist_fun, num_points, num_dimensions, distance_matrix);
         UDG_Free(mst);
         mst = ConstructMST_Unrolled_NoBitset_NoCalcDistances(data_set, core_distances, true, dist_fun, num_points, num_dimensions, distance_matrix);
         UDG_Free(mst);
+        #ifdef __AVX2__
         mst = ConstructMST_NoBitset_NoCalcDistances_AVX256(data_set, core_distances, true, dist_fun, num_points, num_dimensions, distance_matrix);
         UDG_Free(mst);
+        #endif //__AVX2__
     }
 }
 

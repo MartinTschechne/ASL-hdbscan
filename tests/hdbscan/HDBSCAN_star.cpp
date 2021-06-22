@@ -78,6 +78,7 @@ TEST(HDBSCAN_Star, core_distances_symmetry) {
     delete[] core_distances_symmetry;
 }
 
+#ifdef __AVX2__
 TEST(HDBSCAN_Star, core_distances_blocked) {
     std::string file_name = "../tests/data/example_data_set.csv";
     size_t num_pts = 500;
@@ -91,6 +92,9 @@ TEST(HDBSCAN_Star, core_distances_blocked) {
     double* core_distances_blocked_t = CalculateCoreDistancesBlocked_Euclidean_Transpose(data_set_t, 3, EuclideanDistance, num_pts, dim, d);
     double* core_distances = CalculateCoreDistancesSymmetry(data_set, 3, EuclideanDistance, num_pts, dim, d2);
 
+    for(size_t i = 0; i < num_pts; ++i) {
+        core_distances_blocked[i] = sqrt(core_distances_blocked[i]);
+    }
     ASSERT_DOUBLE_EQ(core_distances_blocked[0], 0.2049413436136352);
     ASSERT_DOUBLE_EQ(core_distances_blocked_t[0], 0.2049413436136352);
 
@@ -105,6 +109,7 @@ TEST(HDBSCAN_Star, core_distances_blocked) {
     delete[] core_distances;
     delete[] core_distances_blocked;
 }
+#endif//__AVX2__
 
 TEST(HDBSCAN_Star, create_tree) {
     std::filesystem::create_directory("test_output");

@@ -8,8 +8,8 @@
 #include <benchmark/tsc_x86.h>
 
 DEFINE_int64(num_runs, 2, "How often to run the function");
-DEFINE_int64(num_points, 10, "How many points to include in the dataset");
-DEFINE_int64(num_dims, 10, "How many dimensions the points should have");
+DEFINE_int64(num_points, 1024, "How many points to include in the dataset");
+DEFINE_int64(num_dims, 2, "How many dimensions the points should have");
 
 #define CYCLES_REQUIRED 1e8
 #define CALIBRATE
@@ -48,7 +48,7 @@ void fill_data(double* data, const size_t num_points, const size_t dim) {
 void RunBenchmarking() {
     #ifdef __AVX2__
     size_t num_fun = 5;
-    #else 
+    #else
     size_t num_fun = 3;
     #endif
 
@@ -70,7 +70,7 @@ void RunBenchmarking() {
             for (size_t i = 0; i < num_runs; ++i) {
                 result = CalculateCoreDistancesSymmetry(dataset, 5, core_dist_fun, FLAGS_num_points, FLAGS_num_dims, dist_mat);
                 free(result);
-        
+
             }
             cycles = stop_tsc(start);
 
@@ -90,57 +90,86 @@ void RunBenchmarking() {
         printf("%s,%li,%li,%lu\n", functions[f].fname.c_str(), FLAGS_num_points, FLAGS_num_dims, cycles);
     }
     num_runs = FLAGS_num_runs;
+#ifdef __AVX2__
 #ifdef CALIBRATE
     cycles = 0;
     while(num_runs < (1 << 14)) {
-            start = start_tsc();
-            for (size_t i = 0; i < num_runs; ++i) {
-                result = CalculateCoreDistancesSymmetry_blocked(dataset, 5, EuclideanDistance_FMA, FLAGS_num_points, FLAGS_num_dims, dist_mat);
-                free(result);
-            }
-            cycles = stop_tsc(start);
-
-            if(cycles >= CYCLES_REQUIRED) break;
-
-            num_runs *= 2;
-        }
-#endif  
-        cycles = 0;
-        for (size_t i = 0; i < FLAGS_num_runs; ++i) {
-            start = start_tsc();
+        start = start_tsc();
+        for (size_t i = 0; i < num_runs; ++i) {
             result = CalculateCoreDistancesSymmetry_blocked(dataset, 5, EuclideanDistance_FMA, FLAGS_num_points, FLAGS_num_dims, dist_mat);
-            cycles += stop_tsc(start);
             free(result);
         }
-        cycles /= (FLAGS_num_runs*FLAGS_num_points);
-        printf("%s,%li,%li,%lu\n", "Symmetry+Blocking", FLAGS_num_points, FLAGS_num_dims, cycles);
+        cycles = stop_tsc(start);
 
-        num_runs = FLAGS_num_runs;
+        if(cycles >= CYCLES_REQUIRED) break;
+
+        num_runs *= 2;
+        }
+#endif
+    cycles = 0;
+    for (size_t i = 0; i < FLAGS_num_runs; ++i) {
+        start = start_tsc();
+        result = CalculateCoreDistancesSymmetry_blocked(dataset, 5, EuclideanDistance_FMA, FLAGS_num_points, FLAGS_num_dims, dist_mat);
+        cycles += stop_tsc(start);
+        free(result);
+    }
+    cycles /= (FLAGS_num_runs*FLAGS_num_points);
+    printf("%s,%li,%li,%lu\n", "Symmetry+Blocking", FLAGS_num_points, FLAGS_num_dims, cycles);
+
+    num_runs = FLAGS_num_runs;
 #ifdef CALIBRATE
     cycles = 0;
     while(num_runs < (1 << 14)) {
-            start = start_tsc();
-            for (size_t i = 0; i < num_runs; ++i) {
-                result = CalculateCoreDistancesBlocked_Euclidean(dataset, 5, nullptr, FLAGS_num_points, FLAGS_num_dims, dist_mat);
-                free(result);
-            }
-            cycles += stop_tsc(start);
-
-            if(cycles >= CYCLES_REQUIRED) break;
-
-            num_runs *= 2;
-        }
-#endif  
-        cycles = 0;
-        for (size_t i = 0; i < FLAGS_num_runs; ++i) {
-            start = start_tsc();
+        start = start_tsc();
+        for (size_t i = 0; i < num_runs; ++i) {
             result = CalculateCoreDistancesBlocked_Euclidean(dataset, 5, nullptr, FLAGS_num_points, FLAGS_num_dims, dist_mat);
-            cycles += stop_tsc(start);
             free(result);
         }
-        cycles /= (FLAGS_num_runs*FLAGS_num_points);
-        printf("%s,%li,%li,%lu\n", "Blocking Optimized", FLAGS_num_points, FLAGS_num_dims, cycles);
+        cycles += stop_tsc(start);
+
+        if(cycles >= CYCLES_REQUIRED) break;
+
+        num_runs *= 2;
+    }
+#endif
+    cycles = 0;
+    for (size_t i = 0; i < FLAGS_num_runs; ++i) {
+        start = start_tsc();
+        result = CalculateCoreDistancesBlocked_Euclidean(dataset, 5, nullptr, FLAGS_num_points, FLAGS_num_dims, dist_mat);
+        cycles += stop_tsc(start);
+        free(result);
+    }
+    cycles /= (FLAGS_num_runs*FLAGS_num_points);
+    printf("%s,%li,%li,%lu\n", "Blocking Optimized", FLAGS_num_points, FLAGS_num_dims, cycles);
+
+    num_runs = FLAGS_num_runs;
+#ifdef CALIBRATE
+    cycles = 0;
+    while(num_runs < (1 << 14)) {
+        start = start_tsc();
+        for (size_t i = 0; i < num_runs; ++i) {
+            result = CalculateCoreDistancesBlocked_Euclidean_Adaptive(dataset, 5, nullptr, FLAGS_num_points, FLAGS_num_dims, dist_mat);
+            free(result);
+        }
+        cycles += stop_tsc(start);
+
+        if(cycles >= CYCLES_REQUIRED) break;
+
+        num_runs *= 2;
+    }
+#endif
+    cycles = 0;
+    for (size_t i = 0; i < FLAGS_num_runs; ++i) {
+        start = start_tsc();
+        result = CalculateCoreDistancesBlocked_Euclidean_Adaptive(dataset, 5, nullptr, FLAGS_num_points, FLAGS_num_dims, dist_mat);
+        cycles += stop_tsc(start);
+        free(result);
+    }
+    cycles /= (FLAGS_num_runs*FLAGS_num_points);
+    printf("%s,%li,%li,%lu\n", "Blocking Optimized & Adaptive", FLAGS_num_points, FLAGS_num_dims, cycles);
+#endif //__AVX2__
 }
+
 
 int main(int argc, char** argv) {
     if (argc == 0) {
