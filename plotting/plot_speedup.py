@@ -19,4 +19,5 @@ for p in ax.patches:
     ax.annotate(f"{p.get_height():.2f}",(p.get_x()+p.get_width()/2., p.get_height()),ha='center',va='center',xytext=(0, 10),textcoords='offset points')
 plt.title(f'Speedup for {sys.argv[3]}')
 plt.tight_layout()
-plt.savefig('speedup.png', bbox_inches='tight')
+# plt.savefig('speedup.pdf', bbox_inches='tight')
+plt.show()

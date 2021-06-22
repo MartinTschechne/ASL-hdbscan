@@ -13,8 +13,8 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument(
-        '--python_reference', type=str, required=True, help='Path python reference output.')
+    # parser.add_argument(
+    #     '--python_reference', type=str, required=True, help='Path python reference output.')
     parser.add_argument(
         '--ours', type=str, required=True, help='Path to our best benchmark measurements_runner_*.txt output.')
     parser.add_argument(
@@ -23,11 +23,11 @@ def main():
     cfg = parser.parse_args()
 
     # read reference measurement output
-    with open(cfg.python_reference,'r') as f:
-        ref = f.read()
-    f.close()
+    # with open(cfg.python_reference,'r') as f:
+    #     ref = f.read()
+    # f.close()
 
-    ref = float(ref.split('\n')[-2].split(' ')[-2])/1000 # in seconds
+    ref = 126.58 # float(ref.split('\n')[-2].split(' ')[-2])/1000 # in seconds
 
     # read our fastest measurement
     df = pd.read_csv(cfg.ours, skiprows=7, index_col='Region')
@@ -40,10 +40,11 @@ def main():
     res.plot(kind='bar', ax=ax, rot=0, legend=False)
     for p in ax.patches:
         ax.annotate(f"{p.get_height():.2f}",(p.get_x()+p.get_width()/2., p.get_height()),ha='center',va='center',xytext=(0, 10),textcoords='offset points')
-    plt.title(f"Speedup = {ref/ours :.2f} @ {cfg.cpu_freq} GHz")
+    plt.title(f"Speedup = {ref/ours :.2f}")
     plt.ylabel("Execution time [sec]")
     plt.tight_layout()
-    plt.savefig("comparison.png",bbox_inches='tight')
+    # plt.show()
+    plt.savefig("comparison.pdf",bbox_inches='tight')
     return 0
 
 if __name__ == '__main__':
