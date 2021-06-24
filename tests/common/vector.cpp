@@ -146,8 +146,6 @@ TEST(vector, primitive_types) {
     for (size_t i = 0; i < vector_size(&v); i++) {
         ASSERT_EQ(*(double*)vector_get(&v, i), b[i]);
     }
-
-    vector_free(&v);
 }
 
 TEST(vector, insert_AVX) {
