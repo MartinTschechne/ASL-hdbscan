@@ -129,8 +129,8 @@ size_t Map_erase(Map* m, size_t key) {
         size_t pos = OS_find(m->keys, key);
         next_index = pos;
         if (pos != OS_end(m->keys)) {
-            OS_erase(m->keys, key);
-            vector_erase(m->values, pos);
+            OS_erase_AVX(m->keys, key);
+            vector_erase_AVX(m->values, pos);
             m->size--;
         }
     }
@@ -143,8 +143,8 @@ size_t Map_erase_AVX(Map* m, size_t key) {
         size_t pos = OS_find(m->keys, key);
         next_index = pos;
         if (pos != OS_end(m->keys)) {
-            OS_erase_AVX(m->keys, key);
-            vector_erase_AVX(m->values, pos);
+            OS_erase(m->keys, key);
+            vector_erase(m->values, pos);
             m->size--;
         }
     }

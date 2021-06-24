@@ -195,6 +195,10 @@ bool OS_contains(const OrderedSet* os, size_t value);
  * @return true If the key is contained in set s
  * @return false Otherwise
  */
+bool OS_contains(const OrderedSet* os, size_t value);
+
+/**
+ * @brief Returns the index where to insert key into ordered set
 bool OS_contains_AVX(const OrderedSet* os, size_t value);
 
 /**

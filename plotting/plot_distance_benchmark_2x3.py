@@ -25,27 +25,27 @@ def main():
 
     opt_names = measurements_df.NAME.unique().tolist()
     opt_names.remove("Baseline")
+    opt_names.remove("Blocking Optimized")
 
     base_df = measurements_df[measurements_df.NAME=="Baseline"]
     base_df = base_df.pivot("NUM_POINTS","DIM","CYC")
 
-
-    fig, axes = plt.subplots(len(opt_names),2,figsize=(10,5*len(opt_names)))
+    scale = 4
+    fig, axes = plt.subplots(2,3,figsize=(4*scale,2.5*scale))
     if len(opt_names) == 1: # make subplots array 2d, even if we only have a single optimization
         axes = [axes]
-    fig.suptitle(f"{benchmark_name.split('_')[-1]}")
-    for i, on in enumerate(opt_names):
+    for on, ax in zip(opt_names, axes.ravel()):
         opt_df = measurements_df[measurements_df.NAME==on]
         opt_df = opt_df.pivot("NUM_POINTS","DIM","CYC")
-        sns.heatmap(opt_df,ax=axes[i][0],annot=True,fmt=".1f",linewidth=.5)
-        axes[i][0].set_title(f"{on} Cycles per point")
+        # sns.heatmap(opt_df,ax=axes[i][0],annot=True,fmt="d",linewidth=.5)
+        # axes[i][0].set_title(f"{on} Cycles per point")
         speedup = base_df/opt_df
-        sns.heatmap(speedup,ax=axes[i][1],annot=True,fmt=".2f",linewidth=.5)
-        axes[i][1].set_title(f"{on} Speed Up")
+        sns.heatmap(speedup,ax=ax,annot=True,fmt=".2f",linewidth=.5,vmin=0.75,vmax=10.25)
+        ax.set_title(f"{on} Speed Up")
 
     plt.tight_layout()
     if cfg.save_path:
-        plt.savefig(f"{cfg.save_path}/{benchmark_name}.png",dpi=100)
+        plt.savefig(f"{cfg.save_path}/{benchmark_name}.pdf",dpi=100)
     else:
         plt.show()
 
