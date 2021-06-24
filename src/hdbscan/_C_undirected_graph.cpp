@@ -55,7 +55,7 @@ UndirectedGraph_C* UDG_Create_Fast(size_t num_vertices, size_t* vertices_A,
        vector_push_back(udg->edges_, (void*)vector_create(10));
     }
 
-    for (int i = 0; i < udg->edge_weights_length_; i++) {       
+    for (int i = 0; i < udg->edge_weights_length_; i++) {
         size_t* vertex_one = (size_t*)malloc(sizeof(size_t));
         *vertex_one = vertices_A[i];
         size_t* vertex_two = (size_t*)malloc(sizeof(size_t));

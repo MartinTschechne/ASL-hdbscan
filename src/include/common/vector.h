@@ -29,7 +29,7 @@ vector* vector_create();
 
 /**
  * @brief Allocates memory for payload and initializes a vector with custom capacity at an existing vector pointer
- * 
+ *
  * @return Initialized vector
  */
 vector* vector_create(size_t num_elements);
