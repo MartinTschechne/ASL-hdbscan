@@ -51,7 +51,7 @@ Adapt the num_runs parameter to taste
 
 ## Benchmarking with LIKWID
 
-In order to benchmark with LIKWID you need to checkou out the `82-benchmark-with-likwid-v2` branch.
+In order to benchmark with LIKWID you need to checkout out the `82-benchmark-with-likwid-v2` branch.
 Depending on your setup you might have to adjust the MSR rights on your machine, which can be done the following way:
 ```
 sudo modprobe msr
@@ -59,7 +59,6 @@ sudo modprobe msr
 
 An example on how to run LIKWID is given in `run_files/run_likwid.sh`.
 For further information on LIKWID you can check the official documentation [here](https://github.com/RRZE-HPC/likwid/wiki).
-
 
 [LIKWID benchmarking results](/results/likwid/)
 
