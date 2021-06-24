@@ -7,6 +7,11 @@ Project work for the course [Advanced Systems Lab](http://www.vvz.ethz.ch/Vorles
 * Martin Tschechne
 * Robin Worreby
 
+# Report
+[Team 33 Final Report](/report/33_report.pdf)
+
+# Code
+
 ## Building and running 
 Create the build directory and run cmake and then make. The optimization level can be set from the command line using 
 ```
@@ -30,20 +35,27 @@ This information can also be accessed by executing
 hdbscan -help
 ```
 
-## Benchmarking
+# Benchmarking
 Different build variants (compiler optimizations) can be added in CMakeLists. To create a new build variant add 
 ```
 build_hdbscan_benchmarking("-O3")
 ```
 to CMakeLists and change `-O3` to whatever flag you want. All builds will be written to `build/benchmarking` with name `hdbscan<OPTIMIZATION FLAG>` (without <>). These executables can then e.g. be used by a python script to create the plots.
 
-### Benchmark MST 
+## Benchmark MST 
 From the plotting folder execute
 ```
 python3 plot_mst_benchmark.py --points_file=../data/unit_tests/example_high_dim_10000_32.csv --num_points=10000 --num_dimension=32 --recompute --output_name=results_10k --title_heatmap="Relative speed-up 10k points, 32 dimensions" --title_bar="Cycles by optimization, 10k points, 32 dimensions" --disable_nobitset --num_runs=2
 ```
 Adapt the num_runs paramter to taste
 
-## Literature
+# Benchmarking results
+
+![final comparison](/results/comparison.png "Compared to sklearn-contrib high-perf HDBSCAN")
+[Distances](/results/distances/)
+[MST](/results/mst/)
+
+
+# Literature
 [Hierarchical Density Estimates for Data Clustering, Visualization, and Outlier Detection](https://dl.acm.org/doi/10.1145/2733381)  
 [Accelerated Hierarchical Density Clustering](https://arxiv.org/abs/1705.07321)
