@@ -52,8 +52,10 @@ Adapt the num_runs paramter to taste
 # Benchmarking results
 
 ![final comparison](/results/comparison.png "Compared to sklearn-contrib high-perf HDBSCAN")
-[Distances](/results/distances/)
-[MST](/results/mst/)
+
+[Raw distance benchmarking results](/results/distances/)
+
+[Raw MST benchmarking results](/results/mst/)
 
 
 # Literature
