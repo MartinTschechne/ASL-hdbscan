@@ -8,7 +8,7 @@ Project work for the course [Advanced Systems Lab](http://www.vvz.ethz.ch/Vorles
 * Robin Worreby
 
 # Report
-[Team 33 Final Report](/report/33_report.pdf)
+[Team 33 Final Report](/33_report.pdf)
 
 # Code
 
